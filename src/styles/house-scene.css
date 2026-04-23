@@ -1,0 +1,342 @@
+.house-scene {
+  width: 100%;
+}
+
+.house-scene__frame {
+  min-height: 720px;
+  border-radius: 32px;
+  background: linear-gradient(180deg, #eff4f1 0%, #e7efea 100%);
+  border: 1px solid #dde6e0;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.06);
+  padding: 18px 20px 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  transition: all 0.35s ease;
+}
+
+.house-container {
+  position: relative;
+  width: 112%;
+  max-width: 1225px;
+  margin: 0 auto;
+  transform: scale(1.06);
+  transform-origin: center 56%;
+}
+
+/* =========================
+   YARD PLANE (balanced)
+========================= */
+.house-container::before {
+  content: "";
+  position: absolute;
+  left: 52%;
+  bottom: 4%;
+  transform: translateX(-50%);
+  width: 140%;
+  height: 110%;
+  clip-path: polygon(46% 35%, 87% 63%, 49% 96%, 10% 65%);
+  background:
+    radial-gradient(
+      ellipse at center,
+      rgba(182, 220, 203, 0.24) 0%,
+      rgba(174, 212, 195, 0.18) 34%,
+      rgba(162, 202, 184, 0.12) 56%,
+      rgba(150, 192, 174, 0.06) 72%,
+      rgba(150, 192, 174, 0) 100%
+    );
+  filter: blur(26px);
+  opacity: 0.9;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* =========================
+   DRIVEWAY
+========================= */
+.house-container::after {
+  content: "";
+  position: absolute;
+  left: 93%;
+  bottom: 4%;
+  width: 34%;
+  height: 53%;
+  transform: translateX(-50%);
+  clip-path: polygon(
+    43% 26%,
+    97% 47%,
+    56% 67%,
+    8% 46%
+  );
+  background: linear-gradient(
+    30deg,
+    rgba(201, 206, 202, 0.22) 0%,
+    rgba(194, 199, 195, 0.20) 38%,
+    rgba(188, 194, 190, 0.18) 62%,
+    rgba(182, 188, 184, 0.17) 82%,
+    rgba(178, 184, 180, 0.16) 100%
+  );
+  filter: blur(8px);
+  opacity: 1;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* =========================
+   HOUSE
+========================= */
+.house-base {
+  width: 100%;
+  height: auto;
+  display: block;
+  position: relative;
+  z-index: 1;
+}
+
+.garage-door-frame-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: auto;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.light-layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: auto;
+  pointer-events: none;
+  z-index: 3;
+}
+
+/* =========================
+   DOOR BADGES
+========================= */
+.ios-door-badge-anchor {
+  position: absolute;
+  pointer-events: none;
+  z-index: 20;
+}
+
+.ios-door-badge {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  border-radius: 20px;
+  overflow: hidden;
+  isolation: isolate;
+  opacity: 0.96;
+  backdrop-filter: blur(14px) saturate(160%);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  box-shadow:
+    0 18px 34px rgba(0, 0, 0, 0.18),
+    0 6px 14px rgba(0, 0, 0, 0.12);
+}
+
+.ios-door-badge__frame {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: 1px solid rgba(255, 255, 255, 0.34);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.ios-door-badge__core {
+  position: absolute;
+  inset: 9px;
+  border-radius: 14px;
+  z-index: 1;
+}
+
+.ios-door-badge.is-locked .ios-door-badge__core {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 140, 135, 0.95),
+    rgba(242, 70, 64, 0.92)
+  );
+}
+
+.ios-door-badge.is-unlocked .ios-door-badge__core {
+  background: linear-gradient(
+    180deg,
+    rgba(80, 235, 165, 0.95),
+    rgba(20, 185, 105, 0.92)
+  );
+}
+
+.ios-door-badge__gloss {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.55),
+    rgba(255, 255, 255, 0.1),
+    transparent
+  );
+  z-index: 3;
+}
+
+.ios-door-badge__glare {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    130deg,
+    rgba(255, 255, 255, 0.7),
+    transparent 50%
+  );
+  z-index: 4;
+}
+
+.ios-door-badge__shimmer {
+  position: absolute;
+  top: -20%;
+  left: -60%;
+  width: 40%;
+  height: 140%;
+  transform: rotate(18deg);
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    rgba(255, 255, 255, 0.5),
+    transparent
+  );
+  opacity: 0;
+  will-change: left, opacity;
+}
+
+.ios-door-badge.is-pulsing .ios-door-badge__shimmer {
+  animation: shimmer 0.7s ease;
+}
+
+@keyframes shimmer {
+  0% { left: -60%; opacity: 0; }
+  30% { opacity: 0.7; }
+  100% { left: 120%; opacity: 0; }
+}
+
+.ios-door-badge__icon {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;
+}
+
+.ios-door-badge__icon svg {
+  width: 30px;
+  height: 30px;
+  fill: #fff;
+}
+
+.ios-door-badge.is-pulsing {
+  animation: bounce 0.45s ease;
+}
+
+@keyframes bounce {
+  0% { transform: scale(1); }
+  40% { transform: scale(0.92); }
+  70% { transform: scale(1.06); }
+  100% { transform: scale(1); }
+}
+
+/* =========================
+   CAMERA INDICATOR
+========================= */
+.house-overlay {
+  position: absolute;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  z-index: 4;
+}
+
+.house-overlay--camera {
+  left: 60%;
+  top: 23%;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: #00a650;
+}
+
+.house-scene--camera .house-overlay--camera,
+.house-scene--armed .house-overlay--camera {
+  opacity: 1;
+  animation: cameraPulse 1.8s infinite;
+}
+
+@keyframes cameraPulse {
+  0% { transform: scale(1); }
+  70% { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
+
+@media (max-width: 991px) {
+  .house-scene__frame {
+    min-height: 600px;
+    padding: 16px 16px 20px;
+  }
+
+  .house-container {
+    width: 116%;
+    max-width: 1160px;
+    transform: scale(1.04);
+    transform-origin: center 56%;
+  }
+
+  .ios-door-badge {
+    width: 56px;
+    height: 56px;
+    border-radius: 17px;
+  }
+
+  .ios-door-badge__core {
+    inset: 8px;
+    border-radius: 13px;
+  }
+
+  .ios-door-badge__icon svg {
+    width: 26px;
+    height: 26px;
+  }
+}
+
+@media (max-width: 767px) {
+  .house-scene__frame {
+    min-height: 470px;
+    padding: 14px;
+    border-radius: 24px;
+  }
+
+  .house-container {
+    width: 120%;
+    max-width: 1080px;
+    transform: scale(1.02);
+    transform-origin: center 56%;
+  }
+
+  .ios-door-badge {
+    width: 46px;
+    height: 46px;
+    border-radius: 14px;
+  }
+
+  .ios-door-badge__core {
+    inset: 7px;
+    border-radius: 11px;
+  }
+
+  .ios-door-badge__icon svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  .house-overlay--camera {
+    width: 14px;
+    height: 14px;
+  }
+}
