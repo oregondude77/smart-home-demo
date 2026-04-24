@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 
 const GARAGE_MAX_FRAME = 14;
-const GARAGE_FRAME_MS = 55;
+const GARAGE_FRAME_MS = 110;
 const DOOR_PULSE_MS = 700;
 
 function DoorBadge({ unlocked, pulsing }) {
@@ -62,6 +62,7 @@ export default function HouseScene({
 
   const frontMounted = useRef(false);
   const sideMounted = useRef(false);
+
   const frontTimeoutRef = useRef(null);
   const sideTimeoutRef = useRef(null);
   const frontRaf1Ref = useRef(null);
@@ -181,11 +182,19 @@ export default function HouseScene({
         <div className="house-container">
           <img src="/house-base.svg" alt="House base" className="house-base" />
 
-          <img
-            src={`/garage-door-${garageFrame}.svg`}
-            alt=""
-            className="garage-door-frame-image"
-          />
+          {Array.from({ length: GARAGE_MAX_FRAME + 1 }, (_, i) => (
+            <img
+              key={i}
+              src={`/garage-door-${i}.svg`}
+              alt=""
+              className={[
+                "garage-door-frame-image",
+                garageFrame === i ? "is-active" : "",
+              ]
+                .filter(Boolean)
+                .join(" ")}
+            />
+          ))}
 
           {upstairsBedroomOn && (
             <img
