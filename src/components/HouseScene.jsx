@@ -70,6 +70,23 @@ export default function HouseScene({
   const sideRaf2Ref = useRef(null);
 
   useEffect(() => {
+    const imagesToPreload = [
+      "/house-base.svg",
+      "/light-bedroom-upstairs.svg",
+      "/light-living-downstairs.svg",
+    ];
+
+    for (let i = 0; i <= GARAGE_MAX_FRAME; i += 1) {
+      imagesToPreload.push(`/garage-door-${i}.svg`);
+    }
+
+    imagesToPreload.forEach((src) => {
+      const img = new Image();
+      img.src = src;
+    });
+  }, []);
+
+  useEffect(() => {
     let timer;
 
     if (garageOpen) {
