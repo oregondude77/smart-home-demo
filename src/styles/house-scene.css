@@ -105,8 +105,8 @@
 
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.12s linear;
-  will-change: opacity;
+  transition: none;
+  will-change: auto;
   transform: translateZ(0);
 }
 
