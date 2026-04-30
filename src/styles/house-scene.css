@@ -26,30 +26,145 @@
 }
 
 /* =========================
-   YARD PLANE
+   SYSTEM STATUS MESSAGE
+========================= */
+.system-status {
+  position: absolute;
+  top: 8%;
+  left: 50%;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 18px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: #fff;
+  background: rgba(18, 24, 20, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow:
+    0 10px 24px rgba(0, 0, 0, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  z-index: 80;
+  pointer-events: none;
+  animation: systemFade 2s ease forwards;
+}
+
+.system-status__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.system-status__icon svg {
+  width: 16px;
+  height: 16px;
+  fill: #ffffff;
+  display: block;
+  opacity: 0.95;
+  filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.25));
+}
+
+.system-status__text {
+  display: inline-block;
+}
+
+.house-scene--armed .system-status {
+  background: rgba(210, 45, 50, 0.88);
+}
+
+.house-scene--disarmed .system-status {
+  background: rgba(20, 165, 95, 0.88);
+}
+
+@keyframes systemFade {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(12px);
+  }
+
+  15% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  75% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-10px);
+  }
+}
+
+/* =========================
+   BASE GLOW SYSTEM
 ========================= */
 .house-container::before {
   content: "";
   position: absolute;
-  left: 52%;
-  bottom: 4%;
+  left: 50%;
+  bottom: 8%;
   transform: translateX(-50%);
-  width: 140%;
-  height: 110%;
-  clip-path: polygon(46% 35%, 87% 63%, 49% 96%, 10% 65%);
+  width: 105%;
+  height: 78%;
+  border-radius: 999px;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.9;
+  filter: blur(34px);
+  transition: opacity 0.35s ease, filter 0.35s ease, background 0.35s ease;
+}
+
+.house-scene--disarmed .house-container::before {
   background:
     radial-gradient(
       ellipse at center,
-      rgba(182, 220, 203, 0.24) 0%,
-      rgba(174, 212, 195, 0.18) 34%,
-      rgba(162, 202, 184, 0.12) 56%,
-      rgba(150, 192, 174, 0.06) 72%,
-      rgba(150, 192, 174, 0) 100%
+      rgba(12, 120, 70, 0.28) 0%,
+      rgba(24, 185, 105, 0.22) 24%,
+      rgba(70, 235, 155, 0.12) 48%,
+      rgba(80, 235, 165, 0.045) 72%,
+      rgba(80, 235, 165, 0.012) 86%,
+      rgba(80, 235, 165, 0) 100%
     );
-  filter: blur(26px);
+  opacity: 0.82;
+}
+
+.house-scene--armed .house-container::before {
+  background:
+    radial-gradient(
+      ellipse at center,
+      rgba(120, 16, 22, 0.34) 0%,
+      rgba(205, 35, 45, 0.26) 24%,
+      rgba(255, 75, 80, 0.14) 48%,
+      rgba(255, 95, 95, 0.055) 72%,
+      rgba(255, 95, 95, 0.014) 86%,
+      rgba(255, 95, 95, 0) 100%
+    );
   opacity: 0.9;
-  z-index: 0;
-  pointer-events: none;
+  animation: armedBaseBreath 2.8s ease-in-out infinite;
+}
+
+@keyframes armedBaseBreath {
+  0% {
+    opacity: 0.66;
+    transform: translateX(-50%) scale(0.98);
+  }
+
+  50% {
+    opacity: 0.95;
+    transform: translateX(-50%) scale(1.035);
+  }
+
+  100% {
+    opacity: 0.66;
+    transform: translateX(-50%) scale(0.98);
+  }
 }
 
 /* =========================
@@ -84,6 +199,66 @@
 }
 
 /* =========================
+   SECURITY PERIMETER
+========================= */
+.security-perimeter {
+  position: absolute;
+  left: 52%;
+  bottom: 10%;
+  width: 112%;
+  height: 70%;
+  transform: translateX(-50%);
+  border-radius: 999px;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0;
+}
+
+.house-scene--disarmed .security-perimeter {
+  opacity: 1;
+  background:
+    radial-gradient(
+      ellipse at center,
+      rgba(30, 215, 125, 0.20) 0%,
+      rgba(30, 190, 115, 0.10) 38%,
+      rgba(30, 190, 115, 0.035) 62%,
+      rgba(30, 190, 115, 0) 82%
+    );
+  filter: blur(18px);
+}
+
+.house-scene--armed .security-perimeter {
+  opacity: 1;
+  background:
+    radial-gradient(
+      ellipse at center,
+      rgba(255, 62, 72, 0.24) 0%,
+      rgba(230, 40, 50, 0.14) 38%,
+      rgba(230, 40, 50, 0.045) 62%,
+      rgba(230, 40, 50, 0) 82%
+    );
+  filter: blur(20px);
+  animation: securityBreath 2.8s ease-in-out infinite;
+}
+
+@keyframes securityBreath {
+  0% {
+    opacity: 0.58;
+    transform: translateX(-50%) scale(0.98);
+  }
+
+  50% {
+    opacity: 1;
+    transform: translateX(-50%) scale(1.04);
+  }
+
+  100% {
+    opacity: 0.58;
+    transform: translateX(-50%) scale(0.98);
+  }
+}
+
+/* =========================
    HOUSE
 ========================= */
 .house-base {
@@ -92,9 +267,11 @@
   display: block;
   position: relative;
   z-index: 1;
+  filter:
+    drop-shadow(0 24px 26px rgba(0, 0, 0, 0.10))
+    drop-shadow(0 8px 10px rgba(0, 0, 0, 0.06));
 }
 
-/* smoother pre-rendered garage frames */
 .garage-door-frame-image {
   position: absolute;
   inset: 0;
@@ -102,7 +279,6 @@
   height: auto;
   pointer-events: none;
   z-index: 3;
-
   opacity: 0;
   visibility: hidden;
   transition: none;
@@ -158,13 +334,14 @@
   border-radius: inherit;
   border: 1px solid rgba(255, 255, 255, 0.34);
   background: rgba(255, 255, 255, 0.08);
+  z-index: 1;
 }
 
 .ios-door-badge__core {
   position: absolute;
   inset: 9px;
   border-radius: 14px;
-  z-index: 1;
+  z-index: 2;
 }
 
 .ios-door-badge.is-locked .ios-door-badge__core {
@@ -220,6 +397,7 @@
     transparent
   );
   opacity: 0;
+  z-index: 6;
   will-change: left, opacity;
 }
 
@@ -239,13 +417,15 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 5;
+  z-index: 10;
+  pointer-events: none;
 }
 
 .ios-door-badge__icon svg {
   width: 30px;
   height: 30px;
   fill: #fff;
+  display: block;
 }
 
 .ios-door-badge.is-pulsing {
@@ -279,8 +459,7 @@
   background: #00a650;
 }
 
-.house-scene--camera .house-overlay--camera,
-.house-scene--armed .house-overlay--camera {
+.house-scene--camera .house-overlay--camera {
   opacity: 1;
   animation: cameraPulse 1.8s infinite;
 }
@@ -355,4 +534,34 @@
     width: 14px;
     height: 14px;
   }
+}
+.house-shadow-layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: auto;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 1;
+}
+
+.house-logo {
+  position: absolute;
+
+  /* move DOWN and slightly RIGHT into the scene */
+  top: 40px;
+  left: 32px;
+
+  /* make it noticeably larger */
+  width: 150px;
+  height: auto;
+
+  z-index: 30;
+
+  opacity: 0.95;
+
+  /* keep it crisp */
+  transform: translateZ(0);
+
+  pointer-events: none;
 }

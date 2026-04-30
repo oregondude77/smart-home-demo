@@ -5,6 +5,23 @@ import { useEffect, useRef, useState } from "react";
 const GARAGE_MAX_FRAME = 14;
 const GARAGE_FRAME_MS = 110;
 const DOOR_PULSE_MS = 700;
+const SYSTEM_MESSAGE_MS = 2000;
+
+function LockIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M17 10h-1V7a4 4 0 1 0-8 0v3H7a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2Zm-7-3a2 2 0 1 1 4 0v3h-4V7Zm2 10a1.5 1.5 0 1 1 1.5-1.5A1.5 1.5 0 0 1 12 17Z" />
+    </svg>
+  );
+}
+
+function UnlockIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M17 10h-6V7a2 2 0 1 1 4 0 1 1 0 1 0 2 0 4 4 0 1 0-8 0v3H7a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2Zm-5 7a1.5 1.5 0 1 1 1.5-1.5A1.5 1.5 0 0 1 12 17Z" />
+    </svg>
+  );
+}
 
 function DoorBadge({ unlocked, pulsing }) {
   return (
@@ -13,10 +30,7 @@ function DoorBadge({ unlocked, pulsing }) {
         "ios-door-badge",
         unlocked ? "is-unlocked" : "is-locked",
         pulsing ? "is-pulsing" : "",
-      ]
-        .filter(Boolean)
-        .join(" ")}
-      aria-hidden="true"
+      ].filter(Boolean).join(" ")}
     >
       <div className="ios-door-badge__frame" />
       <div className="ios-door-badge__core" />
@@ -25,15 +39,7 @@ function DoorBadge({ unlocked, pulsing }) {
       <div className="ios-door-badge__shimmer" />
 
       <div className="ios-door-badge__icon">
-        {unlocked ? (
-          <svg viewBox="0 0 24 24" role="presentation" aria-hidden="true">
-            <path d="M17 10h-6V7a2 2 0 1 1 4 0 1 1 0 1 0 2 0 4 4 0 1 0-8 0v3H7a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2Zm-5 7a1.5 1.5 0 1 1 1.5-1.5A1.5 1.5 0 0 1 12 17Z" />
-          </svg>
-        ) : (
-          <svg viewBox="0 0 24 24" role="presentation" aria-hidden="true">
-            <path d="M17 10h-1V7a4 4 0 1 0-8 0v3H7a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2Zm-7-3a2 2 0 1 1 4 0v3h-4V7Zm2 10a1.5 1.5 0 1 1 1.5-1.5A1.5 1.5 0 0 1 12 17Z" />
-          </svg>
-        )}
+        {unlocked ? <UnlockIcon /> : <LockIcon />}
       </div>
     </div>
   );
@@ -41,7 +47,7 @@ function DoorBadge({ unlocked, pulsing }) {
 
 function DoorBadgeAnchor({ unlocked, pulsing, style = {} }) {
   return (
-    <div className="ios-door-badge-anchor" style={style} aria-hidden="true">
+    <div className="ios-door-badge-anchor" style={style}>
       <DoorBadge unlocked={unlocked} pulsing={pulsing} />
     </div>
   );
@@ -59,70 +65,89 @@ export default function HouseScene({
   const [garageFrame, setGarageFrame] = useState(0);
   const [frontPulse, setFrontPulse] = useState(false);
   const [sidePulse, setSidePulse] = useState(false);
+  const [systemMessage, setSystemMessage] = useState("");
+  const [systemMessageKey, setSystemMessageKey] = useState(0);
 
   const frontMounted = useRef(false);
   const sideMounted = useRef(false);
+  const systemMounted = useRef(false);
 
   const frontTimeoutRef = useRef(null);
   const sideTimeoutRef = useRef(null);
+  const systemTimeoutRef = useRef(null);
+
   const frontRaf1Ref = useRef(null);
   const frontRaf2Ref = useRef(null);
   const sideRaf1Ref = useRef(null);
   const sideRaf2Ref = useRef(null);
 
+  /* PRELOAD */
   useEffect(() => {
-    const imagesToPreload = [
+    const images = [
       "/house-base.svg",
+      "/house-shadow.svg",
       "/light-bedroom-upstairs.svg",
       "/light-living-downstairs.svg",
+      "/alert-360-logo.svg",
     ];
 
-    for (let i = 0; i <= GARAGE_MAX_FRAME; i += 1) {
-      imagesToPreload.push(`/garage-door-${i}.svg`);
+    for (let i = 0; i <= GARAGE_MAX_FRAME; i++) {
+      images.push(`/garage-door-${i}.svg`);
     }
 
-    imagesToPreload.forEach((src) => {
+    images.forEach((src) => {
       const img = new Image();
       img.src = src;
     });
   }, []);
 
+  /* GARAGE */
   useEffect(() => {
     let timer;
 
     if (garageOpen) {
       timer = setInterval(() => {
-        setGarageFrame((prev) => {
-          if (prev >= GARAGE_MAX_FRAME) {
-            clearInterval(timer);
-            return prev;
-          }
-          return prev + 1;
-        });
+        setGarageFrame((prev) =>
+          prev >= GARAGE_MAX_FRAME ? prev : prev + 1
+        );
       }, GARAGE_FRAME_MS);
     } else {
       timer = setInterval(() => {
-        setGarageFrame((prev) => {
-          if (prev <= 0) {
-            clearInterval(timer);
-            return prev;
-          }
-          return prev - 1;
-        });
+        setGarageFrame((prev) =>
+          prev <= 0 ? prev : prev - 1
+        );
       }, GARAGE_FRAME_MS);
     }
 
     return () => clearInterval(timer);
   }, [garageOpen]);
 
+  /* SYSTEM MESSAGE */
+  useEffect(() => {
+    if (!systemMounted.current) {
+      systemMounted.current = true;
+      return;
+    }
+
+    if (systemTimeoutRef.current) {
+      clearTimeout(systemTimeoutRef.current);
+    }
+
+    setSystemMessageKey((k) => k + 1);
+    setSystemMessage(armed ? "System Armed" : "System Disarmed");
+
+    systemTimeoutRef.current = setTimeout(() => {
+      setSystemMessage("");
+    }, SYSTEM_MESSAGE_MS);
+
+    return () => clearTimeout(systemTimeoutRef.current);
+  }, [armed]);
+
+  /* DOOR PULSE */
   const triggerPulse = (setPulse, timeoutRef, raf1Ref, raf2Ref) => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
     if (raf1Ref.current) cancelAnimationFrame(raf1Ref.current);
     if (raf2Ref.current) cancelAnimationFrame(raf2Ref.current);
-
-    timeoutRef.current = null;
-    raf1Ref.current = null;
-    raf2Ref.current = null;
 
     setPulse(false);
 
@@ -132,7 +157,6 @@ export default function HouseScene({
 
         timeoutRef.current = setTimeout(() => {
           setPulse(false);
-          timeoutRef.current = null;
         }, DOOR_PULSE_MS);
       });
     });
@@ -143,14 +167,7 @@ export default function HouseScene({
       frontMounted.current = true;
       return;
     }
-
     triggerPulse(setFrontPulse, frontTimeoutRef, frontRaf1Ref, frontRaf2Ref);
-
-    return () => {
-      if (frontTimeoutRef.current) clearTimeout(frontTimeoutRef.current);
-      if (frontRaf1Ref.current) cancelAnimationFrame(frontRaf1Ref.current);
-      if (frontRaf2Ref.current) cancelAnimationFrame(frontRaf2Ref.current);
-    };
   }, [frontDoorUnlocked]);
 
   useEffect(() => {
@@ -158,62 +175,83 @@ export default function HouseScene({
       sideMounted.current = true;
       return;
     }
-
     triggerPulse(setSidePulse, sideTimeoutRef, sideRaf1Ref, sideRaf2Ref);
-
-    return () => {
-      if (sideTimeoutRef.current) clearTimeout(sideTimeoutRef.current);
-      if (sideRaf1Ref.current) cancelAnimationFrame(sideRaf1Ref.current);
-      if (sideRaf2Ref.current) cancelAnimationFrame(sideRaf2Ref.current);
-    };
   }, [sideDoorUnlocked]);
 
   return (
     <div
       className={[
         "house-scene",
-        cameraOn ? "house-scene--camera" : "",
-        armed ? "house-scene--armed" : "",
+        cameraOn && "house-scene--camera",
+        armed ? "house-scene--armed" : "house-scene--disarmed",
       ]
         .filter(Boolean)
         .join(" ")}
     >
       <div className="house-scene__frame">
         <div className="house-container">
-          <img src="/house-base.svg" alt="House base" className="house-base" />
 
+          {/* LOGO */}
+          <img
+            src="/alert-360-logo.svg"
+            alt="Alert 360"
+            className="house-logo"
+          />
+
+          {/* SYSTEM MESSAGE */}
+          {systemMessage && (
+            <div key={systemMessageKey} className="system-status">
+              <span className="system-status__icon">
+                {armed ? <LockIcon /> : <UnlockIcon />}
+              </span>
+              <span>{systemMessage}</span>
+            </div>
+          )}
+
+          {/* SHADOW */}
+          <img
+            src="/house-shadow.svg"
+            alt=""
+            className="house-shadow-layer"
+          />
+
+          {/* GLOW */}
+          <div className="security-perimeter" />
+
+          {/* HOUSE */}
+          <img src="/house-base.svg" alt="House" className="house-base" />
+
+          {/* GARAGE */}
           {Array.from({ length: GARAGE_MAX_FRAME + 1 }, (_, i) => (
             <img
               key={i}
               src={`/garage-door-${i}.svg`}
+              className={`garage-door-frame-image ${
+                garageFrame === i ? "is-active" : ""
+              }`}
               alt=""
-              className={[
-                "garage-door-frame-image",
-                garageFrame === i ? "is-active" : "",
-              ]
-                .filter(Boolean)
-                .join(" ")}
             />
           ))}
 
+          {/* LIGHTS */}
           {upstairsBedroomOn && (
             <img
               src="/light-bedroom-upstairs.svg"
-              alt=""
               className="light-layer"
+              alt=""
             />
           )}
 
           {livingRoomOn && (
             <img
               src="/light-living-downstairs.svg"
-              alt=""
               className="light-layer"
+              alt=""
             />
           )}
 
+          {/* DOORS */}
           <DoorBadgeAnchor
-            key={`front-${frontDoorUnlocked}-${frontPulse ? "pulse" : "idle"}`}
             unlocked={frontDoorUnlocked}
             pulsing={frontPulse}
             style={{
@@ -224,7 +262,6 @@ export default function HouseScene({
           />
 
           <DoorBadgeAnchor
-            key={`side-${sideDoorUnlocked}-${sidePulse ? "pulse" : "idle"}`}
             unlocked={sideDoorUnlocked}
             pulsing={sidePulse}
             style={{
@@ -234,7 +271,9 @@ export default function HouseScene({
             }}
           />
 
+          {/* CAMERA */}
           <div className="house-overlay house-overlay--camera" />
+
         </div>
       </div>
     </div>
