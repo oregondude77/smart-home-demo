@@ -60,7 +60,9 @@ export default function HouseScene({
   cameraOn = false,
   armed = false,
   upstairsBedroomOn = false,
+  bedroomOn = false,
   livingRoomOn = false,
+  diningRoomOn = false,
   frontDoorUnlocked = false,
   sideDoorUnlocked = false,
 }) {
@@ -88,7 +90,9 @@ export default function HouseScene({
       "/house-base.svg",
       "/house-shadow.svg",
       "/light-bedroom-upstairs.svg",
+      "/light-bedroom2-upstairs.svg",
       "/light-living-downstairs.svg",
+      "/light-dining-downstairs.svg",
       "/alert-360-logo.svg",
       "/panel-base.svg",
       "/panel-armed.svg",
@@ -257,7 +261,15 @@ export default function HouseScene({
             <img
               src="/light-bedroom-upstairs.svg"
               alt=""
-              className="light-layer"
+              className="light-layer light-layer--master-bedroom"
+            />
+          )}
+
+          {bedroomOn && (
+            <img
+              src="/light-bedroom2-upstairs.svg"
+              alt=""
+              className="light-layer light-layer--bedroom"
             />
           )}
 
@@ -265,11 +277,18 @@ export default function HouseScene({
             <img
               src="/light-living-downstairs.svg"
               alt=""
-              className="light-layer"
+              className="light-layer light-layer--living-room"
             />
           )}
 
-          {/* Door behavior flipped so the name/state travels with the correct phone label */}
+          {diningRoomOn && (
+            <img
+              src="/light-dining-downstairs.svg"
+              alt=""
+              className="light-layer light-layer--dining-room"
+            />
+          )}
+
           <DoorBadgeAnchor
             unlocked={sideDoorUnlocked}
             pulsing={sidePulse}

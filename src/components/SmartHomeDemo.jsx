@@ -9,7 +9,9 @@ export default function SmartHomeDemo() {
   const [cameraOn, setCameraOn] = useState(false);
   const [armed, setArmed] = useState(false);
   const [upstairsBedroomOn, setUpstairsBedroomOn] = useState(false);
+  const [bedroomOn, setBedroomOn] = useState(false);
   const [livingRoomOn, setLivingRoomOn] = useState(false);
+  const [diningRoomOn, setDiningRoomOn] = useState(false);
   const [frontDoorUnlocked, setFrontDoorUnlocked] = useState(false);
   const [sideDoorUnlocked, setSideDoorUnlocked] = useState(false);
 
@@ -25,8 +27,12 @@ export default function SmartHomeDemo() {
           setArmed={setArmed}
           upstairsBedroomOn={upstairsBedroomOn}
           setUpstairsBedroomOn={setUpstairsBedroomOn}
+          bedroomOn={bedroomOn}
+          setBedroomOn={setBedroomOn}
           livingRoomOn={livingRoomOn}
           setLivingRoomOn={setLivingRoomOn}
+          diningRoomOn={diningRoomOn}
+          setDiningRoomOn={setDiningRoomOn}
           frontDoorUnlocked={frontDoorUnlocked}
           setFrontDoorUnlocked={setFrontDoorUnlocked}
           sideDoorUnlocked={sideDoorUnlocked}
@@ -38,7 +44,9 @@ export default function SmartHomeDemo() {
           cameraOn={cameraOn}
           armed={armed}
           upstairsBedroomOn={upstairsBedroomOn}
+          bedroomOn={bedroomOn}
           livingRoomOn={livingRoomOn}
+          diningRoomOn={diningRoomOn}
           frontDoorUnlocked={frontDoorUnlocked}
           sideDoorUnlocked={sideDoorUnlocked}
         />

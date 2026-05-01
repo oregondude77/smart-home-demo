@@ -9,8 +9,12 @@ export default function PhonePanel({
   setArmed,
   upstairsBedroomOn,
   setUpstairsBedroomOn,
+  bedroomOn,
+  setBedroomOn,
   livingRoomOn,
   setLivingRoomOn,
+  diningRoomOn,
+  setDiningRoomOn,
   frontDoorUnlocked,
   setFrontDoorUnlocked,
   sideDoorUnlocked,
@@ -37,13 +41,23 @@ export default function PhonePanel({
               </div>
 
               <div className="phone-app__status-row">
-                <span>Upstairs Bedroom</span>
+                <span>Master Bedroom</span>
                 <strong>{upstairsBedroomOn ? "On" : "Off"}</strong>
+              </div>
+
+              <div className="phone-app__status-row">
+                <span>Bedroom</span>
+                <strong>{bedroomOn ? "On" : "Off"}</strong>
               </div>
 
               <div className="phone-app__status-row">
                 <span>Living Room</span>
                 <strong>{livingRoomOn ? "On" : "Off"}</strong>
+              </div>
+
+              <div className="phone-app__status-row">
+                <span>Dining Room</span>
+                <strong>{diningRoomOn ? "On" : "Off"}</strong>
               </div>
 
               <div className="phone-app__status-row">
@@ -82,8 +96,15 @@ export default function PhonePanel({
                 onClick={() => setUpstairsBedroomOn((prev) => !prev)}
               >
                 {upstairsBedroomOn
-                  ? "Turn Bedroom Off"
-                  : "Turn Bedroom On"}
+                  ? "Turn Master Bedroom Off"
+                  : "Turn Master Bedroom On"}
+              </button>
+
+              <button
+                className={`phone-control ${bedroomOn ? "is-active" : ""}`}
+                onClick={() => setBedroomOn((prev) => !prev)}
+              >
+                {bedroomOn ? "Turn Bedroom Off" : "Turn Bedroom On"}
               </button>
 
               <button
@@ -93,6 +114,15 @@ export default function PhonePanel({
                 {livingRoomOn
                   ? "Turn Living Room Off"
                   : "Turn Living Room On"}
+              </button>
+
+              <button
+                className={`phone-control ${diningRoomOn ? "is-active" : ""}`}
+                onClick={() => setDiningRoomOn((prev) => !prev)}
+              >
+                {diningRoomOn
+                  ? "Turn Dining Room Off"
+                  : "Turn Dining Room On"}
               </button>
 
               <button

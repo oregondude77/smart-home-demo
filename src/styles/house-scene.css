@@ -471,6 +471,13 @@
   transform: translateZ(0);
 }
 
+.light-layer--master-bedroom,
+.light-layer--bedroom,
+.light-layer--living-room,
+.light-layer--dining-room {
+  opacity: 1;
+}
+
 /* =========================
    DOOR BADGES
 ========================= */
@@ -480,7 +487,6 @@
   z-index: 20;
 }
 
-/* Positions stay fixed. JSX assignment is flipped so the correct phone label/state follows the correct badge. */
 .door-front {
   top: 52.5%;
   left: 27.8%;
