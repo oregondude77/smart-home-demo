@@ -63,6 +63,7 @@ export default function HouseScene({
   bedroomOn = false,
   livingRoomOn = false,
   diningRoomOn = false,
+  garageLightsOn = false,
   frontDoorUnlocked = false,
   sideDoorUnlocked = false,
 }) {
@@ -93,6 +94,7 @@ export default function HouseScene({
       "/light-bedroom2-upstairs.svg",
       "/light-living-downstairs.svg",
       "/light-dining-downstairs.svg",
+      "/garage-lights-outside.svg",
       "/alert-360-logo.svg",
       "/panel-base.svg",
       "/panel-armed.svg",
@@ -286,6 +288,14 @@ export default function HouseScene({
               src="/light-dining-downstairs.svg"
               alt=""
               className="light-layer light-layer--dining-room"
+            />
+          )}
+
+          {garageLightsOn && (
+            <img
+              src="/garage-lights-outside.svg"
+              alt=""
+              className="light-layer light-layer--garage-lights"
             />
           )}
 

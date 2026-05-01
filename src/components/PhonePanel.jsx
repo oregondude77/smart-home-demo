@@ -15,6 +15,8 @@ export default function PhonePanel({
   setLivingRoomOn,
   diningRoomOn,
   setDiningRoomOn,
+  garageLightsOn,
+  setGarageLightsOn,
   frontDoorUnlocked,
   setFrontDoorUnlocked,
   sideDoorUnlocked,
@@ -58,6 +60,11 @@ export default function PhonePanel({
               <div className="phone-app__status-row">
                 <span>Dining Room</span>
                 <strong>{diningRoomOn ? "On" : "Off"}</strong>
+              </div>
+
+              <div className="phone-app__status-row">
+                <span>Garage Lights</span>
+                <strong>{garageLightsOn ? "On" : "Off"}</strong>
               </div>
 
               <div className="phone-app__status-row">
@@ -123,6 +130,15 @@ export default function PhonePanel({
                 {diningRoomOn
                   ? "Turn Dining Room Off"
                   : "Turn Dining Room On"}
+              </button>
+
+              <button
+                className={`phone-control ${garageLightsOn ? "is-active" : ""}`}
+                onClick={() => setGarageLightsOn((prev) => !prev)}
+              >
+                {garageLightsOn
+                  ? "Turn Garage Lights Off"
+                  : "Turn Garage Lights On"}
               </button>
 
               <button
