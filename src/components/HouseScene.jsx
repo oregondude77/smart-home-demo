@@ -83,9 +83,6 @@ export default function HouseScene({
   const sideRaf1Ref = useRef(null);
   const sideRaf2Ref = useRef(null);
 
-  /* =========================
-     PRELOAD IMAGES
-  ========================= */
   useEffect(() => {
     const images = [
       "/house-base.svg",
@@ -93,6 +90,9 @@ export default function HouseScene({
       "/light-bedroom-upstairs.svg",
       "/light-living-downstairs.svg",
       "/alert-360-logo.svg",
+      "/panel-base.svg",
+      "/panel-armed.svg",
+      "/panel-disarmed.svg",
     ];
 
     for (let i = 0; i <= GARAGE_MAX_FRAME; i++) {
@@ -105,9 +105,6 @@ export default function HouseScene({
     });
   }, []);
 
-  /* =========================
-     GARAGE ANIMATION
-  ========================= */
   useEffect(() => {
     let timer;
 
@@ -128,9 +125,6 @@ export default function HouseScene({
     return () => clearInterval(timer);
   }, [garageOpen]);
 
-  /* =========================
-     SYSTEM MESSAGE
-  ========================= */
   useEffect(() => {
     if (!systemMounted.current) {
       systemMounted.current = true;
@@ -142,7 +136,7 @@ export default function HouseScene({
     }
 
     setSystemMessageKey((k) => k + 1);
-    setSystemMessage(armed ? "System Armed" : "System Disarmed");
+    setSystemMessage(armed ? "armed" : "disarmed");
 
     systemTimeoutRef.current = setTimeout(() => {
       setSystemMessage("");
@@ -151,9 +145,6 @@ export default function HouseScene({
     return () => clearTimeout(systemTimeoutRef.current);
   }, [armed]);
 
-  /* =========================
-     DOOR PULSE HANDLER
-  ========================= */
   const triggerPulse = (setPulse, timeoutRef, raf1Ref, raf2Ref) => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
     if (raf1Ref.current) cancelAnimationFrame(raf1Ref.current);
@@ -177,6 +168,7 @@ export default function HouseScene({
       frontMounted.current = true;
       return;
     }
+
     triggerPulse(setFrontPulse, frontTimeoutRef, frontRaf1Ref, frontRaf2Ref);
   }, [frontDoorUnlocked]);
 
@@ -185,12 +177,10 @@ export default function HouseScene({
       sideMounted.current = true;
       return;
     }
+
     triggerPulse(setSidePulse, sideTimeoutRef, sideRaf1Ref, sideRaf2Ref);
   }, [sideDoorUnlocked]);
 
-  /* =========================
-     RENDER
-  ========================= */
   return (
     <div
       className={[
@@ -203,38 +193,63 @@ export default function HouseScene({
     >
       <div className="house-scene__frame">
         <div className="house-container">
-
-          {/* ✅ ALERT 360 LOGO */}
           <img
             src="/alert-360-logo.svg"
             alt="Alert 360"
             className="house-logo"
           />
 
-          {/* SYSTEM STATUS */}
           {systemMessage && (
-            <div key={systemMessageKey} className="system-status">
-              <span className="system-status__icon">
+            <div
+              key={systemMessageKey}
+              className={[
+                "system-status",
+                armed ? "system-status--armed" : "system-status--disarmed",
+              ]
+                .filter(Boolean)
+                .join(" ")}
+              aria-label={armed ? "System Armed" : "System Disarmed"}
+            >
+              <span className="system-status__lock">
                 {armed ? <LockIcon /> : <UnlockIcon />}
               </span>
-              <span className="system-status__text">{systemMessage}</span>
             </div>
           )}
 
-          {/* SHADOW */}
-          <img
-            src="/house-shadow.svg"
-            alt=""
-            className="house-shadow-layer"
-          />
+          <img src="/house-shadow.svg" alt="" className="house-shadow-layer" />
 
-          {/* GLOW */}
           <div className="security-perimeter" />
 
-          {/* HOUSE */}
           <img src="/house-base.svg" alt="House" className="house-base" />
 
-          {/* GARAGE */}
+          <div className="security-panel-group">
+            <img src="/panel-base.svg" alt="" className="security-panel-base" />
+
+            <img
+              src="/panel-armed.svg"
+              alt=""
+              className={[
+                "security-panel-state",
+                "security-panel-state--armed",
+                armed ? "is-visible" : "",
+              ]
+                .filter(Boolean)
+                .join(" ")}
+            />
+
+            <img
+              src="/panel-disarmed.svg"
+              alt=""
+              className={[
+                "security-panel-state",
+                "security-panel-state--disarmed",
+                !armed ? "is-visible" : "",
+              ]
+                .filter(Boolean)
+                .join(" ")}
+            />
+          </div>
+
           {Array.from({ length: GARAGE_MAX_FRAME + 1 }, (_, i) => (
             <img
               key={i}
@@ -246,7 +261,6 @@ export default function HouseScene({
             />
           ))}
 
-          {/* LIGHTS */}
           {upstairsBedroomOn && (
             <img
               src="/light-bedroom-upstairs.svg"
@@ -263,7 +277,6 @@ export default function HouseScene({
             />
           )}
 
-          {/* DOORS */}
           <DoorBadgeAnchor
             unlocked={frontDoorUnlocked}
             pulsing={frontPulse}
@@ -284,9 +297,7 @@ export default function HouseScene({
             }}
           />
 
-          {/* CAMERA */}
           <div className="house-overlay house-overlay--camera" />
-
         </div>
       </div>
     </div>
