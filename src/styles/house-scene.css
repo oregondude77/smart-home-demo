@@ -480,6 +480,19 @@
   z-index: 20;
 }
 
+/* Positions stay fixed. JSX assignment is flipped so the correct phone label/state follows the correct badge. */
+.door-front {
+  top: 52.5%;
+  left: 27.8%;
+  transform: translate(140px, -50%);
+}
+
+.door-side {
+  top: 54%;
+  left: 57.8%;
+  transform: translate(140px, -50%);
+}
+
 .ios-door-badge {
   position: relative;
   width: 64px;

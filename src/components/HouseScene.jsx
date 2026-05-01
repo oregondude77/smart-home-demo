@@ -47,9 +47,9 @@ function DoorBadge({ unlocked, pulsing }) {
   );
 }
 
-function DoorBadgeAnchor({ unlocked, pulsing, style = {} }) {
+function DoorBadgeAnchor({ unlocked, pulsing, className = "" }) {
   return (
-    <div className="ios-door-badge-anchor" style={style}>
+    <div className={["ios-door-badge-anchor", className].filter(Boolean).join(" ")}>
       <DoorBadge unlocked={unlocked} pulsing={pulsing} />
     </div>
   );
@@ -106,21 +106,13 @@ export default function HouseScene({
   }, []);
 
   useEffect(() => {
-    let timer;
-
-    if (garageOpen) {
-      timer = setInterval(() => {
-        setGarageFrame((prev) =>
-          prev >= GARAGE_MAX_FRAME ? prev : prev + 1
-        );
-      }, GARAGE_FRAME_MS);
-    } else {
-      timer = setInterval(() => {
-        setGarageFrame((prev) =>
-          prev <= 0 ? prev : prev - 1
-        );
-      }, GARAGE_FRAME_MS);
-    }
+    const timer = setInterval(() => {
+      setGarageFrame((prev) =>
+        garageOpen
+          ? Math.min(prev + 1, GARAGE_MAX_FRAME)
+          : Math.max(prev - 1, 0)
+      );
+    }, GARAGE_FRAME_MS);
 
     return () => clearInterval(timer);
   }, [garageOpen]);
@@ -264,37 +256,30 @@ export default function HouseScene({
           {upstairsBedroomOn && (
             <img
               src="/light-bedroom-upstairs.svg"
-              className="light-layer"
               alt=""
+              className="light-layer"
             />
           )}
 
           {livingRoomOn && (
             <img
               src="/light-living-downstairs.svg"
-              className="light-layer"
               alt=""
+              className="light-layer"
             />
           )}
+
+          {/* Door behavior flipped so the name/state travels with the correct phone label */}
+          <DoorBadgeAnchor
+            unlocked={sideDoorUnlocked}
+            pulsing={sidePulse}
+            className="door-front"
+          />
 
           <DoorBadgeAnchor
             unlocked={frontDoorUnlocked}
             pulsing={frontPulse}
-            style={{
-              top: "52.5%",
-              left: "27.8%",
-              transform: "translate(140px, -50%)",
-            }}
-          />
-
-          <DoorBadgeAnchor
-            unlocked={sideDoorUnlocked}
-            pulsing={sidePulse}
-            style={{
-              top: "54%",
-              left: "57.8%",
-              transform: "translate(140px, -50%)",
-            }}
+            className="door-side"
           />
 
           <div className="house-overlay house-overlay--camera" />
