@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+
 export default function PhonePanel({
   garageOpen,
   setGarageOpen,
@@ -26,6 +28,8 @@ export default function PhonePanel({
   sideDoorUnlocked,
   setSideDoorUnlocked,
 }) {
+  const [doorbellOpen, setDoorbellOpen] = useState(false);
+
   return (
     <div className="phone-panel">
       <div className="phone-shell">
@@ -35,18 +39,14 @@ export default function PhonePanel({
 
         <div className="phone-shell__screen">
           <div className="phone-app">
-
             <div className="phone-app__header">
               <div className="phone-app__eyebrow">Alert 360</div>
               <div className="phone-app__title">Home Control</div>
             </div>
 
             <div className="phone-app__sections">
-
-              {/* SECURITY */}
               <section className="phone-section">
                 <h3 className="phone-section__title">Security</h3>
-
                 <div className="phone-section__controls">
                   <button
                     className={`phone-control ${armed ? "is-active" : ""}`}
@@ -57,10 +57,8 @@ export default function PhonePanel({
                 </div>
               </section>
 
-              {/* VIDEO */}
               <section className="phone-section">
                 <h3 className="phone-section__title">Video</h3>
-
                 <div className="phone-section__controls">
                   <button
                     className={`phone-control ${cameraOn ? "is-active" : ""}`}
@@ -71,10 +69,20 @@ export default function PhonePanel({
                 </div>
               </section>
 
-              {/* LIGHTS */}
+              <section className="phone-section">
+                <h3 className="phone-section__title">Doorbell</h3>
+                <div className="phone-section__controls">
+                  <button
+                    className={`phone-control ${doorbellOpen ? "is-active" : ""}`}
+                    onClick={() => setDoorbellOpen(true)}
+                  >
+                    Video Doorbell
+                  </button>
+                </div>
+              </section>
+
               <section className="phone-section">
                 <h3 className="phone-section__title">Lights</h3>
-
                 <div className="phone-section__controls">
                   <button
                     className={`phone-control ${
@@ -93,27 +101,21 @@ export default function PhonePanel({
                   </button>
 
                   <button
-                    className={`phone-control ${
-                      livingRoomOn ? "is-active" : ""
-                    }`}
+                    className={`phone-control ${livingRoomOn ? "is-active" : ""}`}
                     onClick={() => setLivingRoomOn((prev) => !prev)}
                   >
                     {livingRoomOn ? "Living Off" : "Living On"}
                   </button>
 
                   <button
-                    className={`phone-control ${
-                      diningRoomOn ? "is-active" : ""
-                    }`}
+                    className={`phone-control ${diningRoomOn ? "is-active" : ""}`}
                     onClick={() => setDiningRoomOn((prev) => !prev)}
                   >
                     {diningRoomOn ? "Dining Off" : "Dining On"}
                   </button>
 
                   <button
-                    className={`phone-control ${
-                      garageLightsOn ? "is-active" : ""
-                    }`}
+                    className={`phone-control ${garageLightsOn ? "is-active" : ""}`}
                     onClick={() => setGarageLightsOn((prev) => !prev)}
                   >
                     {garageLightsOn ? "Garage Lights Off" : "Garage Lights On"}
@@ -129,9 +131,7 @@ export default function PhonePanel({
                   </button>
 
                   <button
-                    className={`phone-control ${
-                      porchLightOn ? "is-active" : ""
-                    }`}
+                    className={`phone-control ${porchLightOn ? "is-active" : ""}`}
                     onClick={() => setPorchLightOn((prev) => !prev)}
                   >
                     {porchLightOn ? "Porch Off" : "Porch On"}
@@ -139,10 +139,8 @@ export default function PhonePanel({
                 </div>
               </section>
 
-              {/* GARAGE */}
               <section className="phone-section">
                 <h3 className="phone-section__title">Garage</h3>
-
                 <div className="phone-section__controls">
                   <button
                     className={`phone-control ${garageOpen ? "is-active" : ""}`}
@@ -153,10 +151,8 @@ export default function PhonePanel({
                 </div>
               </section>
 
-              {/* DOORS */}
               <section className="phone-section">
                 <h3 className="phone-section__title">Doors</h3>
-
                 <div className="phone-section__controls">
                   <button
                     className={`phone-control ${
@@ -177,9 +173,31 @@ export default function PhonePanel({
                   </button>
                 </div>
               </section>
-
             </div>
           </div>
+
+          {doorbellOpen && (
+            <div className="doorbell-view">
+              <img
+                src="/doorbell-camera-scene.svg"
+                alt="Video doorbell camera view"
+                className="doorbell-view__image"
+              />
+
+              <div className="doorbell-view__header">
+                <span>Live Doorbell</span>
+                <strong>Now</strong>
+              </div>
+
+              <button
+                className="doorbell-view__close"
+                onClick={() => setDoorbellOpen(false)}
+                aria-label="Close doorbell view"
+              >
+                ×
+              </button>
+            </div>
+          )}
         </div>
 
         <div className="phone-shell__side-button phone-shell__side-button--one" />
