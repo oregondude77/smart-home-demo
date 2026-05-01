@@ -13,6 +13,8 @@ export default function SmartHomeDemo() {
   const [livingRoomOn, setLivingRoomOn] = useState(false);
   const [diningRoomOn, setDiningRoomOn] = useState(false);
   const [garageLightsOn, setGarageLightsOn] = useState(false);
+  const [exteriorSideLightOn, setExteriorSideLightOn] = useState(false);
+  const [porchLightOn, setPorchLightOn] = useState(false);
   const [frontDoorUnlocked, setFrontDoorUnlocked] = useState(false);
   const [sideDoorUnlocked, setSideDoorUnlocked] = useState(false);
 
@@ -36,6 +38,10 @@ export default function SmartHomeDemo() {
           setDiningRoomOn={setDiningRoomOn}
           garageLightsOn={garageLightsOn}
           setGarageLightsOn={setGarageLightsOn}
+          exteriorSideLightOn={exteriorSideLightOn}
+          setExteriorSideLightOn={setExteriorSideLightOn}
+          porchLightOn={porchLightOn}
+          setPorchLightOn={setPorchLightOn}
           frontDoorUnlocked={frontDoorUnlocked}
           setFrontDoorUnlocked={setFrontDoorUnlocked}
           sideDoorUnlocked={sideDoorUnlocked}
@@ -51,6 +57,8 @@ export default function SmartHomeDemo() {
           livingRoomOn={livingRoomOn}
           diningRoomOn={diningRoomOn}
           garageLightsOn={garageLightsOn}
+          exteriorSideLightOn={exteriorSideLightOn}
+          porchLightOn={porchLightOn}
           frontDoorUnlocked={frontDoorUnlocked}
           sideDoorUnlocked={sideDoorUnlocked}
         />

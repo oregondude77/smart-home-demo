@@ -17,6 +17,10 @@ export default function PhonePanel({
   setDiningRoomOn,
   garageLightsOn,
   setGarageLightsOn,
+  exteriorSideLightOn,
+  setExteriorSideLightOn,
+  porchLightOn,
+  setPorchLightOn,
   frontDoorUnlocked,
   setFrontDoorUnlocked,
   sideDoorUnlocked,
@@ -31,147 +35,149 @@ export default function PhonePanel({
 
         <div className="phone-shell__screen">
           <div className="phone-app">
+
             <div className="phone-app__header">
               <div className="phone-app__eyebrow">Alert 360</div>
               <div className="phone-app__title">Home Control</div>
             </div>
 
-            <div className="phone-app__status">
-              <div className="phone-app__status-row">
-                <span>Garage</span>
-                <strong>{garageOpen ? "Open" : "Closed"}</strong>
-              </div>
+            <div className="phone-app__sections">
 
-              <div className="phone-app__status-row">
-                <span>Master Bedroom</span>
-                <strong>{upstairsBedroomOn ? "On" : "Off"}</strong>
-              </div>
+              {/* SECURITY */}
+              <section className="phone-section">
+                <h3 className="phone-section__title">Security</h3>
 
-              <div className="phone-app__status-row">
-                <span>Bedroom</span>
-                <strong>{bedroomOn ? "On" : "Off"}</strong>
-              </div>
+                <div className="phone-section__controls">
+                  <button
+                    className={`phone-control ${armed ? "is-active" : ""}`}
+                    onClick={() => setArmed((prev) => !prev)}
+                  >
+                    {armed ? "Disarm System" : "Arm System"}
+                  </button>
+                </div>
+              </section>
 
-              <div className="phone-app__status-row">
-                <span>Living Room</span>
-                <strong>{livingRoomOn ? "On" : "Off"}</strong>
-              </div>
+              {/* VIDEO */}
+              <section className="phone-section">
+                <h3 className="phone-section__title">Video</h3>
 
-              <div className="phone-app__status-row">
-                <span>Dining Room</span>
-                <strong>{diningRoomOn ? "On" : "Off"}</strong>
-              </div>
+                <div className="phone-section__controls">
+                  <button
+                    className={`phone-control ${cameraOn ? "is-active" : ""}`}
+                    onClick={() => setCameraOn((prev) => !prev)}
+                  >
+                    {cameraOn ? "Camera Off" : "Camera On"}
+                  </button>
+                </div>
+              </section>
 
-              <div className="phone-app__status-row">
-                <span>Garage Lights</span>
-                <strong>{garageLightsOn ? "On" : "Off"}</strong>
-              </div>
+              {/* LIGHTS */}
+              <section className="phone-section">
+                <h3 className="phone-section__title">Lights</h3>
 
-              <div className="phone-app__status-row">
-                <span>Front Door</span>
-                <strong>{frontDoorUnlocked ? "Unlocked" : "Locked"}</strong>
-              </div>
+                <div className="phone-section__controls">
+                  <button
+                    className={`phone-control ${
+                      upstairsBedroomOn ? "is-active" : ""
+                    }`}
+                    onClick={() => setUpstairsBedroomOn((prev) => !prev)}
+                  >
+                    {upstairsBedroomOn ? "Master Off" : "Master On"}
+                  </button>
 
-              <div className="phone-app__status-row">
-                <span>Side Door</span>
-                <strong>{sideDoorUnlocked ? "Unlocked" : "Locked"}</strong>
-              </div>
+                  <button
+                    className={`phone-control ${bedroomOn ? "is-active" : ""}`}
+                    onClick={() => setBedroomOn((prev) => !prev)}
+                  >
+                    {bedroomOn ? "Bedroom Off" : "Bedroom On"}
+                  </button>
 
-              <div className="phone-app__status-row">
-                <span>Camera</span>
-                <strong>{cameraOn ? "On" : "Off"}</strong>
-              </div>
+                  <button
+                    className={`phone-control ${
+                      livingRoomOn ? "is-active" : ""
+                    }`}
+                    onClick={() => setLivingRoomOn((prev) => !prev)}
+                  >
+                    {livingRoomOn ? "Living Off" : "Living On"}
+                  </button>
 
-              <div className="phone-app__status-row">
-                <span>System</span>
-                <strong>{armed ? "Armed" : "Disarmed"}</strong>
-              </div>
-            </div>
+                  <button
+                    className={`phone-control ${
+                      diningRoomOn ? "is-active" : ""
+                    }`}
+                    onClick={() => setDiningRoomOn((prev) => !prev)}
+                  >
+                    {diningRoomOn ? "Dining Off" : "Dining On"}
+                  </button>
 
-            <div className="phone-app__controls">
-              <button
-                className={`phone-control ${garageOpen ? "is-active" : ""}`}
-                onClick={() => setGarageOpen((prev) => !prev)}
-              >
-                {garageOpen ? "Close Garage" : "Open Garage"}
-              </button>
+                  <button
+                    className={`phone-control ${
+                      garageLightsOn ? "is-active" : ""
+                    }`}
+                    onClick={() => setGarageLightsOn((prev) => !prev)}
+                  >
+                    {garageLightsOn ? "Garage Lights Off" : "Garage Lights On"}
+                  </button>
 
-              <button
-                className={`phone-control ${
-                  upstairsBedroomOn ? "is-active" : ""
-                }`}
-                onClick={() => setUpstairsBedroomOn((prev) => !prev)}
-              >
-                {upstairsBedroomOn
-                  ? "Turn Master Bedroom Off"
-                  : "Turn Master Bedroom On"}
-              </button>
+                  <button
+                    className={`phone-control ${
+                      exteriorSideLightOn ? "is-active" : ""
+                    }`}
+                    onClick={() => setExteriorSideLightOn((prev) => !prev)}
+                  >
+                    {exteriorSideLightOn ? "Side Light Off" : "Side Light On"}
+                  </button>
 
-              <button
-                className={`phone-control ${bedroomOn ? "is-active" : ""}`}
-                onClick={() => setBedroomOn((prev) => !prev)}
-              >
-                {bedroomOn ? "Turn Bedroom Off" : "Turn Bedroom On"}
-              </button>
+                  <button
+                    className={`phone-control ${
+                      porchLightOn ? "is-active" : ""
+                    }`}
+                    onClick={() => setPorchLightOn((prev) => !prev)}
+                  >
+                    {porchLightOn ? "Porch Off" : "Porch On"}
+                  </button>
+                </div>
+              </section>
 
-              <button
-                className={`phone-control ${livingRoomOn ? "is-active" : ""}`}
-                onClick={() => setLivingRoomOn((prev) => !prev)}
-              >
-                {livingRoomOn
-                  ? "Turn Living Room Off"
-                  : "Turn Living Room On"}
-              </button>
+              {/* GARAGE */}
+              <section className="phone-section">
+                <h3 className="phone-section__title">Garage</h3>
 
-              <button
-                className={`phone-control ${diningRoomOn ? "is-active" : ""}`}
-                onClick={() => setDiningRoomOn((prev) => !prev)}
-              >
-                {diningRoomOn
-                  ? "Turn Dining Room Off"
-                  : "Turn Dining Room On"}
-              </button>
+                <div className="phone-section__controls">
+                  <button
+                    className={`phone-control ${garageOpen ? "is-active" : ""}`}
+                    onClick={() => setGarageOpen((prev) => !prev)}
+                  >
+                    {garageOpen ? "Close Garage" : "Open Garage"}
+                  </button>
+                </div>
+              </section>
 
-              <button
-                className={`phone-control ${garageLightsOn ? "is-active" : ""}`}
-                onClick={() => setGarageLightsOn((prev) => !prev)}
-              >
-                {garageLightsOn
-                  ? "Turn Garage Lights Off"
-                  : "Turn Garage Lights On"}
-              </button>
+              {/* DOORS */}
+              <section className="phone-section">
+                <h3 className="phone-section__title">Doors</h3>
 
-              <button
-                className={`phone-control ${
-                  frontDoorUnlocked ? "is-active" : ""
-                }`}
-                onClick={() => setFrontDoorUnlocked((prev) => !prev)}
-              >
-                {frontDoorUnlocked ? "Lock Front Door" : "Unlock Front Door"}
-              </button>
+                <div className="phone-section__controls">
+                  <button
+                    className={`phone-control ${
+                      frontDoorUnlocked ? "is-active" : ""
+                    }`}
+                    onClick={() => setFrontDoorUnlocked((prev) => !prev)}
+                  >
+                    {frontDoorUnlocked ? "Lock Front" : "Unlock Front"}
+                  </button>
 
-              <button
-                className={`phone-control ${
-                  sideDoorUnlocked ? "is-active" : ""
-                }`}
-                onClick={() => setSideDoorUnlocked((prev) => !prev)}
-              >
-                {sideDoorUnlocked ? "Lock Side Door" : "Unlock Side Door"}
-              </button>
+                  <button
+                    className={`phone-control ${
+                      sideDoorUnlocked ? "is-active" : ""
+                    }`}
+                    onClick={() => setSideDoorUnlocked((prev) => !prev)}
+                  >
+                    {sideDoorUnlocked ? "Lock Side" : "Unlock Side"}
+                  </button>
+                </div>
+              </section>
 
-              <button
-                className={`phone-control ${cameraOn ? "is-active" : ""}`}
-                onClick={() => setCameraOn((prev) => !prev)}
-              >
-                {cameraOn ? "Turn Camera Off" : "Turn Camera On"}
-              </button>
-
-              <button
-                className={`phone-control ${armed ? "is-active" : ""}`}
-                onClick={() => setArmed((prev) => !prev)}
-              >
-                {armed ? "Disarm System" : "Arm System"}
-              </button>
             </div>
           </div>
         </div>
