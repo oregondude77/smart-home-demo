@@ -30,7 +30,9 @@ function DoorBadge({ unlocked, pulsing }) {
         "ios-door-badge",
         unlocked ? "is-unlocked" : "is-locked",
         pulsing ? "is-pulsing" : "",
-      ].filter(Boolean).join(" ")}
+      ]
+        .filter(Boolean)
+        .join(" ")}
     >
       <div className="ios-door-badge__frame" />
       <div className="ios-door-badge__core" />
@@ -81,7 +83,9 @@ export default function HouseScene({
   const sideRaf1Ref = useRef(null);
   const sideRaf2Ref = useRef(null);
 
-  /* PRELOAD */
+  /* =========================
+     PRELOAD IMAGES
+  ========================= */
   useEffect(() => {
     const images = [
       "/house-base.svg",
@@ -101,7 +105,9 @@ export default function HouseScene({
     });
   }, []);
 
-  /* GARAGE */
+  /* =========================
+     GARAGE ANIMATION
+  ========================= */
   useEffect(() => {
     let timer;
 
@@ -122,7 +128,9 @@ export default function HouseScene({
     return () => clearInterval(timer);
   }, [garageOpen]);
 
-  /* SYSTEM MESSAGE */
+  /* =========================
+     SYSTEM MESSAGE
+  ========================= */
   useEffect(() => {
     if (!systemMounted.current) {
       systemMounted.current = true;
@@ -143,7 +151,9 @@ export default function HouseScene({
     return () => clearTimeout(systemTimeoutRef.current);
   }, [armed]);
 
-  /* DOOR PULSE */
+  /* =========================
+     DOOR PULSE HANDLER
+  ========================= */
   const triggerPulse = (setPulse, timeoutRef, raf1Ref, raf2Ref) => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
     if (raf1Ref.current) cancelAnimationFrame(raf1Ref.current);
@@ -178,6 +188,9 @@ export default function HouseScene({
     triggerPulse(setSidePulse, sideTimeoutRef, sideRaf1Ref, sideRaf2Ref);
   }, [sideDoorUnlocked]);
 
+  /* =========================
+     RENDER
+  ========================= */
   return (
     <div
       className={[
@@ -191,20 +204,20 @@ export default function HouseScene({
       <div className="house-scene__frame">
         <div className="house-container">
 
-          {/* LOGO */}
+          {/* ✅ ALERT 360 LOGO */}
           <img
             src="/alert-360-logo.svg"
             alt="Alert 360"
             className="house-logo"
           />
 
-          {/* SYSTEM MESSAGE */}
+          {/* SYSTEM STATUS */}
           {systemMessage && (
             <div key={systemMessageKey} className="system-status">
               <span className="system-status__icon">
                 {armed ? <LockIcon /> : <UnlockIcon />}
               </span>
-              <span>{systemMessage}</span>
+              <span className="system-status__text">{systemMessage}</span>
             </div>
           )}
 
