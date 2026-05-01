@@ -73,7 +73,9 @@ export default function PhonePanel({
                 <h3 className="phone-section__title">Doorbell</h3>
                 <div className="phone-section__controls">
                   <button
-                    className={`phone-control ${doorbellOpen ? "is-active" : ""}`}
+                    className={`phone-control ${
+                      doorbellOpen ? "is-active" : ""
+                    }`}
                     onClick={() => setDoorbellOpen(true)}
                   >
                     Video Doorbell
@@ -101,21 +103,27 @@ export default function PhonePanel({
                   </button>
 
                   <button
-                    className={`phone-control ${livingRoomOn ? "is-active" : ""}`}
+                    className={`phone-control ${
+                      livingRoomOn ? "is-active" : ""
+                    }`}
                     onClick={() => setLivingRoomOn((prev) => !prev)}
                   >
                     {livingRoomOn ? "Living Off" : "Living On"}
                   </button>
 
                   <button
-                    className={`phone-control ${diningRoomOn ? "is-active" : ""}`}
+                    className={`phone-control ${
+                      diningRoomOn ? "is-active" : ""
+                    }`}
                     onClick={() => setDiningRoomOn((prev) => !prev)}
                   >
                     {diningRoomOn ? "Dining Off" : "Dining On"}
                   </button>
 
                   <button
-                    className={`phone-control ${garageLightsOn ? "is-active" : ""}`}
+                    className={`phone-control ${
+                      garageLightsOn ? "is-active" : ""
+                    }`}
                     onClick={() => setGarageLightsOn((prev) => !prev)}
                   >
                     {garageLightsOn ? "Garage Lights Off" : "Garage Lights On"}
@@ -131,7 +139,9 @@ export default function PhonePanel({
                   </button>
 
                   <button
-                    className={`phone-control ${porchLightOn ? "is-active" : ""}`}
+                    className={`phone-control ${
+                      porchLightOn ? "is-active" : ""
+                    }`}
                     onClick={() => setPorchLightOn((prev) => !prev)}
                   >
                     {porchLightOn ? "Porch Off" : "Porch On"}
