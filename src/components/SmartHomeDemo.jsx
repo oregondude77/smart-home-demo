@@ -24,8 +24,6 @@ export default function SmartHomeDemo() {
         <PhonePanel
           garageOpen={garageOpen}
           setGarageOpen={setGarageOpen}
-          cameraOn={cameraOn}
-          setCameraOn={setCameraOn}
           armed={armed}
           setArmed={setArmed}
           upstairsBedroomOn={upstairsBedroomOn}
