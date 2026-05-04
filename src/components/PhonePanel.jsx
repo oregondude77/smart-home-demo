@@ -2,6 +2,25 @@
 
 import { useState } from "react";
 
+function LightControl({ label, isOn, onClick }) {
+  return (
+    <button
+      type="button"
+      className={`light-card ${isOn ? "is-on" : ""}`}
+      onClick={onClick}
+    >
+      <span className="light-card__icon">●</span>
+      <span className="light-card__content">
+        <span className="light-card__label">{label}</span>
+        <span className="light-card__status">{isOn ? "On" : "Off"}</span>
+      </span>
+      <span className="light-card__toggle">
+        <span className="light-card__knob" />
+      </span>
+    </button>
+  );
+}
+
 export default function PhonePanel({
   garageOpen,
   setGarageOpen,
@@ -83,57 +102,51 @@ export default function PhonePanel({
                 </div>
               </section>
 
-              <section className="phone-section">
+              <section className="phone-section phone-section--lights">
                 <h3 className="phone-section__title">Lights</h3>
-                <div className="phone-section__controls">
-                  <button
-                    className={`phone-control ${upstairsBedroomOn ? "is-active" : ""}`}
+
+                <div className="light-card-list">
+                  <LightControl
+                    label="Master"
+                    isOn={upstairsBedroomOn}
                     onClick={() => setUpstairsBedroomOn((prev) => !prev)}
-                  >
-                    {upstairsBedroomOn ? "Master Off" : "Master On"}
-                  </button>
+                  />
 
-                  <button
-                    className={`phone-control ${bedroomOn ? "is-active" : ""}`}
+                  <LightControl
+                    label="Bedroom"
+                    isOn={bedroomOn}
                     onClick={() => setBedroomOn((prev) => !prev)}
-                  >
-                    {bedroomOn ? "Bedroom Off" : "Bedroom On"}
-                  </button>
+                  />
 
-                  <button
-                    className={`phone-control ${livingRoomOn ? "is-active" : ""}`}
+                  <LightControl
+                    label="Living Room"
+                    isOn={livingRoomOn}
                     onClick={() => setLivingRoomOn((prev) => !prev)}
-                  >
-                    {livingRoomOn ? "Living Off" : "Living On"}
-                  </button>
+                  />
 
-                  <button
-                    className={`phone-control ${diningRoomOn ? "is-active" : ""}`}
+                  <LightControl
+                    label="Dining Room"
+                    isOn={diningRoomOn}
                     onClick={() => setDiningRoomOn((prev) => !prev)}
-                  >
-                    {diningRoomOn ? "Dining Off" : "Dining On"}
-                  </button>
+                  />
 
-                  <button
-                    className={`phone-control ${garageLightsOn ? "is-active" : ""}`}
+                  <LightControl
+                    label="Garage Lights"
+                    isOn={garageLightsOn}
                     onClick={() => setGarageLightsOn((prev) => !prev)}
-                  >
-                    {garageLightsOn ? "Garage Lights Off" : "Garage Lights On"}
-                  </button>
+                  />
 
-                  <button
-                    className={`phone-control ${exteriorSideLightOn ? "is-active" : ""}`}
+                  <LightControl
+                    label="Side Light"
+                    isOn={exteriorSideLightOn}
                     onClick={() => setExteriorSideLightOn((prev) => !prev)}
-                  >
-                    {exteriorSideLightOn ? "Side Light Off" : "Side Light On"}
-                  </button>
+                  />
 
-                  <button
-                    className={`phone-control ${porchLightOn ? "is-active" : ""}`}
+                  <LightControl
+                    label="Porch Light"
+                    isOn={porchLightOn}
                     onClick={() => setPorchLightOn((prev) => !prev)}
-                  >
-                    {porchLightOn ? "Porch Off" : "Porch On"}
-                  </button>
+                  />
                 </div>
               </section>
 
