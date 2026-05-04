@@ -25,14 +25,6 @@
   transform-origin: center 40%;
 }
 
-
-
-
-
-
-
-
-
 /* =========================
    SYSTEM STATUS - CLEAR RED/GREEN GLASS LOCK
 ========================= */
@@ -384,7 +376,6 @@
   pointer-events: none;
   transform: translateZ(0);
   transform-origin: top right;
-
   filter:
     drop-shadow(0 12px 18px rgba(0, 0, 0, 0.18))
     drop-shadow(0 4px 6px rgba(0, 0, 0, 0.08));
@@ -482,7 +473,10 @@
 .light-layer--master-bedroom,
 .light-layer--bedroom,
 .light-layer--living-room,
-.light-layer--dining-room {
+.light-layer--dining-room,
+.light-layer--garage-lights,
+.light-layer--exterior-side-light,
+.light-layer--porch-light {
   opacity: 1;
 }
 
@@ -696,6 +690,127 @@
 }
 
 /* =========================
+   ACTIVE CAMERA LIVE MARKERS
+========================= */
+.camera-live-marker {
+  position: absolute;
+  width: 62px;
+  height: 62px;
+  border-radius: 999px;
+  pointer-events: none;
+  z-index: 45;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(
+    circle,
+    rgba(255, 205, 0, 0.72) 0%,
+    rgba(255, 205, 0, 0.34) 36%,
+    rgba(255, 205, 0, 0.12) 58%,
+    rgba(255, 205, 0, 0) 78%
+  );
+  box-shadow:
+    0 0 18px rgba(255, 205, 0, 0.58),
+    0 0 38px rgba(255, 205, 0, 0.32);
+  animation: liveCameraPulse 1.4s ease-in-out infinite;
+}
+
+.camera-live-marker::before,
+.camera-live-marker::after {
+  content: "";
+  position: absolute;
+  inset: -10px;
+  border-radius: inherit;
+  border: 2px solid rgba(255, 205, 0, 0.38);
+  animation: liveCameraRing 1.4s ease-out infinite;
+}
+
+.camera-live-marker::after {
+  inset: -22px;
+  border-color: rgba(255, 205, 0, 0.22);
+  animation-delay: 0.28s;
+}
+
+.camera-live-label {
+  position: absolute;
+  z-index: 46;
+  transform: translate(-50%, -50%);
+  padding: 5px 9px;
+  border-radius: 999px;
+  background: rgba(18, 24, 20, 0.78);
+  color: #ffffff;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  pointer-events: none;
+  box-shadow:
+    0 8px 18px rgba(0, 0, 0, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+/* Adjust these positions to match your exact SVG cameras */
+.camera-live-marker--doorbell {
+  top: 54%;
+  left: 66.5%;
+}
+
+.camera-live-label--doorbell {
+  top: 48.5%;
+  left: 66.5%;
+}
+
+.camera-live-marker--outdoor {
+  top: 56.25%;
+  left: 26.75%;
+}
+
+.camera-live-label--outdoor {
+  top: 51%;
+  left: 26.75%;
+}
+
+.camera-live-marker--floodlight {
+  top: 52%;
+  left: 87.5%;
+}
+
+.camera-live-label--floodlight {
+  top: 46%;
+  left: 87.5%;
+}
+
+@keyframes liveCameraPulse {
+  0% {
+    opacity: 0.62;
+    transform: translate(-50%, -50%) scale(0.92);
+  }
+
+  50% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.08);
+  }
+
+  100% {
+    opacity: 0.62;
+    transform: translate(-50%, -50%) scale(0.92);
+  }
+}
+
+@keyframes liveCameraRing {
+  0% {
+    opacity: 0.68;
+    transform: scale(0.68);
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(1.75);
+  }
+}
+
+/* =========================
    ALERT 360 LOGO
 ========================= */
 .house-logo {
@@ -746,6 +861,16 @@
   .ios-door-badge__icon svg {
     width: 26px;
     height: 26px;
+  }
+
+  .camera-live-marker {
+    width: 54px;
+    height: 54px;
+  }
+
+  .camera-live-label {
+    font-size: 8px;
+    padding: 4px 8px;
   }
 
   .house-logo {
@@ -811,6 +936,16 @@
   .house-overlay--camera {
     width: 14px;
     height: 14px;
+  }
+
+  .camera-live-marker {
+    width: 44px;
+    height: 44px;
+  }
+
+  .camera-live-label {
+    font-size: 7px;
+    padding: 4px 7px;
   }
 
   .house-logo {

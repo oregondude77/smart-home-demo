@@ -17,6 +17,8 @@ export default function SmartHomeDemo() {
   const [frontDoorUnlocked, setFrontDoorUnlocked] = useState(false);
   const [sideDoorUnlocked, setSideDoorUnlocked] = useState(false);
 
+  const [activeCamera, setActiveCamera] = useState(null);
+
   return (
     <div className="demo">
       <div className="demo-grid">
@@ -43,6 +45,8 @@ export default function SmartHomeDemo() {
           setFrontDoorUnlocked={setFrontDoorUnlocked}
           sideDoorUnlocked={sideDoorUnlocked}
           setSideDoorUnlocked={setSideDoorUnlocked}
+          activeCamera={activeCamera}
+          setActiveCamera={setActiveCamera}
         />
 
         <HouseScene
@@ -57,6 +61,7 @@ export default function SmartHomeDemo() {
           porchLightOn={porchLightOn}
           frontDoorUnlocked={frontDoorUnlocked}
           sideDoorUnlocked={sideDoorUnlocked}
+          activeCamera={activeCamera}
         />
       </div>
     </div>

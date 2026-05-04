@@ -1,7 +1,5 @@
 "use client";
 
-import { useState } from "react";
-
 function LightControl({ label, isOn, onClick }) {
   return (
     <button
@@ -44,11 +42,9 @@ export default function PhonePanel({
   setFrontDoorUnlocked,
   sideDoorUnlocked,
   setSideDoorUnlocked,
+  activeCamera,
+  setActiveCamera,
 }) {
-  const [doorbellOpen, setDoorbellOpen] = useState(false);
-  const [outdoorCameraOpen, setOutdoorCameraOpen] = useState(false);
-  const [floodlightCameraOpen, setFloodlightCameraOpen] = useState(false);
-
   return (
     <div className="phone-panel">
       <div className="phone-shell">
@@ -80,22 +76,28 @@ export default function PhonePanel({
                 <h3 className="phone-section__title">Video</h3>
                 <div className="phone-section__controls">
                   <button
-                    className={`phone-control ${doorbellOpen ? "is-active" : ""}`}
-                    onClick={() => setDoorbellOpen(true)}
+                    className={`phone-control ${
+                      activeCamera === "doorbell" ? "is-active" : ""
+                    }`}
+                    onClick={() => setActiveCamera("doorbell")}
                   >
                     Video Doorbell
                   </button>
 
                   <button
-                    className={`phone-control ${outdoorCameraOpen ? "is-active" : ""}`}
-                    onClick={() => setOutdoorCameraOpen(true)}
+                    className={`phone-control ${
+                      activeCamera === "outdoor" ? "is-active" : ""
+                    }`}
+                    onClick={() => setActiveCamera("outdoor")}
                   >
                     Outdoor Camera
                   </button>
 
                   <button
-                    className={`phone-control ${floodlightCameraOpen ? "is-active" : ""}`}
-                    onClick={() => setFloodlightCameraOpen(true)}
+                    className={`phone-control ${
+                      activeCamera === "floodlight" ? "is-active" : ""
+                    }`}
+                    onClick={() => setActiveCamera("floodlight")}
                   >
                     Floodlight Camera
                   </button>
@@ -166,14 +168,18 @@ export default function PhonePanel({
                 <h3 className="phone-section__title">Doors</h3>
                 <div className="phone-section__controls">
                   <button
-                    className={`phone-control ${frontDoorUnlocked ? "is-active" : ""}`}
+                    className={`phone-control ${
+                      frontDoorUnlocked ? "is-active" : ""
+                    }`}
                     onClick={() => setFrontDoorUnlocked((prev) => !prev)}
                   >
                     {frontDoorUnlocked ? "Lock Front" : "Unlock Front"}
                   </button>
 
                   <button
-                    className={`phone-control ${sideDoorUnlocked ? "is-active" : ""}`}
+                    className={`phone-control ${
+                      sideDoorUnlocked ? "is-active" : ""
+                    }`}
                     onClick={() => setSideDoorUnlocked((prev) => !prev)}
                   >
                     {sideDoorUnlocked ? "Lock Side" : "Unlock Side"}
@@ -183,20 +189,22 @@ export default function PhonePanel({
             </div>
           </div>
 
-          {doorbellOpen && (
+          {activeCamera === "doorbell" && (
             <div className="doorbell-view">
               <img
                 src="/doorbell-camera-scene.svg"
                 alt="Video doorbell camera view"
                 className="doorbell-view__image"
               />
+
               <div className="doorbell-view__header">
                 <span>Live Doorbell</span>
                 <strong>Now</strong>
               </div>
+
               <button
                 className="doorbell-view__close"
-                onClick={() => setDoorbellOpen(false)}
+                onClick={() => setActiveCamera(null)}
                 aria-label="Close doorbell view"
               >
                 ×
@@ -204,20 +212,22 @@ export default function PhonePanel({
             </div>
           )}
 
-          {outdoorCameraOpen && (
+          {activeCamera === "outdoor" && (
             <div className="doorbell-view">
               <img
                 src="/outdoor-camera-scene.svg"
                 alt="Outdoor camera view"
                 className="doorbell-view__image"
               />
+
               <div className="doorbell-view__header">
                 <span>Outdoor Camera</span>
                 <strong>Now</strong>
               </div>
+
               <button
                 className="doorbell-view__close"
-                onClick={() => setOutdoorCameraOpen(false)}
+                onClick={() => setActiveCamera(null)}
                 aria-label="Close outdoor camera view"
               >
                 ×
@@ -225,20 +235,22 @@ export default function PhonePanel({
             </div>
           )}
 
-          {floodlightCameraOpen && (
+          {activeCamera === "floodlight" && (
             <div className="doorbell-view">
               <img
                 src="/floodlight-camera-scene.svg"
                 alt="Floodlight camera view"
                 className="doorbell-view__image"
               />
+
               <div className="doorbell-view__header">
                 <span>Floodlight Camera</span>
                 <strong>Now</strong>
               </div>
+
               <button
                 className="doorbell-view__close"
-                onClick={() => setFloodlightCameraOpen(false)}
+                onClick={() => setActiveCamera(null)}
                 aria-label="Close floodlight camera view"
               >
                 ×
