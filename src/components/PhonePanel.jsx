@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+
 export default function PhonePanel({
   garageOpen,
   setGarageOpen,
@@ -25,9 +27,13 @@ export default function PhonePanel({
   setSideDoorUnlocked,
   activeCamera,
   setActiveCamera,
+  liveCamera,
+  setLiveCamera,
   nightMode,
   setNightMode,
 }) {
+  const [inlineCamera, setInlineCamera] = useState(null);
+
   const cameraFeeds = [
     {
       id: "doorbell",
@@ -53,6 +59,38 @@ export default function PhonePanel({
   ];
 
   const activeFeed = cameraFeeds.find((feed) => feed.id === activeCamera);
+
+  const handleInlinePlay = (cameraId) => {
+    const isAlreadyPlaying = inlineCamera === cameraId;
+
+    if (isAlreadyPlaying) {
+      setInlineCamera(null);
+
+      if (typeof setLiveCamera === "function") {
+        setLiveCamera(null);
+      }
+
+      return;
+    }
+
+    setInlineCamera(cameraId);
+
+    if (typeof setLiveCamera === "function") {
+      setLiveCamera(cameraId);
+    }
+  };
+
+  const handleExpandCamera = (cameraId) => {
+    setActiveCamera(cameraId);
+
+    if (typeof setLiveCamera === "function") {
+      setLiveCamera(cameraId);
+    }
+  };
+
+  const handleCloseCamera = () => {
+    setActiveCamera(null);
+  };
 
   return (
     <div className={`phone-panel-wrap ${nightMode ? "is-night" : ""}`}>
@@ -83,7 +121,7 @@ export default function PhonePanel({
                   </div>
                 </section>
 
-                {/* VIDEO CAROUSEL CARD */}
+                {/* VIDEO */}
                 <section className="phone-section phone-section--video-card">
                   <div className="video-card-header">
                     <h3 className="phone-section__title">Video</h3>
@@ -91,44 +129,72 @@ export default function PhonePanel({
                   </div>
 
                   <div className="video-carousel">
-                    {cameraFeeds.map((feed, index) => (
-                      <div className="video-slide" key={feed.id}>
-                        <img src={feed.src} alt={feed.alt} />
+                    {cameraFeeds.map((feed) => {
+                      const isInlineActive = inlineCamera === feed.id;
 
-                        <button
-                          type="button"
-                          className="video-slide__play"
-                          onClick={() => setActiveCamera(feed.id)}
-                          aria-label={`Open ${feed.label}`}
+                      return (
+                        <div
+                          key={feed.id}
+                          className={`video-slide ${
+                            isInlineActive ? "is-playing" : ""
+                          }`}
                         >
-                          ▶
-                        </button>
+                          {isInlineActive && (
+                            <div className="video-slide__live-header">
+                              <div className="video-slide__live-pill">
+                                {feed.liveLabel}
+                              </div>
+                              <div className="video-slide__live-now">Now</div>
+                            </div>
+                          )}
 
-                        <div className="video-slide__bars">
-                          {cameraFeeds.map((bar) => (
-                            <span
-                              key={bar.id}
-                              className={bar.id === feed.id ? "is-active" : ""}
-                            />
-                          ))}
+                          <img
+                            src={feed.src}
+                            alt={feed.alt}
+                            className={isInlineActive ? "is-live" : ""}
+                          />
+
+                          {!isInlineActive && (
+                            <button
+                              type="button"
+                              className="video-slide__play"
+                              onClick={() => handleInlinePlay(feed.id)}
+                              aria-label={`Play ${feed.label}`}
+                            >
+                              ▶
+                            </button>
+                          )}
+
+                          {!isInlineActive && (
+                            <div className="video-slide__bars">
+                              {cameraFeeds.map((bar) => (
+                                <span
+                                  key={bar.id}
+                                  className={
+                                    bar.id === feed.id ? "is-active" : ""
+                                  }
+                                />
+                              ))}
+                            </div>
+                          )}
+
+                          <div className="video-slide__footer">
+                            <span className="video-slide__label">
+                              {feed.label}
+                            </span>
+
+                            <button
+                              type="button"
+                              className="video-slide__expand"
+                              onClick={() => handleExpandCamera(feed.id)}
+                              aria-label={`Expand ${feed.label}`}
+                            >
+                              ⛶
+                            </button>
+                          </div>
                         </div>
-
-                        <div className="video-slide__footer">
-                          <span className="video-slide__label">
-                            {feed.label}
-                          </span>
-
-                          <button
-                            type="button"
-                            className="video-slide__expand"
-                            onClick={() => setActiveCamera(feed.id)}
-                            aria-label={`Expand ${feed.label}`}
-                          >
-                            ⛶
-                          </button>
-                        </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </section>
 
@@ -210,10 +276,7 @@ export default function PhonePanel({
 
             {/* FULL SCREEN CAMERA VIEW INSIDE PHONE */}
             {activeFeed && (
-              <div
-                className="doorbell-view"
-                onClick={() => setActiveCamera(null)}
-              >
+              <div className="doorbell-view" onClick={handleCloseCamera}>
                 <img
                   src={activeFeed.src}
                   alt={activeFeed.alt}
@@ -230,7 +293,7 @@ export default function PhonePanel({
                   className="doorbell-view__close"
                   onClick={(event) => {
                     event.stopPropagation();
-                    setActiveCamera(null);
+                    handleCloseCamera();
                   }}
                   aria-label="Close camera view"
                 >
