@@ -589,3 +589,129 @@
   transform: translateX(18px);
 }
 
+/* =========================
+   FIX VIDEO CARD CAROUSEL
+========================= */
+
+.phone-section--video-card {
+  padding: 0 !important;
+  overflow: hidden !important;
+}
+
+.video-card-header {
+  height: 72px;
+  padding: 0 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.video-card-header .phone-section__title {
+  margin: 0;
+  font-size: 18px;
+  color: #737373;
+}
+
+.video-card-arrow {
+  font-size: 48px;
+  line-height: 1;
+  color: #777;
+}
+
+.video-carousel {
+  display: flex;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+
+.video-carousel::-webkit-scrollbar {
+  display: none;
+}
+
+.video-slide {
+  position: relative;
+  flex: 0 0 100%;
+  height: 260px;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  background: #111;
+  overflow: hidden;
+  scroll-snap-align: start;
+}
+
+.video-slide img {
+  width: 100%;
+  height: 188px;
+  object-fit: cover;
+  display: block;
+  filter: brightness(0.55);
+}
+
+.video-slide__play {
+  position: absolute;
+  top: 95px;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 5;
+  border: 0;
+  background: transparent;
+  color: #ffffff;
+  font-size: 58px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.video-slide__bars {
+  position: absolute;
+  left: 50%;
+  top: 168px;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 5px;
+  z-index: 5;
+}
+
+.video-slide__bars span {
+  width: 42px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.55);
+}
+
+.video-slide__bars span.is-active {
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.video-slide__footer {
+  height: 72px;
+  background: #ffffff;
+  color: #2d2d2d;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 18px;
+}
+
+.video-slide__label {
+  color: #2d2d2d !important;
+  font-size: 24px;
+  font-weight: 850;
+}
+
+.video-slide__expand {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  border: 0;
+  background: #ffffff;
+  color: #333;
+  font-size: 24px;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: inset 0 0 0 3px #333;
+  cursor: pointer;
+}

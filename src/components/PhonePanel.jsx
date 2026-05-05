@@ -28,6 +28,32 @@ export default function PhonePanel({
   nightMode,
   setNightMode,
 }) {
+  const cameraFeeds = [
+    {
+      id: "doorbell",
+      label: "Video Doorbell",
+      liveLabel: "Live Doorbell",
+      src: "/doorbell-camera-scene.svg",
+      alt: "Video doorbell camera view",
+    },
+    {
+      id: "outdoor",
+      label: "Outdoor Camera",
+      liveLabel: "Outdoor Camera",
+      src: "/outdoor-camera-scene.svg",
+      alt: "Outdoor camera view",
+    },
+    {
+      id: "floodlight",
+      label: "Floodlight Camera",
+      liveLabel: "Floodlight Camera",
+      src: "/floodlight-camera-scene.svg",
+      alt: "Floodlight camera view",
+    },
+  ];
+
+  const activeFeed = cameraFeeds.find((feed) => feed.id === activeCamera);
+
   return (
     <div className={`phone-panel-wrap ${nightMode ? "is-night" : ""}`}>
       <div className="phone-panel">
@@ -57,61 +83,69 @@ export default function PhonePanel({
                   </div>
                 </section>
 
-                {/* VIDEO */}
-                <section className="phone-section">
-                  <h3 className="phone-section__title">Video</h3>
-                  <div className="phone-section__controls">
-                    <button
-                      className={`phone-control ${
-                        activeCamera === "doorbell" ? "is-active" : ""
-                      }`}
-                      onClick={() => setActiveCamera("doorbell")}
-                    >
-                      Video Doorbell
-                    </button>
+                {/* VIDEO CAROUSEL CARD */}
+                <section className="phone-section phone-section--video-card">
+                  <div className="video-card-header">
+                    <h3 className="phone-section__title">Video</h3>
+                    <span className="video-card-arrow">›</span>
+                  </div>
 
-                    <button
-                      className={`phone-control ${
-                        activeCamera === "outdoor" ? "is-active" : ""
-                      }`}
-                      onClick={() => setActiveCamera("outdoor")}
-                    >
-                      Outdoor Camera
-                    </button>
+                  <div className="video-carousel">
+                    {cameraFeeds.map((feed, index) => (
+                      <div className="video-slide" key={feed.id}>
+                        <img src={feed.src} alt={feed.alt} />
 
-                    <button
-                      className={`phone-control ${
-                        activeCamera === "floodlight" ? "is-active" : ""
-                      }`}
-                      onClick={() => setActiveCamera("floodlight")}
-                    >
-                      Floodlight Camera
-                    </button>
+                        <button
+                          type="button"
+                          className="video-slide__play"
+                          onClick={() => setActiveCamera(feed.id)}
+                          aria-label={`Open ${feed.label}`}
+                        >
+                          ▶
+                        </button>
+
+                        <div className="video-slide__bars">
+                          {cameraFeeds.map((bar) => (
+                            <span
+                              key={bar.id}
+                              className={bar.id === feed.id ? "is-active" : ""}
+                            />
+                          ))}
+                        </div>
+
+                        <div className="video-slide__footer">
+                          <span className="video-slide__label">
+                            {feed.label}
+                          </span>
+
+                          <button
+                            type="button"
+                            className="video-slide__expand"
+                            onClick={() => setActiveCamera(feed.id)}
+                            aria-label={`Expand ${feed.label}`}
+                          >
+                            ⛶
+                          </button>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </section>
 
-                {/* LIGHTS (NEW CARD UI) */}
+                {/* LIGHTS */}
                 <section className="phone-section phone-section--lights">
                   <h3 className="phone-section__title">Lights</h3>
 
                   <div className="light-list">
-                  {[
-
-  ["Master Bedroom", upstairsBedroomOn, setUpstairsBedroomOn],
-
-  ["Bedroom", bedroomOn, setBedroomOn],
-
-  ["Living Room", livingRoomOn, setLivingRoomOn],
-
-  ["Dining Room", diningRoomOn, setDiningRoomOn],
-
-  ["Garage Lights", garageLightsOn, setGarageLightsOn],
-
-  ["Side Light", exteriorSideLightOn, setExteriorSideLightOn],
-
-  ["Porch Light", porchLightOn, setPorchLightOn],
-
-].map(([label, isOn, setter]) => (
+                    {[
+                      ["Master Bedroom", upstairsBedroomOn, setUpstairsBedroomOn],
+                      ["Bedroom", bedroomOn, setBedroomOn],
+                      ["Living Room", livingRoomOn, setLivingRoomOn],
+                      ["Dining Room", diningRoomOn, setDiningRoomOn],
+                      ["Garage Lights", garageLightsOn, setGarageLightsOn],
+                      ["Side Light", exteriorSideLightOn, setExteriorSideLightOn],
+                      ["Porch Light", porchLightOn, setPorchLightOn],
+                    ].map(([label, isOn, setter]) => (
                       <button
                         key={label}
                         type="button"
@@ -174,79 +208,31 @@ export default function PhonePanel({
               </div>
             </div>
 
-            {/* CAMERA VIEWS */}
-            {activeCamera === "doorbell" && (
+            {/* FULL SCREEN CAMERA VIEW INSIDE PHONE */}
+            {activeFeed && (
               <div
                 className="doorbell-view"
                 onClick={() => setActiveCamera(null)}
               >
                 <img
-                  src="/doorbell-camera-scene.svg"
-                  alt="Video doorbell camera view"
+                  src={activeFeed.src}
+                  alt={activeFeed.alt}
                   className="doorbell-view__image"
                 />
-                <div className="doorbell-view__header">
-                  <span>Live Doorbell</span>
-                  <strong>Now</strong>
-                </div>
-                <button
-                  className="doorbell-view__close"
-                  onClick={(event) => {
-                    event.stopPropagation();
-                    setActiveCamera(null);
-                  }}
-                >
-                  ×
-                </button>
-              </div>
-            )}
 
-            {activeCamera === "outdoor" && (
-              <div
-                className="doorbell-view"
-                onClick={() => setActiveCamera(null)}
-              >
-                <img
-                  src="/outdoor-camera-scene.svg"
-                  alt="Outdoor camera view"
-                  className="doorbell-view__image"
-                />
                 <div className="doorbell-view__header">
-                  <span>Outdoor Camera</span>
+                  <span>{activeFeed.liveLabel}</span>
                   <strong>Now</strong>
                 </div>
-                <button
-                  className="doorbell-view__close"
-                  onClick={(event) => {
-                    event.stopPropagation();
-                    setActiveCamera(null);
-                  }}
-                >
-                  ×
-                </button>
-              </div>
-            )}
 
-            {activeCamera === "floodlight" && (
-              <div
-                className="doorbell-view"
-                onClick={() => setActiveCamera(null)}
-              >
-                <img
-                  src="/floodlight-camera-scene.svg"
-                  alt="Floodlight camera view"
-                  className="doorbell-view__image"
-                />
-                <div className="doorbell-view__header">
-                  <span>Floodlight Camera</span>
-                  <strong>Now</strong>
-                </div>
                 <button
+                  type="button"
                   className="doorbell-view__close"
                   onClick={(event) => {
                     event.stopPropagation();
                     setActiveCamera(null);
                   }}
+                  aria-label="Close camera view"
                 >
                   ×
                 </button>
