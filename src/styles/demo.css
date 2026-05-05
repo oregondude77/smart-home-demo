@@ -480,3 +480,111 @@
 .phone-panel-wrap.is-night .doorbell-view__header strong {
   color: #4ade80; /* keep the "Now" green but brighter for dark bg */
 }
+
+/* =========================
+   LIGHT TOGGLE CARDS
+========================= */
+
+.phone-section--lights .phone-section__controls {
+  display: block;
+}
+
+.light-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.light-row {
+  width: 100%;
+  min-height: 58px;
+  border: 1px solid #dfe5df;
+  border-radius: 18px;
+  background: #ffffff;
+  color: #183426;
+  cursor: pointer;
+  padding: 10px 12px;
+
+  display: grid;
+  grid-template-columns: 34px 1fr 46px;
+  align-items: center;
+  gap: 10px;
+
+  text-align: left;
+  font-family: inherit;
+
+  box-shadow:
+    0 4px 8px rgba(0, 0, 0, 0.025),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.light-row:hover {
+  transform: translateY(-1px);
+}
+
+.light-row__icon {
+  font-size: 22px;
+  line-height: 1;
+  opacity: 0.7;
+}
+
+.light-row__copy {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.light-row__copy strong {
+  font-size: 13px;
+  font-weight: 900;
+  line-height: 1.1;
+}
+
+.light-row__copy small {
+  font-size: 11px;
+  font-weight: 800;
+  color: #7a877f;
+}
+
+.light-row__switch {
+  width: 44px;
+  height: 26px;
+  border-radius: 999px;
+  background: #d8ded9;
+  padding: 3px;
+  display: flex;
+  align-items: center;
+  transition: background 0.2s ease;
+}
+
+.light-row__switch span {
+  width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  background: #ffffff;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.18);
+  transition: transform 0.2s ease;
+}
+
+.light-row.is-on {
+  background: #fff7d6;
+  border-color: rgba(255, 196, 0, 0.65);
+}
+
+.light-row.is-on .light-row__icon {
+  opacity: 1;
+}
+
+.light-row.is-on .light-row__switch {
+  background: #ffc400;
+}
+
+.light-row.is-on .light-row__switch span {
+  transform: translateX(18px);
+}

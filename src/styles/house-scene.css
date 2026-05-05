@@ -330,8 +330,8 @@
   position: absolute;
 
   /* anchor to house like everything else */
-  top: 69%;
-  left: 86%;
+  top: 71%;
+  left: 88%;
 
   width: 34%;
   height: 53%;
@@ -1258,4 +1258,12 @@
 .house-container .ios-door-badge__icon svg {
   width: 48%;
   height: 48%;
+}
+
+.house-scene--night .house-shadow-layer {
+  opacity: 0.65;
+  filter:
+    brightness(0.55)
+    contrast(1.2)
+    blur(0.5px);
 }
