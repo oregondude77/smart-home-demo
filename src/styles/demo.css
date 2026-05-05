@@ -434,7 +434,7 @@
     contrast(1.18)
     saturate(0.72)
     hue-rotate(185deg);
-  transition: filter 2.5s ease-in-out;
+  transition: filter 1.8s ease-in-out;
 }
 
 /* dark sky + dark bottom, but stays UNDER text and X */
@@ -588,3 +588,4 @@
 .light-row.is-on .light-row__switch span {
   transform: translateX(18px);
 }
+

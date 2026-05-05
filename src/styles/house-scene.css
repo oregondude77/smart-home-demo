@@ -435,7 +435,7 @@
     saturate(1)
     drop-shadow(0 24px 26px rgba(0, 0, 0, 0.1))
     drop-shadow(0 8px 10px rgba(0, 0, 0, 0.06));
-  transition: filter 3.5s ease-in-out;
+  transition: filter 2.0s ease-in-out;
 }
 
 .house-shadow-layer {
@@ -922,7 +922,7 @@
       transparent 40%
     ),
     linear-gradient(180deg, #071827 0%, #06111d 48%, #02070d 100%);
-  transition: opacity 3.5s ease-in-out;
+  transition: opacity 1.2s ease-in-out;
 }
 
 .house-scene--night .house-scene__frame::before {
@@ -946,7 +946,7 @@
     saturate(0.92)
     drop-shadow(0 28px 34px rgba(0, 0, 0, 0.36))
     drop-shadow(0 8px 14px rgba(0, 0, 0, 0.2));
-  transition: filter 1.8s ease-in-out;
+  transition: filter 1.2s ease-in-out;
 }
 
 .house-scene--night .light-layer {
@@ -954,6 +954,8 @@
     brightness(1.45)
     saturate(1.22)
     drop-shadow(0 0 16px rgba(255, 220, 130, 0.58));
+     transition: filter 1.2s ease-in-out;
+    
 }
 
 /* =========================
@@ -1266,4 +1268,30 @@
     brightness(0.55)
     contrast(1.2)
     blur(0.5px);
+
+
+/* FORCE FAST DAY / NIGHT FADE */
+.house-scene__frame::before {
+  transition: opacity 0.8s ease-in-out !important;
+}
+
+.house-base {
+  transition: filter 0.8s ease-in-out !important;
+}
+
+.house-shadow-layer {
+  transition:
+    opacity 0.8s ease-in-out !important,
+    filter 0.8s ease-in-out !important;
+}
+
+.light-layer {
+  transition: filter 0.8s ease-in-out !important;
+}
+
+.house-container::before {
+  transition:
+    opacity 0.8s ease-in-out !important,
+    filter 0.8s ease-in-out !important,
+    background 0.8s ease-in-out !important;
 }
