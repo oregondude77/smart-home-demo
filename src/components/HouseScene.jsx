@@ -52,23 +52,20 @@ function DoorBadgeAnchor({ unlocked, pulsing, className = "" }) {
   );
 }
 
-function CameraPreview({ type, src, title }) {
+function CameraLiveMarker({ type, label }) {
   return (
-    <div className={["camera-preview", `camera-preview--${type}`].join(" ")}>
-      <div className="camera-preview__glass" />
-      <div className="camera-preview__top">
-        <span className="camera-preview__dot" />
-        <span>{title}</span>
+    <>
+      <div className={`camera-live-marker camera-live-marker--${type}`} />
+      <div className={`camera-live-label camera-live-label--${type}`}>
+        {label}
       </div>
-      <img src={src} alt="" className="camera-preview__image" />
-      <div className="camera-preview__scan" />
-    </div>
+    </>
   );
 }
 
+
 export default function HouseScene({
   garageOpen = false,
-  cameraOn = false,
   nightMode = false,
   armed = false,
 
@@ -83,8 +80,7 @@ export default function HouseScene({
   frontDoorUnlocked = false,
   sideDoorUnlocked = false,
 
-  outdoorCameraOpen = false,
-  floodLightCameraOpen = false,
+  activeCamera = null,
 }) {
   const [garageFrame, setGarageFrame] = useState(0);
   const [frontPulse, setFrontPulse] = useState(false);
@@ -120,8 +116,6 @@ export default function HouseScene({
       "/panel-base.svg",
       "/panel-armed.svg",
       "/panel-disarmed.svg",
-      "/outdoor-camera-view.svg",
-      "/floodlight-camera-view.svg",
     ];
 
     for (let i = 0; i <= GARAGE_MAX_FRAME; i += 1) {
@@ -204,7 +198,6 @@ export default function HouseScene({
     <div
       className={[
         "house-scene",
-        cameraOn && "house-scene--camera",
         nightMode && "house-scene--night",
         armed ? "house-scene--armed" : "house-scene--disarmed",
       ].filter(Boolean).join(" ")}
@@ -226,22 +219,6 @@ export default function HouseScene({
                 {armed ? <LockIcon /> : <UnlockIcon />}
               </span>
             </div>
-          )}
-
-          {outdoorCameraOpen && (
-            <CameraPreview
-              type="outdoor"
-              title="Outdoor Camera"
-              src="/outdoor-camera-view.svg"
-            />
-          )}
-
-          {floodLightCameraOpen && (
-            <CameraPreview
-              type="floodlight"
-              title="Floodlight Camera"
-              src="/floodlight-camera-view.svg"
-            />
           )}
 
           <img src="/house-shadow.svg" alt="" className="house-shadow-layer" />
@@ -312,6 +289,18 @@ export default function HouseScene({
 
           {porchLightOn && (
             <img src="/porch-light-outside.svg" alt="" className="light-layer light-layer--porch-light" />
+          )}
+
+          {activeCamera === "doorbell" && (
+            <CameraLiveMarker type="doorbell" label="Live Doorbell" />
+          )}
+
+          {activeCamera === "outdoor" && (
+            <CameraLiveMarker type="outdoor" label="Outdoor Live" />
+          )}
+
+          {activeCamera === "floodlight" && (
+            <CameraLiveMarker type="floodlight" label="Floodlight Live" />
           )}
 
           <DoorBadgeAnchor

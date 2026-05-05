@@ -6,7 +6,6 @@ import PhonePanel from "./PhonePanel";
 
 export default function SmartHomeDemo() {
   const [garageOpen, setGarageOpen] = useState(false);
-  const [cameraOn, setCameraOn] = useState(false);
   const [armed, setArmed] = useState(false);
   const [upstairsBedroomOn, setUpstairsBedroomOn] = useState(false);
   const [bedroomOn, setBedroomOn] = useState(false);
@@ -18,6 +17,7 @@ export default function SmartHomeDemo() {
   const [frontDoorUnlocked, setFrontDoorUnlocked] = useState(false);
   const [sideDoorUnlocked, setSideDoorUnlocked] = useState(false);
   const [nightMode, setNightMode] = useState(false);
+  const [activeCamera, setActiveCamera] = useState(null);
 
   return (
     <div className="demo">
@@ -25,8 +25,6 @@ export default function SmartHomeDemo() {
         <PhonePanel
           garageOpen={garageOpen}
           setGarageOpen={setGarageOpen}
-          cameraOn={cameraOn}
-          setCameraOn={setCameraOn}
           armed={armed}
           setArmed={setArmed}
           upstairsBedroomOn={upstairsBedroomOn}
@@ -49,11 +47,12 @@ export default function SmartHomeDemo() {
           setSideDoorUnlocked={setSideDoorUnlocked}
           nightMode={nightMode}
           setNightMode={setNightMode}
+          activeCamera={activeCamera}
+          setActiveCamera={setActiveCamera}
         />
 
         <HouseScene
           garageOpen={garageOpen}
-          cameraOn={cameraOn}
           armed={armed}
           upstairsBedroomOn={upstairsBedroomOn}
           bedroomOn={bedroomOn}
@@ -65,6 +64,7 @@ export default function SmartHomeDemo() {
           frontDoorUnlocked={frontDoorUnlocked}
           sideDoorUnlocked={sideDoorUnlocked}
           nightMode={nightMode}
+          activeCamera={activeCamera}
         />
       </div>
     </div>
