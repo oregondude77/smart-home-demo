@@ -30,16 +30,13 @@ function DoorBadge({ unlocked, pulsing }) {
         "ios-door-badge",
         unlocked ? "is-unlocked" : "is-locked",
         pulsing ? "is-pulsing" : "",
-      ]
-        .filter(Boolean)
-        .join(" ")}
+      ].filter(Boolean).join(" ")}
     >
       <div className="ios-door-badge__frame" />
       <div className="ios-door-badge__core" />
       <div className="ios-door-badge__gloss" />
       <div className="ios-door-badge__glare" />
       <div className="ios-door-badge__shimmer" />
-
       <div className="ios-door-badge__icon">
         {unlocked ? <UnlockIcon /> : <LockIcon />}
       </div>
@@ -55,21 +52,26 @@ function DoorBadgeAnchor({ unlocked, pulsing, className = "" }) {
   );
 }
 
-function CameraLiveMarker({ type, label }) {
+function CameraPreview({ type, src, title }) {
   return (
-    <>
-      <div className={`camera-live-marker camera-live-marker--${type}`} />
-      <div className={`camera-live-label camera-live-label--${type}`}>
-        {label}
+    <div className={["camera-preview", `camera-preview--${type}`].join(" ")}>
+      <div className="camera-preview__glass" />
+      <div className="camera-preview__top">
+        <span className="camera-preview__dot" />
+        <span>{title}</span>
       </div>
-    </>
+      <img src={src} alt="" className="camera-preview__image" />
+      <div className="camera-preview__scan" />
+    </div>
   );
 }
 
 export default function HouseScene({
   garageOpen = false,
   cameraOn = false,
+  nightMode = false,
   armed = false,
+
   upstairsBedroomOn = false,
   bedroomOn = false,
   livingRoomOn = false,
@@ -77,16 +79,18 @@ export default function HouseScene({
   garageLightsOn = false,
   exteriorSideLightOn = false,
   porchLightOn = false,
+
   frontDoorUnlocked = false,
   sideDoorUnlocked = false,
-  activeCamera = null,
+
+  outdoorCameraOpen = false,
+  floodLightCameraOpen = false,
 }) {
   const [garageFrame, setGarageFrame] = useState(0);
   const [frontPulse, setFrontPulse] = useState(false);
   const [sidePulse, setSidePulse] = useState(false);
   const [systemMessage, setSystemMessage] = useState("");
   const [systemMessageKey, setSystemMessageKey] = useState(0);
-  const [nightMode, setNightMode] = useState(false);
 
   const frontMounted = useRef(false);
   const sideMounted = useRef(false);
@@ -116,6 +120,8 @@ export default function HouseScene({
       "/panel-base.svg",
       "/panel-armed.svg",
       "/panel-disarmed.svg",
+      "/outdoor-camera-view.svg",
+      "/floodlight-camera-view.svg",
     ];
 
     for (let i = 0; i <= GARAGE_MAX_FRAME; i += 1) {
@@ -201,29 +207,10 @@ export default function HouseScene({
         cameraOn && "house-scene--camera",
         nightMode && "house-scene--night",
         armed ? "house-scene--armed" : "house-scene--disarmed",
-      ]
-        .filter(Boolean)
-        .join(" ")}
+      ].filter(Boolean).join(" ")}
     >
       <div className="house-scene__frame">
         <div className="house-container">
-          <button
-            type="button"
-            className={`day-night-toggle ${nightMode ? "is-night" : ""}`}
-            onClick={() => setNightMode((prev) => !prev)}
-            aria-label={nightMode ? "Switch to day mode" : "Switch to night mode"}
-          >
-            <span className="day-night-toggle__icon">
-              {nightMode ? "☾" : "☀"}
-            </span>
-            <span className="day-night-toggle__text">
-              {nightMode ? "Night" : "Day"}
-            </span>
-            <span className="day-night-toggle__switch">
-              <span />
-            </span>
-          </button>
-
           <img src="/alert-360-logo.svg" alt="Alert 360" className="house-logo" />
 
           {systemMessage && (
@@ -232,15 +219,29 @@ export default function HouseScene({
               className={[
                 "system-status",
                 armed ? "system-status--armed" : "system-status--disarmed",
-              ]
-                .filter(Boolean)
-                .join(" ")}
+              ].filter(Boolean).join(" ")}
               aria-label={armed ? "System Armed" : "System Disarmed"}
             >
               <span className="system-status__lock">
                 {armed ? <LockIcon /> : <UnlockIcon />}
               </span>
             </div>
+          )}
+
+          {outdoorCameraOpen && (
+            <CameraPreview
+              type="outdoor"
+              title="Outdoor Camera"
+              src="/outdoor-camera-view.svg"
+            />
+          )}
+
+          {floodLightCameraOpen && (
+            <CameraPreview
+              type="floodlight"
+              title="Floodlight Camera"
+              src="/floodlight-camera-view.svg"
+            />
           )}
 
           <img src="/house-shadow.svg" alt="" className="house-shadow-layer" />
@@ -259,9 +260,7 @@ export default function HouseScene({
                 "security-panel-state",
                 "security-panel-state--armed",
                 armed ? "is-visible" : "",
-              ]
-                .filter(Boolean)
-                .join(" ")}
+              ].filter(Boolean).join(" ")}
             />
 
             <img
@@ -271,9 +270,7 @@ export default function HouseScene({
                 "security-panel-state",
                 "security-panel-state--disarmed",
                 !armed ? "is-visible" : "",
-              ]
-                .filter(Boolean)
-                .join(" ")}
+              ].filter(Boolean).join(" ")}
             />
           </div>
 
@@ -284,79 +281,37 @@ export default function HouseScene({
               className={[
                 "garage-door-frame-image",
                 garageFrame === i ? "is-active" : "",
-              ]
-                .filter(Boolean)
-                .join(" ")}
+              ].filter(Boolean).join(" ")}
               alt=""
             />
           ))}
 
           {upstairsBedroomOn && (
-            <img
-              src="/light-bedroom-upstairs.svg"
-              alt=""
-              className="light-layer light-layer--master-bedroom"
-            />
+            <img src="/light-bedroom-upstairs.svg" alt="" className="light-layer light-layer--master-bedroom" />
           )}
 
           {bedroomOn && (
-            <img
-              src="/light-bedroom2-upstairs.svg"
-              alt=""
-              className="light-layer light-layer--bedroom"
-            />
+            <img src="/light-bedroom2-upstairs.svg" alt="" className="light-layer light-layer--bedroom" />
           )}
 
           {livingRoomOn && (
-            <img
-              src="/light-living-downstairs.svg"
-              alt=""
-              className="light-layer light-layer--living-room"
-            />
+            <img src="/light-living-downstairs.svg" alt="" className="light-layer light-layer--living-room" />
           )}
 
           {diningRoomOn && (
-            <img
-              src="/light-dining-downstairs.svg"
-              alt=""
-              className="light-layer light-layer--dining-room"
-            />
+            <img src="/light-dining-downstairs.svg" alt="" className="light-layer light-layer--dining-room" />
           )}
 
           {garageLightsOn && (
-            <img
-              src="/garage-lights-outside.svg"
-              alt=""
-              className="light-layer light-layer--garage-lights"
-            />
+            <img src="/garage-lights-outside.svg" alt="" className="light-layer light-layer--garage-lights" />
           )}
 
           {exteriorSideLightOn && (
-            <img
-              src="/side-light-outside.svg"
-              alt=""
-              className="light-layer light-layer--exterior-side-light"
-            />
+            <img src="/side-light-outside.svg" alt="" className="light-layer light-layer--exterior-side-light" />
           )}
 
           {porchLightOn && (
-            <img
-              src="/porch-light-outside.svg"
-              alt=""
-              className="light-layer light-layer--porch-light"
-            />
-          )}
-
-          {activeCamera === "doorbell" && (
-            <CameraLiveMarker type="doorbell" label="Live Doorbell" />
-          )}
-
-          {activeCamera === "outdoor" && (
-            <CameraLiveMarker type="outdoor" label="Outdoor Live" />
-          )}
-
-          {activeCamera === "floodlight" && (
-            <CameraLiveMarker type="floodlight" label="Floodlight Live" />
+            <img src="/porch-light-outside.svg" alt="" className="light-layer light-layer--porch-light" />
           )}
 
           <DoorBadgeAnchor

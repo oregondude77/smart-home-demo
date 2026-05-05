@@ -1,27 +1,12 @@
 "use client";
 
-function LightControl({ label, isOn, onClick }) {
-  return (
-    <button
-      type="button"
-      className={`light-card ${isOn ? "is-on" : ""}`}
-      onClick={onClick}
-    >
-      <span className="light-card__icon">●</span>
-      <span className="light-card__content">
-        <span className="light-card__label">{label}</span>
-        <span className="light-card__status">{isOn ? "On" : "Off"}</span>
-      </span>
-      <span className="light-card__toggle">
-        <span className="light-card__knob" />
-      </span>
-    </button>
-  );
-}
+import { useState } from "react";
 
 export default function PhonePanel({
   garageOpen,
   setGarageOpen,
+  cameraOn,
+  setCameraOn,
   armed,
   setArmed,
   upstairsBedroomOn,
@@ -42,9 +27,11 @@ export default function PhonePanel({
   setFrontDoorUnlocked,
   sideDoorUnlocked,
   setSideDoorUnlocked,
-  activeCamera,
-  setActiveCamera,
+  nightMode = false,
+  setNightMode = () => {},
 }) {
+  const [doorbellOpen, setDoorbellOpen] = useState(false);
+
   return (
     <div className="phone-panel">
       <div className="phone-shell">
@@ -76,79 +63,91 @@ export default function PhonePanel({
                 <h3 className="phone-section__title">Video</h3>
                 <div className="phone-section__controls">
                   <button
-                    className={`phone-control ${
-                      activeCamera === "doorbell" ? "is-active" : ""
-                    }`}
-                    onClick={() => setActiveCamera("doorbell")}
+                    className={`phone-control ${cameraOn ? "is-active" : ""}`}
+                    onClick={() => setCameraOn((prev) => !prev)}
                   >
-                    Video Doorbell
-                  </button>
-
-                  <button
-                    className={`phone-control ${
-                      activeCamera === "outdoor" ? "is-active" : ""
-                    }`}
-                    onClick={() => setActiveCamera("outdoor")}
-                  >
-                    Outdoor Camera
-                  </button>
-
-                  <button
-                    className={`phone-control ${
-                      activeCamera === "floodlight" ? "is-active" : ""
-                    }`}
-                    onClick={() => setActiveCamera("floodlight")}
-                  >
-                    Floodlight Camera
+                    {cameraOn ? "Camera Off" : "Camera On"}
                   </button>
                 </div>
               </section>
 
-              <section className="phone-section phone-section--lights">
+              <section className="phone-section">
+                <h3 className="phone-section__title">Doorbell</h3>
+                <div className="phone-section__controls">
+                  <button
+                    className={`phone-control ${
+                      doorbellOpen ? "is-active" : ""
+                    }`}
+                    onClick={() => setDoorbellOpen(true)}
+                  >
+                    Video Doorbell
+                  </button>
+                </div>
+              </section>
+
+              <section className="phone-section">
                 <h3 className="phone-section__title">Lights</h3>
-
-                <div className="light-card-list">
-                  <LightControl
-                    label="Master"
-                    isOn={upstairsBedroomOn}
+                <div className="phone-section__controls">
+                  <button
+                    className={`phone-control ${
+                      upstairsBedroomOn ? "is-active" : ""
+                    }`}
                     onClick={() => setUpstairsBedroomOn((prev) => !prev)}
-                  />
+                  >
+                    {upstairsBedroomOn ? "Master Off" : "Master On"}
+                  </button>
 
-                  <LightControl
-                    label="Bedroom"
-                    isOn={bedroomOn}
+                  <button
+                    className={`phone-control ${bedroomOn ? "is-active" : ""}`}
                     onClick={() => setBedroomOn((prev) => !prev)}
-                  />
+                  >
+                    {bedroomOn ? "Bedroom Off" : "Bedroom On"}
+                  </button>
 
-                  <LightControl
-                    label="Living Room"
-                    isOn={livingRoomOn}
+                  <button
+                    className={`phone-control ${
+                      livingRoomOn ? "is-active" : ""
+                    }`}
                     onClick={() => setLivingRoomOn((prev) => !prev)}
-                  />
+                  >
+                    {livingRoomOn ? "Living Off" : "Living On"}
+                  </button>
 
-                  <LightControl
-                    label="Dining Room"
-                    isOn={diningRoomOn}
+                  <button
+                    className={`phone-control ${
+                      diningRoomOn ? "is-active" : ""
+                    }`}
                     onClick={() => setDiningRoomOn((prev) => !prev)}
-                  />
+                  >
+                    {diningRoomOn ? "Dining Off" : "Dining On"}
+                  </button>
 
-                  <LightControl
-                    label="Garage Lights"
-                    isOn={garageLightsOn}
+                  <button
+                    className={`phone-control ${
+                      garageLightsOn ? "is-active" : ""
+                    }`}
                     onClick={() => setGarageLightsOn((prev) => !prev)}
-                  />
+                  >
+                    {garageLightsOn ? "Garage Lights Off" : "Garage Lights On"}
+                  </button>
 
-                  <LightControl
-                    label="Side Light"
-                    isOn={exteriorSideLightOn}
+                  <button
+                    className={`phone-control ${
+                      exteriorSideLightOn ? "is-active" : ""
+                    }`}
                     onClick={() => setExteriorSideLightOn((prev) => !prev)}
-                  />
+                  >
+                    {exteriorSideLightOn ? "Side Light Off" : "Side Light On"}
+                  </button>
 
-                  <LightControl
-                    label="Porch Light"
-                    isOn={porchLightOn}
+                  <button
+                    className={`phone-control ${
+                      porchLightOn ? "is-active" : ""
+                    }`}
                     onClick={() => setPorchLightOn((prev) => !prev)}
-                  />
+                  >
+                    {porchLightOn ? "Porch Off" : "Porch On"}
+                  </button>
                 </div>
               </section>
 
@@ -189,7 +188,7 @@ export default function PhonePanel({
             </div>
           </div>
 
-          {activeCamera === "doorbell" && (
+          {doorbellOpen && (
             <div className="doorbell-view">
               <img
                 src="/doorbell-camera-scene.svg"
@@ -204,54 +203,8 @@ export default function PhonePanel({
 
               <button
                 className="doorbell-view__close"
-                onClick={() => setActiveCamera(null)}
+                onClick={() => setDoorbellOpen(false)}
                 aria-label="Close doorbell view"
-              >
-                ×
-              </button>
-            </div>
-          )}
-
-          {activeCamera === "outdoor" && (
-            <div className="doorbell-view">
-              <img
-                src="/outdoor-camera-scene.svg"
-                alt="Outdoor camera view"
-                className="doorbell-view__image"
-              />
-
-              <div className="doorbell-view__header">
-                <span>Outdoor Camera</span>
-                <strong>Now</strong>
-              </div>
-
-              <button
-                className="doorbell-view__close"
-                onClick={() => setActiveCamera(null)}
-                aria-label="Close outdoor camera view"
-              >
-                ×
-              </button>
-            </div>
-          )}
-
-          {activeCamera === "floodlight" && (
-            <div className="doorbell-view">
-              <img
-                src="/floodlight-camera-scene.svg"
-                alt="Floodlight camera view"
-                className="doorbell-view__image"
-              />
-
-              <div className="doorbell-view__header">
-                <span>Floodlight Camera</span>
-                <strong>Now</strong>
-              </div>
-
-              <button
-                className="doorbell-view__close"
-                onClick={() => setActiveCamera(null)}
-                aria-label="Close floodlight camera view"
               >
                 ×
               </button>
@@ -263,6 +216,19 @@ export default function PhonePanel({
         <div className="phone-shell__side-button phone-shell__side-button--two" />
         <div className="phone-shell__power-button" />
       </div>
+
+      <button
+        type="button"
+        className={`scene-mode-toggle ${nightMode ? "is-night" : "is-day"}`}
+        onClick={() => setNightMode((prev) => !prev)}
+        aria-label={nightMode ? "Switch to day mode" : "Switch to night mode"}
+      >
+        <span className="scene-mode-toggle__icon scene-mode-toggle__icon--sun">☀</span>
+        <span className="scene-mode-toggle__track">
+          <span className="scene-mode-toggle__knob" />
+        </span>
+        <span className="scene-mode-toggle__icon scene-mode-toggle__icon--moon">☾</span>
+      </button>
     </div>
   );
 }
