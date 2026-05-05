@@ -1281,8 +1281,8 @@
 
 .house-shadow-layer {
   transition:
-    opacity 0.8s ease-in-out !important,
-    filter 0.8s ease-in-out !important;
+    opacity 1.2s ease-in-out !important,
+    filter 1.2s ease-in-out !important;
 }
 
 .light-layer {
