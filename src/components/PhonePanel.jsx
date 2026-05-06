@@ -33,6 +33,7 @@ export default function PhonePanel({
   setNightMode,
 }) {
   const [inlineCamera, setInlineCamera] = useState(null);
+  const [activeDoorSlide, setActiveDoorSlide] = useState(0);
 
   const cameraFeeds = [
     {
@@ -300,6 +301,7 @@ export default function PhonePanel({
                       <text x="188" y="101" fill="#333333" fontSize="20" fontWeight="500">
                         System
                       </text>
+
                       <text
                         x="188"
                         y="125"
@@ -309,9 +311,11 @@ export default function PhonePanel({
                       >
                         {armed ? "ARMED AWAY" : "DISARMED"}
                       </text>
+
                       <circle cx="182.5" cy="168" r="4" fill="#333333" />
                       <circle cx="198.5" cy="168" r="4" fill="#767676" />
                       <rect x="2" y="178" width="377" height="1" fill="black" fillOpacity="0.1" />
+
                       <text x="148" y="199" fill="#767676" fontSize="13">
                         No Active Sensors
                       </text>
@@ -321,7 +325,16 @@ export default function PhonePanel({
 
                 {/* DOORS */}
                 <section className="phone-section phone-section--door-locks-card">
-                  <div className="door-locks-carousel">
+                  <div
+                    className="door-locks-carousel"
+                    onScroll={(event) => {
+                      const slide = Math.round(
+                        event.currentTarget.scrollLeft / event.currentTarget.offsetWidth
+                      );
+
+                      setActiveDoorSlide(slide);
+                    }}
+                  >
                     <DoorLockCard
                       label="Front Door"
                       unlocked={frontDoorUnlocked}
@@ -333,6 +346,11 @@ export default function PhonePanel({
                       unlocked={sideDoorUnlocked}
                       onToggle={() => setSideDoorUnlocked((prev) => !prev)}
                     />
+                  </div>
+
+                  <div className="door-locks-bars">
+                    <span className={activeDoorSlide === 0 ? "is-active" : ""} />
+                    <span className={activeDoorSlide === 1 ? "is-active" : ""} />
                   </div>
                 </section>
 
@@ -363,7 +381,13 @@ export default function PhonePanel({
                       <text x="187" y="76" fill="#333333" fontSize="20" fontWeight="500">
                         Garage
                       </text>
-                      <text x="187" y="101" fill={garageOpen ? "#23AB3F" : "#D92C29"} fontSize="15" fontWeight="900">
+                      <text
+                        x="187"
+                        y="101"
+                        fill={garageOpen ? "#23AB3F" : "#D92C29"}
+                        fontSize="15"
+                        fontWeight="900"
+                      >
                         {garageOpen ? "OPEN" : "CLOSED"}
                       </text>
                     </svg>
@@ -420,6 +444,7 @@ export default function PhonePanel({
 
                           <div className="video-slide__footer">
                             <span className="video-slide__label">{feed.label}</span>
+
                             <button
                               type="button"
                               className="video-slide__expand"

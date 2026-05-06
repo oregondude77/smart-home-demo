@@ -1145,3 +1145,25 @@ body:has(.demo.is-night)::before {
 .door-lock-card-button:active {
   transform: scale(0.995);
 }
+
+.door-locks-bars {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  margin-top: -8px;
+  padding-bottom: 10px;
+}
+
+.door-locks-bars span {
+  width: 42px;
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.14);
+}
+
+.door-locks-bars span.is-active {
+  background: rgba(0, 0, 0, 0.42);
+}
+
+
