@@ -1012,47 +1012,46 @@
 }
 
 /* =========================
-   SAFARI PHONE OVERFLOW FIX
+   FINAL SAFARI PHONE FRAME FIX
+   Keep this at very bottom
 ========================= */
 
-.phone-shell,
-.phone-shell__screen {
-  min-height: 0;
+.phone-shell {
+  position: relative !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
 }
 
 .phone-shell__screen {
-  overflow: hidden;
+  position: absolute !important;
+  inset: 14px !important;
+  width: auto !important;
+  height: auto !important;
+  max-width: none !important;
+  max-height: none !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
 }
 
 .phone-app {
-  height: 100%;
-  max-height: 100%;
-  min-height: 0;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
+  width: 100% !important;
+  height: 100% !important;
+  max-height: 100% !important;
+  min-height: 0 !important;
+  box-sizing: border-box !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  -webkit-overflow-scrolling: touch !important;
+  overscroll-behavior: contain !important;
 }
 
-/* Prevent Safari from letting the app content push outside the phone */
-.phone-panel,
-.phone-panel-wrap {
-  min-height: 0;
+.phone-app,
+.phone-app * {
+  box-sizing: border-box;
 }
 
-/* Safari-specific containment fix */
-@supports (-webkit-touch-callout: none) {
-  .phone-shell {
-    overflow: hidden;
-  }
-
+@media (max-width: 420px) {
   .phone-shell__screen {
-    height: 100%;
-    max-height: 100%;
-    overflow: hidden;
-  }
-
-  .phone-app {
-    height: 100%;
-    max-height: 100%;
-    overflow-y: scroll;
+    inset: 12px !important;
   }
 }
