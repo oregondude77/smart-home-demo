@@ -1010,3 +1010,49 @@
   width: 100%;
   height: auto;
 }
+
+/* =========================
+   SAFARI PHONE OVERFLOW FIX
+========================= */
+
+.phone-shell,
+.phone-shell__screen {
+  min-height: 0;
+}
+
+.phone-shell__screen {
+  overflow: hidden;
+}
+
+.phone-app {
+  height: 100%;
+  max-height: 100%;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Prevent Safari from letting the app content push outside the phone */
+.phone-panel,
+.phone-panel-wrap {
+  min-height: 0;
+}
+
+/* Safari-specific containment fix */
+@supports (-webkit-touch-callout: none) {
+  .phone-shell {
+    overflow: hidden;
+  }
+
+  .phone-shell__screen {
+    height: 100%;
+    max-height: 100%;
+    overflow: hidden;
+  }
+
+  .phone-app {
+    height: 100%;
+    max-height: 100%;
+    overflow-y: scroll;
+  }
+}
