@@ -29,7 +29,7 @@ export default function SmartHomeDemo() {
   const [liveCamera, setLiveCamera] = useState(null);
 
   return (
-    <div className="demo">
+  <div className={`demo ${nightMode ? "is-night" : ""}`}>
     <div className="demo-hero-copy">
   <div className="demo-hero-pill">
     <span></span>

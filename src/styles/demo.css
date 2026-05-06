@@ -1004,3 +1004,95 @@ body {
 .demo-hero-copy {
   margin-top: 28px !important;
 }
+
+/* =========================
+   NIGHT MODE PAGE BACKGROUND
+========================= */
+
+/* Keep default background always visible */
+body {
+  position: relative;
+  background:
+    radial-gradient(circle at 18% 18%, rgba(0, 150, 75, 0.16), transparent 32%),
+    radial-gradient(circle at 78% 22%, rgba(0, 150, 75, 0.1), transparent 34%),
+    linear-gradient(135deg, #f7fbf8 0%, #eef6f1 48%, #f8fbf9 100%) !important;
+}
+
+/* Dark overlay fades in smoothly */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0;
+
+  background:
+    radial-gradient(circle at 18% 18%, rgba(80, 140, 255, 0.16), transparent 34%),
+    radial-gradient(circle at 78% 22%, rgba(0, 150, 75, 0.08), transparent 38%),
+    linear-gradient(135deg, #071018 0%, #0d1522 48%, #111827 100%);
+
+  transition:
+    opacity 4.8s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+/* Fade dark mode in */
+body:has(.demo.is-night)::before {
+  opacity: 1;
+}
+
+/* Optional subtle darkening inside demo */
+.demo.is-night {
+  background:
+    radial-gradient(circle at 18% 18%, rgba(80, 140, 255, 0.08), transparent 34%),
+    radial-gradient(circle at 78% 22%, rgba(0, 150, 75, 0.04), transparent 38%);
+}
+
+/* =========================
+   ULTRA SMOOTH NIGHT MODE
+========================= */
+
+.demo,
+.demo::before,
+.demo-hero-copy,
+.demo-hero-copy *,
+.house-scene,
+.house-scene *,
+.phone-panel-wrap::before {
+  transition-property:
+    background,
+    background-color,
+    color,
+    border-color,
+    box-shadow,
+    opacity,
+    filter;
+
+  transition-duration: 4.8s;
+
+  transition-timing-function:
+    cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+/* =========================
+   HERO TEXT
+========================= */
+
+.demo.is-night .demo-hero-copy h1 {
+  color: #ffffff !important;
+}
+
+.demo.is-night .demo-hero-copy p,
+.demo.is-night .demo-hero-actions span {
+  color: rgba(255, 255, 255, 0.72) !important;
+}
+
+/* Keep pill + button styling */
+.demo.is-night .demo-hero-pill {
+  color: #0d3a27 !important;
+}
+
+.demo.is-night .demo-hero-actions button {
+  background: #00964b !important;
+  color: #ffffff !important;
+}
