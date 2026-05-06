@@ -46,16 +46,6 @@
   z-index: 20;
 }
 
-.phone-shell__island {
-  position: absolute;
-  top: 10px;
-  left: 50%;
-  width: 120px;
-  height: 32px;
-  transform: translateX(-50%);
-  border-radius: 999px;
-  background: #000;
-}
 
 .phone-shell__screen {
   position: relative;
@@ -993,4 +983,30 @@
 
 .garage-card-button:active {
   transform: scale(0.995);
+}
+
+/* =========================
+   PHONE APP TOP BAR
+========================= */
+
+.phone-app__top-svg {
+  margin: -56px -20px 18px;
+  width: calc(100% + 40px);
+  overflow: hidden;
+  border-radius: 0;
+}
+
+.phone-app__top-svg svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+.phone-shell__hardware {
+  display: none;
+}
+
+.phone-app__top-svg svg {
+  display: block;
+  width: 100%;
+  height: auto;
 }
