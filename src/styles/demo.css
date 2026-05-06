@@ -1096,3 +1096,52 @@ body:has(.demo.is-night)::before {
   background: #00964b !important;
   color: #ffffff !important;
 }
+
+/* =========================
+   DOOR LOCKS CARD
+========================= */
+
+.phone-section--door-locks-card {
+  padding: 0 !important;
+  overflow: hidden !important;
+  background: #fff !important;
+  border-radius: 24px;
+}
+
+.door-locks-carousel {
+  display: flex;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  background: #fff;
+}
+
+.door-locks-carousel::-webkit-scrollbar {
+  display: none;
+}
+
+.door-lock-card-button {
+  flex: 0 0 100%;
+  width: 100%;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  background: #fff;
+  cursor: pointer;
+  display: block;
+  text-align: left;
+  scroll-snap-align: start;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.door-lock-card-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.door-lock-card-button:active {
+  transform: scale(0.995);
+}
