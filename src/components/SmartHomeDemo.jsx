@@ -30,6 +30,24 @@ export default function SmartHomeDemo() {
 
   return (
     <div className="demo">
+    <div className="demo-hero-copy">
+  <div className="demo-hero-pill">
+    <span></span>
+    Interactive Smart Home Demo
+  </div>
+
+  <h1>Smarter Security. Real-Time Control.</h1>
+
+  <p>
+    See how Alert 360 connects security, cameras, lights, locks, garage doors,
+    and monitoring into one seamless smart home experience.
+  </p>
+
+  <div className="demo-hero-actions">
+    <button type="button">Explore Protection</button>
+    <span>24/7 Monitoring • Smart Automation • Live Video</span>
+  </div>
+</div>
       <div className="demo-grid">
         <PhonePanel
           garageOpen={garageOpen}
