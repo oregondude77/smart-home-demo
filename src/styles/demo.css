@@ -1173,4 +1173,24 @@ body:has(.demo.is-night)::before {
   justify-content: center;
   cursor: pointer;
 }
+.video-slide__nav-zone {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 154px;
+  height: 44px;
+  z-index: 8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
 
+.video-slide__nav-zone .video-slide__bars {
+  position: static !important;
+  transform: none !important;
+}
+
+.video-slide__nav-zone span {
+  pointer-events: none;
+}
