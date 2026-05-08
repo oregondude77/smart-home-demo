@@ -1166,4 +1166,11 @@ body:has(.demo.is-night)::before {
   background: rgba(0, 0, 0, 0.42);
 }
 
+.door-locks-nav-zone {
+  height: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
 
