@@ -352,8 +352,7 @@ export default function PhonePanel({
                         {armed ? "ARMED AWAY" : "DISARMED"}
                       </text>
 
-                      <circle cx="182.5" cy="168" r="4" fill="#333333" />
-                      <circle cx="198.5" cy="168" r="4" fill="#767676" />
+                     
                       <rect x="2" y="178" width="377" height="1" fill="black" fillOpacity="0.1" />
 
                       <text x="148" y="199" fill="#767676" fontSize="13">
