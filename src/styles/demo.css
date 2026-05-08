@@ -30,8 +30,8 @@ body {
   position: relative;
   z-index: 1;
   display: grid;
-  grid-template-columns: 380px minmax(0, 1fr);
-  gap: 40px;
+  grid-template-columns: clamp(200px, 20vw, 340px) minmax(0, 1fr);
+  gap: clamp(20px, 2.4vw, 40px);
   align-items: start;
 }
 
@@ -71,13 +71,13 @@ body {
 
 .phone-shell {
   position: relative !important;
-  width: 360px;
+  width: clamp(200px, 20vw, 320px);
   max-width: 100%;
   aspect-ratio: 390 / 844;
-  padding: 14px;
+  padding: clamp(10px, 0.9vw, 14px);
   overflow: hidden !important;
   box-sizing: border-box !important;
-  border-radius: 48px;
+  border-radius: clamp(36px, 3.2vw, 48px);
   background: linear-gradient(180deg, #111827 0%, #05070c 100%);
   box-shadow:
     0 34px 70px rgba(8, 22, 15, 0.28),
@@ -91,14 +91,14 @@ body {
 
 .phone-shell__screen {
   position: absolute !important;
-  inset: 14px !important;
+  inset: clamp(10px, 0.9vw, 14px) !important;
   width: auto !important;
   height: auto !important;
   max-width: none !important;
   max-height: none !important;
   overflow: hidden !important;
   box-sizing: border-box !important;
-  border-radius: 36px;
+  border-radius: clamp(28px, 2.4vw, 36px);
   background:
     radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.9), transparent 34%),
     linear-gradient(180deg, #f8faf8 0%, #edf3ef 100%);
@@ -699,69 +699,134 @@ body {
   color: #4ade80;
 }
 
+
 /* =========================
-   DAY / NIGHT TOGGLE
+   FLOATING DAY / NIGHT TOGGLE
 ========================= */
 
 .mode-toggle {
-  margin-top: 44px;
-  width: 230px;
-  height: 64px;
-  border-radius: 999px;
-  border: 0;
-  padding: 8px 16px 8px 8px;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  cursor: pointer;
-  background: #d1d1d1;
-  color: #111;
-  box-shadow:
-    0 18px 34px rgba(8, 22, 15, 0.18),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.35) !important;
-  transition: background 0.28s ease, color 0.28s ease, box-shadow 0.28s ease;
-}
+  position: fixed;
+  left: 18px;
+  bottom: 18px;
+  z-index: 999;
 
-.mode-toggle__icon {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  background: #fff;
-  color: #111;
+  width: 66px;
+  height: 66px;
+  padding: 0;
+
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 26px;
-  flex-shrink: 0;
+
+  cursor: pointer;
+  overflow: hidden;
+
+  background:
+    radial-gradient(circle at 30% 25%, rgba(255, 255, 255, 0.28), transparent 34%),
+    linear-gradient(180deg, #3b3b3b 0%, #151515 100%);
+
+  color: #ffffff;
+
   box-shadow:
-    0 4px 10px rgba(0, 0, 0, 0.18),
-    inset 0 0 0 1px rgba(0, 0, 0, 0.04);
+    0 18px 38px rgba(0, 0, 0, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    inset 0 -10px 18px rgba(0, 0, 0, 0.28);
+
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+
+  transition:
+    transform 0.24s ease,
+    background 0.35s ease,
+    box-shadow 0.35s ease;
 }
 
+.mode-toggle:hover {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow:
+    0 22px 46px rgba(0, 0, 0, 0.26),
+    inset 0 1px 0 rgba(255, 255, 255, 0.26),
+    inset 0 -10px 18px rgba(0, 0, 0, 0.3);
+}
+
+.mode-toggle:active {
+  transform: scale(0.96);
+}
+
+.mode-toggle__icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 999px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background:
+    radial-gradient(circle at 35% 25%, rgba(255, 255, 255, 0.35), transparent 34%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.03));
+
+  color: #ffffff;
+  font-size: 28px;
+  line-height: 1;
+
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.16),
+    0 10px 20px rgba(0, 0, 0, 0.2);
+}
 .mode-toggle__label {
-  font-size: 14px;
-  font-weight: 950;
-  text-transform: uppercase;
-  letter-spacing: 0.18em;
-  white-space: nowrap;
+  display: none;
 }
 
-.mode-toggle.is-night {
-  background: #000;
-  color: #fff;
-  padding: 8px 8px 8px 16px;
-  justify-content: space-between;
+/* Day state */
+.mode-toggle:not(.is-night) {
+  background:
+    radial-gradient(circle at 32% 28%, rgba(255, 255, 255, 0.85), transparent 34%),
+    linear-gradient(180deg, #f4f4f4 0%, #cfcfcf 100%);
+
+  color: #111111;
+
   box-shadow:
-    inset 0 0 0 2px rgba(255, 255, 255, 0.1),
-    0 8px 18px rgba(0, 0, 0, 0.28);
+    0 18px 38px rgba(8, 22, 15, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.75),
+    inset 0 -10px 18px rgba(0, 0, 0, 0.08);
+}
+
+.mode-toggle:not(.is-night) .mode-toggle__icon {
+  color: #111111;
+  background:
+    radial-gradient(circle at 35% 25%, rgba(255, 255, 255, 0.9), transparent 34%),
+    linear-gradient(180deg, #ffffff, #e8e8e8);
+}
+
+/* Night state */
+.mode-toggle.is-night {
+  background:
+    radial-gradient(circle at 30% 25%, rgba(255, 255, 255, 0.22), transparent 34%),
+    linear-gradient(180deg, #2d2d2d 0%, #0b0b0b 100%);
 }
 
 .mode-toggle.is-night .mode-toggle__icon {
-  order: 2;
+  color: #ffffff;
 }
 
-.mode-toggle.is-night .mode-toggle__label {
-  order: 1;
+/* Mobile safe spacing */
+@media (max-width: 600px) {
+  .mode-toggle {
+    left: 14px;
+    bottom: 14px;
+    width: 58px;
+    height: 58px;
+  }
+
+  .mode-toggle__icon {
+    width: 46px;
+    height: 46px;
+    font-size: 24px;
+  }
 }
 
 /* =========================
@@ -789,12 +854,12 @@ body {
   }
 
   .demo-grid {
-    grid-template-columns: 350px minmax(0, 1fr);
-    gap: 28px;
+    grid-template-columns: clamp(195px, 21vw, 300px) minmax(0, 1fr);
+    gap: clamp(18px, 2.2vw, 28px);
   }
 
   .phone-shell {
-    width: 340px;
+    width: clamp(195px, 21vw, 300px);
   }
 }
 
@@ -812,7 +877,7 @@ body {
   }
 
   .phone-shell {
-    width: 360px;
+    width: min(78vw, 300px);
   }
 }
 
@@ -822,7 +887,7 @@ body {
   }
 
   .phone-shell {
-    width: 100%;
+    width: min(82vw, 280px) !important;
     border-radius: 42px;
     padding: 12px;
   }
@@ -855,6 +920,80 @@ body {
     margin-top: 42px;
   }
 }
+
+/* =========================
+   TABLET / IPAD BALANCE FIX
+   Keeps phone + scene top-aligned
+========================= */
+
+@media (min-width: 768px) and (max-width: 1180px) {
+  .demo-grid {
+    grid-template-columns: clamp(190px, 21vw, 250px) minmax(0, 1fr) !important;
+    gap: 28px !important;
+    align-items: start !important;
+  }
+
+  .phone-panel-wrap {
+    align-self: start !important;
+    padding-top: 0 !important;
+    margin-top: 0 !important;
+  }
+
+  .phone-shell {
+    width: clamp(190px, 21vw, 250px) !important;
+  }
+
+  .mode-toggle {
+    width: 190px !important;
+    height: 54px !important;
+    margin-top: 28px !important;
+  }
+
+  .mode-toggle__icon {
+    width: 42px !important;
+    height: 42px !important;
+    font-size: 22px !important;
+  }
+
+  .mode-toggle__label {
+    font-size: 11px !important;
+  }
+
+  .house-scene {
+    align-self: start !important;
+    margin-top: 0 !important;
+  }
+
+  .house-scene__frame {
+    min-height: 520px !important;
+  }
+}
+
+/* Larger iPad Pro / small laptop */
+@media (min-width: 1181px) and (max-width: 1366px) {
+  .demo-grid {
+    grid-template-columns: clamp(230px, 20vw, 290px) minmax(0, 1fr) !important;
+    gap: 34px !important;
+    align-items: start !important;
+  }
+
+  .phone-shell {
+    width: clamp(230px, 20vw, 290px) !important;
+  }
+
+  .phone-panel-wrap,
+  .house-scene {
+    align-self: start !important;
+    margin-top: 0 !important;
+  }
+
+  .house-scene__frame {
+    min-height: 560px !important;
+  }
+}
+
+
+
 
 /* =========================
    HERO COPY / SAAS POLISH
@@ -1193,4 +1332,39 @@ body:has(.demo.is-night)::before {
 
 .video-slide__nav-zone span {
   pointer-events: none;
+}
+
+/* =========================
+   FLUID PHONE SCALE OVERRIDE
+   Keeps phone scaling with the scene
+========================= */
+
+@media (min-width: 901px) {
+  .demo-grid {
+    grid-template-columns: clamp(200px, 18vw, 340px) minmax(0, 1fr) !important;
+    gap: clamp(20px, 2.4vw, 40px) !important;
+    align-items: start !important;
+  }
+
+  .phone-shell {
+    width: clamp(200px, 18vw, 340px) !important;
+    padding: clamp(10px, 0.9vw, 14px) !important;
+    border-radius: clamp(36px, 3.2vw, 48px) !important;
+  }
+
+  .phone-shell__screen {
+    inset: clamp(10px, 0.9vw, 14px) !important;
+    border-radius: clamp(28px, 2.4vw, 36px) !important;
+  }
+}
+
+/* Larger desktop monitors */
+@media (min-width: 1700px) {
+  .demo-grid {
+    grid-template-columns: clamp(220px, 18vw, 380px) minmax(0, 1fr) !important;
+  }
+
+  .phone-shell {
+    width: clamp(220px, 18vw, 380px) !important;
+  }
 }
