@@ -32,7 +32,7 @@ body {
   display: grid;
   grid-template-columns: clamp(220px, 20vw, 360px) minmax(0, 1fr);
   gap: clamp(36px, 4vw, 72px);
-  max-width: 1780px;
+  max-width: none;
   margin: 0 auto;
   width: 100%;
   align-items: start;
@@ -1284,7 +1284,7 @@ body:has(.demo.is-night)::before {
   .demo-grid {
     grid-template-columns: clamp(220px, 20vw, 360px) minmax(0, 1fr) !important;
     gap: clamp(36px, 4vw, 72px) !important;
-    max-width: 1780px !important;
+    max-width: none !important;
     margin: 0 auto !important;
     width: 100% !important;
     align-items: start !important;
