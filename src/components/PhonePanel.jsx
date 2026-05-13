@@ -61,6 +61,9 @@ export default function PhonePanel({
       label: "Floodlight Camera",
       liveLabel: "Floodlight Camera",
       src: "/floodlight-camera-scene.svg",
+      videoSrc: nightMode
+        ? "/floodlight-camera-night.mp4"
+        : "/floodlight-camera-day.mp4",
       alt: "Floodlight camera view",
     },
   ];
@@ -578,7 +581,7 @@ export default function PhonePanel({
                       setActiveVideoSlide(slide);
                     }}
                   >
-                    {cameraFeeds.map((feed, index) => (
+                    {cameraFeeds.map((feed) => (
                       <div
                         key={feed.id}
                         className="video-slide"
