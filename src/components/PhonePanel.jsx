@@ -2,6 +2,8 @@
 
 import { useRef, useState } from "react";
 
+const OUTDOOR_NIGHT_VIDEO_SRC = null;
+
 export default function PhonePanel({
   garageOpen,
   setGarageOpen,
@@ -54,6 +56,9 @@ export default function PhonePanel({
       label: "Outdoor Camera",
       liveLabel: "Outdoor Camera",
       src: "/outdoor-camera-scene.svg",
+      videoSrc: nightMode
+        ? OUTDOOR_NIGHT_VIDEO_SRC
+        : "/outdoor-camera-day.mp4",
       alt: "Outdoor camera view",
     },
     {
@@ -584,7 +589,7 @@ export default function PhonePanel({
                     {cameraFeeds.map((feed) => (
                       <div
                         key={feed.id}
-                        className="video-slide"
+                        className={`video-slide video-slide--${feed.id}`}
                         onClick={() => handleExpandCamera(feed.id)}
                       >
                         <div
@@ -690,7 +695,10 @@ export default function PhonePanel({
             </div>
 
             {activeFeed && (
-              <div className="doorbell-view" onClick={handleCloseCamera}>
+              <div
+                className={`doorbell-view doorbell-view--${activeFeed.id}`}
+                onClick={handleCloseCamera}
+              >
                 {activeFeed.videoSrc ? (
                   <video
                     key={`${activeFeed.id}-${nightMode ? "night" : "day"}`}

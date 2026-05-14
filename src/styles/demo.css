@@ -1326,6 +1326,48 @@ body:has(.demo.is-night)::before {
   pointer-events: none;
 }
 
+.video-slide--outdoor,
+.video-slide--floodlight {
+  background: #000 !important;
+}
+
+.video-slide--outdoor img,
+.video-slide--outdoor .video-slide__thumbnail,
+.video-slide--floodlight .video-slide__thumbnail {
+  height: auto !important;
+  aspect-ratio: 1 / 1;
+  object-fit: contain;
+  object-position: center;
+  background: #000;
+}
+
+.video-slide--outdoor .video-slide__play,
+.video-slide--floodlight .video-slide__play {
+  top: 50% !important;
+}
+
+.video-slide--outdoor .video-slide__nav-zone,
+.video-slide--floodlight .video-slide__nav-zone {
+  top: auto !important;
+  bottom: 58px;
+}
+
+.doorbell-view--outdoor,
+.doorbell-view--floodlight {
+  background: #000;
+}
+
+.doorbell-view--outdoor .doorbell-view__image,
+.doorbell-view--floodlight .doorbell-view__image {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1 / 1;
+  object-fit: contain;
+  object-position: center;
+  transform: none;
+  background: #000;
+}
+
 .video-slide__nav-zone {
   position: absolute;
   left: 0;
