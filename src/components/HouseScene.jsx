@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 const GARAGE_MAX_FRAME = 14;
 const GARAGE_FRAME_MS = 110;
 const DOOR_PULSE_MS = 700;
+const DOOR_CALLOUT_MS = 3400;
 const SYSTEM_MESSAGE_MS = 2000;
 
 function LockIcon() {
@@ -52,6 +53,36 @@ function DoorBadgeAnchor({ unlocked, pulsing, className = "" }) {
   );
 }
 
+function SmartLockCallout({ door, unlocked, active, actionKey }) {
+  return (
+    <div
+      className={[
+        "scene-action-callout",
+        `scene-action-callout--${door}`,
+        active ? "is-active" : "",
+        unlocked ? "is-unlocking" : "is-locking",
+      ].filter(Boolean).join(" ")}
+      aria-hidden="true"
+    >
+      <div
+        key={`${door}-${actionKey}-${unlocked ? "unlocking" : "locking"}`}
+        className="scene-action-callout__inner"
+      >
+        <img
+          src="/smart-lock-base.svg"
+          alt=""
+          className="scene-action-callout__base"
+        />
+        <img
+          src="/smart-lock-rotate.svg"
+          alt=""
+          className="scene-action-callout__rotate"
+        />
+      </div>
+    </div>
+  );
+}
+
 function CameraLiveMarker({ type, label }) {
   return (
     <>
@@ -81,10 +112,13 @@ export default function HouseScene({
   sideDoorUnlocked = false,
 
   activeCamera = null,
+  doorAction = null,
 }) {
   const [garageFrame, setGarageFrame] = useState(0);
   const [frontPulse, setFrontPulse] = useState(false);
   const [sidePulse, setSidePulse] = useState(false);
+  const [frontCallout, setFrontCallout] = useState({ active: false, key: 0 });
+  const [sideCallout, setSideCallout] = useState({ active: false, key: 0 });
   const [systemMessage, setSystemMessage] = useState("");
   const [systemMessageKey, setSystemMessageKey] = useState(0);
 
@@ -94,6 +128,8 @@ export default function HouseScene({
 
   const frontTimeoutRef = useRef(null);
   const sideTimeoutRef = useRef(null);
+  const frontCalloutTimeoutRef = useRef(null);
+  const sideCalloutTimeoutRef = useRef(null);
   const systemTimeoutRef = useRef(null);
 
   const frontRaf1Ref = useRef(null);
@@ -158,7 +194,7 @@ export default function HouseScene({
     return () => clearTimeout(systemTimeoutRef.current);
   }, [armed]);
 
-  const triggerPulse = (setPulse, timeoutRef, raf1Ref, raf2Ref) => {
+  const triggerPulse = useCallback((setPulse, timeoutRef, raf1Ref, raf2Ref) => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
     if (raf1Ref.current) cancelAnimationFrame(raf1Ref.current);
     if (raf2Ref.current) cancelAnimationFrame(raf2Ref.current);
@@ -174,7 +210,36 @@ export default function HouseScene({
         }, DOOR_PULSE_MS);
       });
     });
-  };
+  }, []);
+
+  const triggerCallout = useCallback((setCallout, timeoutRef) => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+
+    setCallout((prev) => ({
+      active: true,
+      key: prev.key + 1,
+    }));
+
+    timeoutRef.current = setTimeout(() => {
+      setCallout((prev) => ({
+        ...prev,
+        active: false,
+      }));
+    }, DOOR_CALLOUT_MS);
+  }, []);
+
+  const triggerDoorFeedback = useCallback((door) => {
+    if (door === "front") {
+      triggerPulse(setFrontPulse, frontTimeoutRef, frontRaf1Ref, frontRaf2Ref);
+      triggerCallout(setFrontCallout, frontCalloutTimeoutRef);
+      return;
+    }
+
+    if (door === "side") {
+      triggerPulse(setSidePulse, sideTimeoutRef, sideRaf1Ref, sideRaf2Ref);
+      triggerCallout(setSideCallout, sideCalloutTimeoutRef);
+    }
+  }, [triggerCallout, triggerPulse]);
 
   useEffect(() => {
     if (!frontMounted.current) {
@@ -182,8 +247,8 @@ export default function HouseScene({
       return;
     }
 
-    triggerPulse(setFrontPulse, frontTimeoutRef, frontRaf1Ref, frontRaf2Ref);
-  }, [frontDoorUnlocked]);
+    triggerDoorFeedback("front");
+  }, [frontDoorUnlocked, triggerDoorFeedback]);
 
   useEffect(() => {
     if (!sideMounted.current) {
@@ -191,8 +256,32 @@ export default function HouseScene({
       return;
     }
 
-    triggerPulse(setSidePulse, sideTimeoutRef, sideRaf1Ref, sideRaf2Ref);
-  }, [sideDoorUnlocked]);
+    triggerDoorFeedback("side");
+  }, [sideDoorUnlocked, triggerDoorFeedback]);
+
+  useEffect(() => {
+    if (!doorAction) return;
+
+    triggerDoorFeedback(doorAction.door);
+  }, [doorAction, triggerDoorFeedback]);
+
+  useEffect(() => (
+    () => {
+      [
+        frontTimeoutRef,
+        sideTimeoutRef,
+        frontCalloutTimeoutRef,
+        sideCalloutTimeoutRef,
+        systemTimeoutRef,
+      ].forEach((timeoutRef) => {
+        if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      });
+
+      [frontRaf1Ref, frontRaf2Ref, sideRaf1Ref, sideRaf2Ref].forEach((rafRef) => {
+        if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      });
+    }
+  ), []);
 
   return (
     <div
@@ -304,15 +393,29 @@ export default function HouseScene({
           )}
 
           <DoorBadgeAnchor
-            unlocked={sideDoorUnlocked}
-            pulsing={sidePulse}
+            unlocked={frontDoorUnlocked}
+            pulsing={frontPulse}
             className="door-front"
           />
 
           <DoorBadgeAnchor
-            unlocked={frontDoorUnlocked}
-            pulsing={frontPulse}
+            unlocked={sideDoorUnlocked}
+            pulsing={sidePulse}
             className="door-side"
+          />
+
+          <SmartLockCallout
+            door="front"
+            unlocked={frontDoorUnlocked}
+            active={frontCallout.active}
+            actionKey={frontCallout.key}
+          />
+
+          <SmartLockCallout
+            door="side"
+            unlocked={sideDoorUnlocked}
+            active={sideCallout.active}
+            actionKey={sideCallout.key}
           />
 
           <div className="house-overlay house-overlay--camera" />

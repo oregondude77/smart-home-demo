@@ -1268,7 +1268,7 @@
     brightness(0.55)
     contrast(1.2)
     blur(0.5px);
-
+}
 
 /* FORCE FAST DAY / NIGHT FADE */
 .house-scene__frame::before {
@@ -1294,4 +1294,214 @@
     opacity 0.8s ease-in-out,
     filter 0.8s ease-in-out,
     background 0.8s ease-in-out !important;
+}
+
+/* =========================
+   FLOATING ACTION CALLOUT
+========================= */
+
+.scene-action-callout {
+  position: absolute !important;
+  left: 3.5% !important;
+  bottom: 4% !important;
+  z-index: 9999 !important;
+
+  width: clamp(150px, 14vw, 240px) !important;
+  aspect-ratio: 1 / 1 !important;
+
+  border-radius: 50% !important;
+  overflow: hidden !important;
+  clip-path: circle(50% at 50% 50%);
+
+  opacity: 0;
+  transform: translateY(30px) scale(0.82);
+  pointer-events: none;
+
+  background: #f4f6f5;
+
+  box-shadow:
+    0 30px 70px rgba(0,0,0,0.24),
+    0 10px 26px rgba(0,0,0,0.14);
+
+  transition:
+    opacity 0.7s ease,
+    transform 0.7s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+.scene-action-callout.is-active {
+  opacity: 1 !important;
+  transform: translateY(0) scale(1) !important;
+}
+
+.scene-action-callout__inner {
+  position: absolute !important;
+  inset: 0 !important;
+
+  width: 100% !important;
+  height: 100% !important;
+
+  border-radius: 50% !important;
+  overflow: hidden !important;
+  clip-path: circle(50% at 50% 50%);
+
+  background: #f4f6f5;
+}
+
+.scene-action-callout__inner video,
+.scene-action-callout__inner img,
+.scene-action-callout__inner svg {
+  position: absolute !important;
+  inset: 0 !important;
+
+  width: 100% !important;
+  height: 100% !important;
+
+  object-fit: cover !important;
+  object-position: center !important;
+
+  display: block !important;
+}
+
+/* =========================
+   SMART LOCK SVG CALLOUT
+========================= */
+
+.scene-action-callout {
+  position: absolute !important;
+  left: 3.5% !important;
+  bottom: 4% !important;
+
+  width: clamp(280px, 24vw, 420px);
+  aspect-ratio: 1 / 1;
+
+  border-radius: 50%;
+  overflow: hidden;
+
+  z-index: 9999;
+
+  opacity: 0;
+
+  transform:
+    translateY(24px)
+    scale(0.92);
+
+  filter: blur(8px);
+
+  transition:
+    opacity 2.2s cubic-bezier(0.19, 1, 0.22, 1),
+    transform 1.1s cubic-bezier(0.19, 1, 0.22, 1),
+    filter 1.1s cubic-bezier(0.19, 1, 0.22, 1);
+
+  background: #f4f6f5;
+
+  box-shadow:
+    0 40px 90px rgba(0,0,0,0.26),
+    0 14px 32px rgba(0,0,0,0.16);
+}
+
+.scene-action-callout.is-active {
+  opacity: 1 !important;
+
+  transform:
+    translateY(0)
+    scale(1) !important;
+
+  filter: blur(0px);
+}
+
+.scene-action-callout__inner {
+  position: absolute;
+  inset: 0;
+
+  border-radius: 50%;
+  overflow: hidden;
+
+  background: #f4f6f5;
+}
+
+/* BOTH SVG LAYERS */
+.scene-action-callout__base,
+.scene-action-callout__rotate {
+  position: absolute !important;
+
+  left: 50% !important;
+  top: 50% !important;
+
+  width: 260% !important;
+  height: 260% !important;
+
+  object-fit: contain !important;
+  object-position: center !important;
+
+  pointer-events: none;
+}
+
+/* stationary lock base */
+.scene-action-callout__base {
+  z-index: 1;
+
+  /* left + down */
+  transform: translate(0%, 2.5%) !important;
+}
+/* rotating center piece */
+.scene-action-callout__rotate {
+  z-index: 2;
+
+  transform-origin: center center;
+
+  animation:
+    smartLockRotate 3.2s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+/* LOCK */
+@keyframes smartLockRotate {
+  0% {
+    transform: rotate(0deg) translate(1%, 3%);
+  }
+
+  55%,
+  100% {
+    transform: rotate(90deg) translate(1%, 3%);
+  }
+}
+
+/* UNLOCK */
+.scene-action-callout.is-unlocking .scene-action-callout__rotate {
+  animation:
+    smartLockUnlock 3.2s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+}
+
+@keyframes smartLockUnlock {
+  0% {
+    transform: rotate(90deg) translate(1%, 3%);
+  }
+
+  55%,
+  100% {
+    transform: rotate(0deg) translate(1%, 3%);
+  }
+}
+/* FORCE LARGE SMART LOCK CALLOUT */
+
+.scene-action-callout {
+  bottom: 9% !important;
+
+  width: 300px !important;
+  height: 300px !important;
+
+  max-width: none !important;
+  max-height: none !important;
+}
+
+.scene-action-callout--front {
+  left: 3.5% !important;
+  right: auto !important;
+}
+
+.scene-action-callout--side {
+  left: 3.5% !important;
+  right: auto !important;
 }
