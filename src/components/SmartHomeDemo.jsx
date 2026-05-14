@@ -4,6 +4,8 @@ import { useState } from "react";
 import HouseScene from "./HouseScene";
 import PhonePanel from "./PhonePanel";
 
+const THERMOSTAT_ROOM_TEMP = 72;
+
 export default function SmartHomeDemo() {
   const [garageOpen, setGarageOpen] = useState(false);
   const [armed, setArmed] = useState(false);
@@ -19,6 +21,7 @@ export default function SmartHomeDemo() {
 
   const [frontDoorUnlocked, setFrontDoorUnlocked] = useState(false);
   const [sideDoorUnlocked, setSideDoorUnlocked] = useState(false);
+  const [thermostatTemp, setThermostatTemp] = useState(70);
 
   const [nightMode, setNightMode] = useState(false);
 
@@ -72,6 +75,8 @@ export default function SmartHomeDemo() {
           setFrontDoorUnlocked={setFrontDoorUnlocked}
           sideDoorUnlocked={sideDoorUnlocked}
           setSideDoorUnlocked={setSideDoorUnlocked}
+          thermostatTemp={thermostatTemp}
+          setThermostatTemp={setThermostatTemp}
           nightMode={nightMode}
           setNightMode={setNightMode}
           activeCamera={activeCamera}
@@ -92,6 +97,8 @@ export default function SmartHomeDemo() {
           porchLightOn={porchLightOn}
           frontDoorUnlocked={frontDoorUnlocked}
           sideDoorUnlocked={sideDoorUnlocked}
+          thermostatTemp={thermostatTemp}
+          thermostatRoomTemp={THERMOSTAT_ROOM_TEMP}
           nightMode={nightMode}
 
           /* IMPORTANT */

@@ -3,6 +3,8 @@
 import { useRef, useState } from "react";
 
 const OUTDOOR_NIGHT_VIDEO_SRC = "/outdoor-camera-night.mp4";
+const THERMOSTAT_MIN_TEMP = 60;
+const THERMOSTAT_MAX_TEMP = 82;
 
 export default function PhonePanel({
   garageOpen,
@@ -27,6 +29,8 @@ export default function PhonePanel({
   setFrontDoorUnlocked,
   sideDoorUnlocked,
   setSideDoorUnlocked,
+  thermostatTemp,
+  setThermostatTemp,
   activeCamera,
   setActiveCamera,
   liveCamera,
@@ -111,6 +115,12 @@ export default function PhonePanel({
     if (typeof setLiveCamera === "function") {
       setLiveCamera(null);
     }
+  };
+
+  const adjustThermostat = (amount) => {
+    setThermostatTemp((prev) =>
+      Math.min(THERMOSTAT_MAX_TEMP, Math.max(THERMOSTAT_MIN_TEMP, prev + amount))
+    );
   };
 
   const DoorLockCard = ({ label, unlocked, onToggle }) => (
@@ -218,6 +228,110 @@ export default function PhonePanel({
         </text>
       </svg>
     </button>
+  );
+
+  const ThermostatCard = () => (
+    <section className="phone-section phone-section--thermostat-card">
+      <div className="thermostat-card-shell">
+        <svg
+          className="thermostat-card-svg"
+          width="381"
+          height="242"
+          viewBox="0 0 381 242"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
+        >
+          <g filter="url(#thermostatCardShadow)">
+            <rect x="2" y="1" width="377" height="238" rx="4" fill="white" shapeRendering="crispEdges" />
+
+            <text
+              x="19"
+              y="26"
+              fill="#767676"
+              fontSize="15"
+              fontWeight="900"
+              letterSpacing="0.18em"
+              fontFamily="-apple-system, BlinkMacSystemFont, 'SF Pro Text', Arial, sans-serif"
+            >
+              THERMOSTATS
+            </text>
+
+            <path fillRule="evenodd" clipRule="evenodd" d="M354.414 29.9956L363.418 20.9916L354.423 11.9956L353.009 13.4096L360.59 20.9916L353 28.5816L354.414 29.9956Z" fill="#767676" />
+
+            <text
+              x="19"
+              y="77"
+              fill="#333333"
+              fontSize="17"
+              fontWeight="500"
+              fontFamily="-apple-system, BlinkMacSystemFont, 'SF Pro Text', Arial, sans-serif"
+            >
+              Thermostat
+            </text>
+
+            <text
+              x="110"
+              y="170"
+              fill="#22A1C1"
+              fontSize="72"
+              fontWeight="300"
+              letterSpacing="0"
+              fontFamily="-apple-system, BlinkMacSystemFont, 'SF Pro Display', Arial, sans-serif"
+            >
+              {thermostatTemp}
+            </text>
+
+            <text
+              x="194"
+              y="140"
+              fill="#22A1C1"
+              fontSize="34"
+              fontWeight="400"
+              fontFamily="-apple-system, BlinkMacSystemFont, 'SF Pro Display', Arial, sans-serif"
+            >
+              °
+            </text>
+
+            <path fillRule="evenodd" clipRule="evenodd" d="M250 128.326L237.995 116.321L226 128.314L227.885 130.199L237.995 120.091L248.115 130.211L250 128.326Z" fill="#333333" />
+            <path fillRule="evenodd" clipRule="evenodd" d="M225.994 160.314L237.999 172.32L249.994 160.326L248.109 158.441L237.999 168.549L227.879 158.429L225.994 160.314Z" fill="#333333" />
+
+            <path fillRule="evenodd" clipRule="evenodd" d="M307.816 68.8882L307.201 66.9852L303.814 68.0792L305.121 65.5252L303.341 64.6142L301.122 68.9482L299 69.6342V67.4342L302.471 63.9632L301.057 62.5492L299 64.6062V61.0002H297V64.5592L294.971 62.5302L293.557 63.9452L297 67.3882V69.6052L294.925 68.9152L292.727 64.5262L290.938 65.4222L292.241 68.0232L288.819 66.8852L288.188 68.7832L291.566 69.9062L289.001 71.1912L289.896 72.9792L294.25 70.7982L296.366 71.5022L295.064 73.2752L290.212 74.0182L290.514 75.9952L293.39 75.5552L291.255 78.4612L292.867 79.6452L294.974 76.7762L295.408 79.6122L297.385 79.3102L296.648 74.4962L297.968 72.6992L299.255 74.4832L298.471 79.3292L300.445 79.6482L300.91 76.7772L303.019 79.7022L304.641 78.5312L302.559 75.6452L305.392 76.1032L305.711 74.1292L300.904 73.3512L299.6 71.5422L301.693 70.8662L306.063 73.1022L306.974 71.3212L304.385 69.9962L307.816 68.8882Z" fill="#22A1C1" />
+            <path fillRule="evenodd" clipRule="evenodd" d="M328 63V61C333.514 61 338 65.486 338 71C338 76.514 333.514 81 328 81C322.486 81 318 76.514 318 71C318 68.816 318.709 66.728 320.004 65.004L318 63H323V68L321.438 66.438C320.509 67.77 320 69.35 320 71C320 75.411 323.589 79 328 79C332.411 79 336 75.411 336 71C336 66.589 332.411 63 328 63ZM329 71H328.995L325.278 74.717L323.864 73.302L327 70.167V64H329V70.988L329.003 70.992L329 70.995V71Z" fill="#767676" />
+
+            <path d="M2 208H379V209H2V208Z" fill="black" fillOpacity="0.1" />
+            <path fillRule="evenodd" clipRule="evenodd" d="M190.95 227.364L185.293 221.707L186.707 220.293L190.95 224.536L195.193 220.293L196.607 221.707L190.95 227.364Z" fill="#767676" />
+          </g>
+
+          <defs>
+            <filter id="thermostatCardShadow" x="0" y="0" width="381" height="242" filterUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
+              <feFlood floodOpacity="0" result="BackgroundImageFix" />
+              <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha" />
+              <feOffset dy="1" />
+              <feGaussianBlur stdDeviation="1" />
+              <feComposite in2="hardAlpha" operator="out" />
+              <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.2 0" />
+              <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow" />
+              <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow" result="shape" />
+            </filter>
+          </defs>
+        </svg>
+
+        <button
+          type="button"
+          className="thermostat-card-hit thermostat-card-hit--up"
+          onClick={() => adjustThermostat(1)}
+          aria-label="Increase thermostat temperature"
+        />
+
+        <button
+          type="button"
+          className="thermostat-card-hit thermostat-card-hit--down"
+          onClick={() => adjustThermostat(-1)}
+          aria-label="Decrease thermostat temperature"
+        />
+      </div>
+    </section>
   );
 
   return (
@@ -656,6 +770,8 @@ export default function PhonePanel({
                     ))}
                   </div>
                 </section>
+
+                <ThermostatCard />
 
                 {/* LIGHTS */}
                 <section className="phone-section phone-section--lights">

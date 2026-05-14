@@ -1505,3 +1505,107 @@
   left: 3.5% !important;
   right: auto !important;
 }
+
+:is(.scene-action-callout--front, .scene-action-callout--side) {
+  background:
+    linear-gradient(180deg, #f3f5f4 0%, #dde2df 100%) !important;
+  box-shadow:
+    0 28px 72px rgba(0, 0, 0, 0.2),
+    0 10px 26px rgba(0, 0, 0, 0.12);
+}
+
+:is(.scene-action-callout--front, .scene-action-callout--side) .scene-action-callout__inner {
+  background:
+    radial-gradient(circle at 50% 32%, rgba(255, 255, 255, 0.76), transparent 35%),
+    linear-gradient(180deg, #f7f8f7 0%, #d7ddda 100%) !important;
+  box-shadow:
+    inset 0 0 0 3px rgba(255, 255, 255, 0.48),
+    inset 0 0 0 6px rgba(75, 82, 80, 0.08),
+    inset 0 -22px 42px rgba(0, 0, 0, 0.1);
+}
+
+:is(.scene-action-callout--front, .scene-action-callout--side) .scene-action-callout__inner::after {
+  content: "";
+  position: absolute;
+  inset: 8px;
+  z-index: 4;
+  border-radius: 50%;
+  pointer-events: none;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.46),
+    inset 0 0 0 2px rgba(0, 0, 0, 0.035);
+}
+
+:is(.scene-action-callout--front, .scene-action-callout--side) .scene-action-callout__base {
+  filter: contrast(0.96) saturate(0.92);
+  opacity: 0.94;
+}
+
+.scene-action-callout--thermostat {
+  left: 3.5% !important;
+  right: auto !important;
+}
+
+.scene-action-callout--thermostat .scene-action-callout__inner {
+  background:
+    linear-gradient(180deg, #cbcbca 0%, #b7b7b7 100%) !important;
+  box-shadow:
+    inset 0 0 0 7px rgba(255, 255, 255, 0.12),
+    inset 0 0 0 10px rgba(94, 98, 94, 0.12),
+    inset 0 1px 28px rgba(255, 255, 255, 0.22),
+    inset 0 -18px 36px rgba(0, 0, 0, 0.16);
+}
+
+.thermostat-callout__readout {
+  position: absolute;
+  left: 50%;
+  top: 51%;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", Arial, sans-serif;
+  text-align: center;
+  text-shadow:
+    0 0 5px rgba(255, 255, 255, 0.72),
+    0 0 16px rgba(255, 255, 255, 0.42),
+    0 0 34px rgba(255, 255, 255, 0.24);
+  transform: translate(-50%, -50%);
+}
+
+.thermostat-callout__mode {
+  height: 15px;
+  margin-bottom: 13px;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: 0.16em;
+  text-indent: 0.16em;
+}
+
+.thermostat-callout__mode:empty {
+  visibility: hidden;
+}
+
+.thermostat-callout__room {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  font-weight: 300;
+  line-height: 0.78;
+}
+
+.thermostat-callout__room span {
+  font-size: 108px;
+  letter-spacing: -0.08em;
+}
+
+.thermostat-callout__set {
+  margin-top: 22px;
+  font-size: 45px;
+  font-weight: 300;
+  line-height: 1;
+  letter-spacing: -0.05em;
+}

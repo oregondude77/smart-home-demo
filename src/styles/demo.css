@@ -490,6 +490,52 @@ body {
 }
 
 /* =========================
+   THERMOSTAT CARD
+========================= */
+
+.phone-section--thermostat-card {
+  padding: 0 !important;
+  overflow: hidden !important;
+  background: #fff !important;
+}
+
+.thermostat-card-shell {
+  position: relative;
+  width: 100%;
+}
+
+.thermostat-card-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.thermostat-card-hit {
+  position: absolute;
+  left: 58%;
+  width: 20%;
+  height: 22%;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.thermostat-card-hit--up {
+  top: 39%;
+}
+
+.thermostat-card-hit--down {
+  top: 56%;
+}
+
+.thermostat-card-hit:active {
+  transform: scale(0.96);
+}
+
+/* =========================
    LIGHT TOGGLE CARDS
 ========================= */
 
