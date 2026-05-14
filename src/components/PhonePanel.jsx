@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 
-const OUTDOOR_NIGHT_VIDEO_SRC = null;
+const OUTDOOR_NIGHT_VIDEO_SRC = "/outdoor-camera-night.mp4";
 
 export default function PhonePanel({
   garageOpen,

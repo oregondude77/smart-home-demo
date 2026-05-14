@@ -1334,22 +1334,22 @@ body:has(.demo.is-night)::before {
 .video-slide--outdoor img,
 .video-slide--outdoor .video-slide__thumbnail,
 .video-slide--floodlight .video-slide__thumbnail {
-  height: auto !important;
-  aspect-ratio: 1 / 1;
-  object-fit: contain;
+  width: 100%;
+  height: 188px !important;
+  object-fit: cover;
   object-position: center;
   background: #000;
 }
 
 .video-slide--outdoor .video-slide__play,
 .video-slide--floodlight .video-slide__play {
-  top: 50% !important;
+  top: 94px !important;
 }
 
 .video-slide--outdoor .video-slide__nav-zone,
 .video-slide--floodlight .video-slide__nav-zone {
-  top: auto !important;
-  bottom: 58px;
+  top: 148px !important;
+  bottom: auto;
 }
 
 .doorbell-view--outdoor,
