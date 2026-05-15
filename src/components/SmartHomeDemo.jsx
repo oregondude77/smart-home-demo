@@ -76,6 +76,7 @@ export default function SmartHomeDemo() {
           sideDoorUnlocked={sideDoorUnlocked}
           setSideDoorUnlocked={setSideDoorUnlocked}
           thermostatTemp={thermostatTemp}
+          thermostatRoomTemp={THERMOSTAT_ROOM_TEMP}
           setThermostatTemp={setThermostatTemp}
           nightMode={nightMode}
           setNightMode={setNightMode}

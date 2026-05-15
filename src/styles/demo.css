@@ -995,7 +995,7 @@ body {
   gap: 8px;
   height: 26px;
   padding: 0 12px;
-  margin-bottom: 9px;
+  margin-bottom: 13px;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.72);
   border: 1px solid rgba(0, 150, 75, 0.12);
@@ -1328,8 +1328,8 @@ body:has(.demo.is-night)::before {
 
 @media (min-width: 901px) {
   .demo-grid {
-    --phone-width: clamp(220px, 19vw, 300px);
-    --phone-height: clamp(476px, 41.12vw, 649px);
+    --phone-width: clamp(220px, 19vw, 360px);
+    --phone-height: clamp(476px, 41.12vw, 779px);
     grid-template-columns: var(--phone-width) minmax(0, 1fr) !important;
     gap: clamp(28px, 3.4vw, 56px) !important;
     max-width: none !important;
@@ -1352,8 +1352,8 @@ body:has(.demo.is-night)::before {
 
 @media (min-width: 1680px) {
   .demo-grid {
-    --phone-width: 300px;
-    --phone-height: 649px;
+    --phone-width: clamp(330px, 17vw, 360px);
+    --phone-height: clamp(714px, 36.78vw, 779px);
   }
 }
 
