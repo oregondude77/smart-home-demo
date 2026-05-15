@@ -978,14 +978,14 @@ body {
 ========================= */
 
 .demo {
-  padding-top: 26px;
+  padding-top: 22px;
 }
 
 .demo-hero-copy {
   position: relative;
   z-index: 5;
   max-width: 760px;
-  margin: 0 auto 22px;
+  margin: 0 auto 38px;
   text-align: center;
 }
 
@@ -993,9 +993,9 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  height: 30px;
-  padding: 0 13px;
-  margin-bottom: 12px;
+  height: 26px;
+  padding: 0 12px;
+  margin-bottom: 9px;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.72);
   border: 1px solid rgba(0, 150, 75, 0.12);
@@ -1022,23 +1022,23 @@ body {
 .demo-hero-copy h1 {
   margin: 0;
   color: #081b12;
-  font-size: clamp(24px, 2.8vw, 42px);
-  line-height: 1.08;
+  font-size: clamp(24px, 2.6vw, 38px);
+  line-height: 1.04;
   font-weight: 800;
   letter-spacing: -0.035em;
 }
 
 .demo-hero-copy p {
   max-width: 620px;
-  margin: 14px auto 0;
+  margin: 10px auto 0;
   color: rgba(8, 27, 18, 0.68);
   font-size: 15px;
-  line-height: 1.6;
+  line-height: 1.45;
   font-weight: 500;
 }
 
 .demo-hero-actions {
-  margin-top: 18px;
+  margin-top: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1047,8 +1047,8 @@ body {
 }
 
 .demo-hero-actions button {
-  height: 42px;
-  padding: 0 20px;
+  height: 38px;
+  padding: 0 18px;
   border-radius: 999px;
   border: 0;
   background: #00964b;
@@ -1115,7 +1115,7 @@ body {
 
 .demo-grid > .phone-panel-wrap {
   position: relative !important;
-  top: 15px !important;
+  top: 0 !important;
 }
 
 /* keep button spaced under phone */
@@ -1128,7 +1128,7 @@ body {
 ========================= */
 
 .demo-hero-copy {
-  margin-top: 28px !important;
+  margin-top: 14px !important;
 }
 
 /* =========================
@@ -1328,8 +1328,10 @@ body:has(.demo.is-night)::before {
 
 @media (min-width: 901px) {
   .demo-grid {
-    grid-template-columns: clamp(220px, 20vw, 360px) minmax(0, 1fr) !important;
-    gap: clamp(36px, 4vw, 72px) !important;
+    --phone-width: clamp(220px, 19vw, 300px);
+    --phone-height: clamp(476px, 41.12vw, 649px);
+    grid-template-columns: var(--phone-width) minmax(0, 1fr) !important;
+    gap: clamp(28px, 3.4vw, 56px) !important;
     max-width: none !important;
     margin: 0 auto !important;
     width: 100% !important;
@@ -1337,14 +1339,41 @@ body:has(.demo.is-night)::before {
   }
 
   .phone-shell {
-    width: clamp(220px, 20vw, 340px) !important;
-    padding: clamp(10px, 0.9vw, 14px) !important;
-    border-radius: clamp(36px, 3.2vw, 48px) !important;
+    width: var(--phone-width) !important;
+    padding: clamp(9px, 0.75vw, 12px) !important;
+    border-radius: clamp(34px, 2.8vw, 44px) !important;
   }
 
   .phone-shell__screen {
-    inset: clamp(10px, 0.9vw, 14px) !important;
-    border-radius: clamp(28px, 2.4vw, 36px) !important;
+    inset: clamp(9px, 0.75vw, 12px) !important;
+    border-radius: clamp(27px, 2.2vw, 34px) !important;
+  }
+}
+
+@media (min-width: 1680px) {
+  .demo-grid {
+    --phone-width: 300px;
+    --phone-height: 649px;
+  }
+}
+
+@media (min-width: 901px) and (max-height: 820px) {
+  .demo-grid {
+    --phone-width: clamp(205px, 15vw, 250px);
+    --phone-height: clamp(444px, 32.46vw, 541px);
+    grid-template-columns: var(--phone-width) minmax(0, 1fr) !important;
+    gap: clamp(24px, 3vw, 48px) !important;
+  }
+
+  .phone-shell {
+    width: var(--phone-width) !important;
+    padding: clamp(8px, 0.65vw, 10px) !important;
+    border-radius: clamp(30px, 2.4vw, 38px) !important;
+  }
+
+  .phone-shell__screen {
+    inset: clamp(8px, 0.65vw, 10px) !important;
+    border-radius: clamp(24px, 1.9vw, 30px) !important;
   }
 }
 
