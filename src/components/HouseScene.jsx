@@ -54,6 +54,20 @@ function DoorBadgeAnchor({ unlocked, pulsing, className = "" }) {
   );
 }
 
+function DoorLockSource({ door, unlocked, active }) {
+  return (
+    <div
+      className={[
+        "door-lock-source",
+        `door-lock-source--${door}`,
+        active ? "is-active" : "",
+        unlocked ? "is-unlocked" : "is-locked",
+      ].filter(Boolean).join(" ")}
+      aria-hidden="true"
+    />
+  );
+}
+
 function SmartLockCallout({ door, unlocked, active, actionKey }) {
   return (
     <div
@@ -459,6 +473,18 @@ export default function HouseScene({
           {activeCamera === "floodlight" && (
             <CameraLiveMarker type="floodlight" label="Floodlight Live" />
           )}
+
+          <DoorLockSource
+            door="front"
+            unlocked={frontDoorUnlocked}
+            active={frontCallout.active}
+          />
+
+          <DoorLockSource
+            door="side"
+            unlocked={sideDoorUnlocked}
+            active={sideCallout.active}
+          />
 
           <DoorBadgeAnchor
             unlocked={frontDoorUnlocked}
