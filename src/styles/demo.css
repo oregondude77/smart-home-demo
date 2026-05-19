@@ -989,6 +989,14 @@ body {
   text-align: center;
 }
 
+.demo-hero-logo {
+  display: block;
+  width: clamp(68px, 5vw, 92px);
+  height: auto;
+  margin: 0 auto 10px;
+  opacity: 0.96;
+}
+
 .demo-hero-pill {
   display: inline-flex;
   align-items: center;
@@ -1095,6 +1103,11 @@ body {
   .demo-hero-copy {
     margin-bottom: 18px;
     padding: 0 12px;
+  }
+
+  .demo-hero-logo {
+    width: 72px;
+    margin-bottom: 8px;
   }
 
   .demo-hero-copy h1 {

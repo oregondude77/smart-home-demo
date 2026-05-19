@@ -34,6 +34,12 @@ export default function SmartHomeDemo() {
   return (
   <div className={`demo ${nightMode ? "is-night" : ""}`}>
     <div className="demo-hero-copy">
+  <img
+    className="demo-hero-logo"
+    src="/alert-360-logo.svg"
+    alt="Alert 360"
+  />
+
   <div className="demo-hero-pill">
     <span></span>
     Interactive Smart Home Demo

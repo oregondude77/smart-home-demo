@@ -1771,7 +1771,7 @@
 .thermostat-scene-device__mode {
   position: absolute;
   left: 50%;
-  top: 33.1%;
+  top: 32.7%;
   width: 38%;
   color: rgba(255, 255, 255, 0.9);
   font-size: 9px;
@@ -1783,7 +1783,7 @@
 .thermostat-scene-device__room {
   position: absolute;
   left: 50%;
-  top: 46.9%;
+  top: 46.4%;
   width: 56%;
   font-size: 52px;
   font-weight: 300;
@@ -1794,7 +1794,7 @@
 .thermostat-scene-device__set {
   position: absolute;
   left: 50%;
-  top: 64.1%;
+  top: 63.6%;
   width: 34%;
   color: rgba(255, 255, 255, 0.86);
   font-size: 25px;
@@ -1815,17 +1815,17 @@
   }
 
   .thermostat-scene-device__mode {
-    top: 33.3%;
+    top: 32.9%;
     font-size: 7px;
   }
 
   .thermostat-scene-device__room {
-    top: 46.9%;
+    top: 46.4%;
     font-size: 40px;
   }
 
   .thermostat-scene-device__set {
-    top: 63.7%;
+    top: 63.2%;
     font-size: 18px;
   }
 }
