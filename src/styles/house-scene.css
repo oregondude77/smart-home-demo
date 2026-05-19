@@ -1605,8 +1605,9 @@
   left: 4%;
   bottom: auto;
   z-index: 18;
-  width: clamp(132px, 9.5vw, 190px);
+  width: clamp(124px, 15.2%, 260px);
   aspect-ratio: 364.17 / 359.77;
+  container-type: inline-size;
   pointer-events: none;
   transform: translateZ(0);
   filter:
@@ -1670,8 +1671,8 @@
   position: absolute;
   color: var(--thermostat-accent);
   filter:
-    drop-shadow(0 0 1px rgba(255, 255, 255, 0.34))
-    drop-shadow(0 0 2px var(--thermostat-accent-soft));
+    drop-shadow(0 0 clamp(0.6px, 0.5cqw, 1px) rgba(255, 255, 255, 0.34))
+    drop-shadow(0 0 clamp(1px, 1cqw, 2px) var(--thermostat-accent-soft));
 }
 
 .thermostat-scene-device__glyph--menu {
@@ -1690,8 +1691,8 @@
   border-radius: 999px;
   background: currentColor;
   box-shadow:
-    0 0 1px currentColor,
-    0 0 2px var(--thermostat-accent-soft);
+    0 0 clamp(0.6px, 0.5cqw, 1px) currentColor,
+    0 0 clamp(1px, 1cqw, 2px) var(--thermostat-accent-soft);
 }
 
 .thermostat-scene-device__glyph--menu span:nth-child(1) {
@@ -1719,9 +1720,9 @@
   content: "";
   position: absolute;
   inset: 20%;
-  border-top: 2px solid currentColor;
-  border-right: 2px solid currentColor;
-  border-radius: 2px;
+  border-top: clamp(1.3px, 1cqw, 2.2px) solid currentColor;
+  border-right: clamp(1.3px, 1cqw, 2.2px) solid currentColor;
+  border-radius: clamp(1px, 0.7cqw, 2px);
 }
 
 .thermostat-scene-device__glyph--next {
@@ -1763,18 +1764,19 @@
   line-height: 1;
   text-align: center;
   text-shadow:
-    0 0 1px rgba(255, 255, 255, 0.78),
-    0 0 4px rgba(255, 255, 255, 0.42),
-    0 0 8px rgba(255, 255, 255, 0.18);
+    0 0 clamp(0.7px, 0.55cqw, 1px) rgba(255, 255, 255, 0.78),
+    0 0 clamp(2px, 2.1cqw, 4px) rgba(255, 255, 255, 0.42),
+    0 0 clamp(4px, 4.2cqw, 8px) rgba(255, 255, 255, 0.18);
 }
 
 .thermostat-scene-device__mode {
   position: absolute;
   left: 50%;
-  top: 32.7%;
+  top: 28.5%;
   width: 38%;
   color: rgba(255, 255, 255, 0.9);
   font-size: 9px;
+  font-size: 4.7cqw;
   font-weight: 500;
   letter-spacing: 0;
   transform: translate(-50%, -50%);
@@ -1783,9 +1785,10 @@
 .thermostat-scene-device__room {
   position: absolute;
   left: 50%;
-  top: 46.4%;
+  top: 46.1%;
   width: 56%;
   font-size: 52px;
+  font-size: 27.2cqw;
   font-weight: 300;
   letter-spacing: 0;
   transform: translate(-50%, -50%);
@@ -1794,10 +1797,11 @@
 .thermostat-scene-device__set {
   position: absolute;
   left: 50%;
-  top: 63.6%;
+  top: 68.5%;
   width: 34%;
   color: rgba(255, 255, 255, 0.86);
   font-size: 25px;
+  font-size: 13.2cqw;
   font-weight: 300;
   letter-spacing: 0;
   transform: translate(-50%, -50%);
@@ -1811,22 +1815,7 @@
   }
 
   .thermostat-scene-device {
-    width: clamp(132px, 9.4vw, 176px);
-  }
-
-  .thermostat-scene-device__mode {
-    top: 32.9%;
-    font-size: 7px;
-  }
-
-  .thermostat-scene-device__room {
-    top: 46.4%;
-    font-size: 40px;
-  }
-
-  .thermostat-scene-device__set {
-    top: 63.2%;
-    font-size: 18px;
+    width: clamp(116px, 14.4%, 198px);
   }
 }
 
@@ -1838,7 +1827,7 @@
   }
 
   .thermostat-scene-device {
-    width: clamp(156px, 11vw, 228px);
+    width: clamp(160px, 15.2%, 296px);
   }
 }
 

@@ -290,11 +290,15 @@ body {
   padding: 0 !important;
   overflow: hidden !important;
   background: #fff !important;
+  container-type: inline-size;
+  --video-preview-height: clamp(132px, 59cqw, 188px);
+  --video-play-size: clamp(38px, 17cqw, 54px);
+  --video-bars-top: calc(var(--video-preview-height) - clamp(36px, 12cqw, 40px));
 }
 
 .video-card-header {
-  height: 58px !important;
-  padding: 0 18px !important;
+  height: clamp(50px, 18cqw, 58px) !important;
+  padding: 0 clamp(14px, 5cqw, 18px) !important;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -311,7 +315,7 @@ body {
 }
 
 .video-card-arrow {
-  font-size: 38px !important;
+  font-size: clamp(30px, 12cqw, 38px) !important;
   line-height: 1;
   color: #777 !important;
 }
@@ -344,7 +348,7 @@ body {
 .video-slide img,
 .video-slide video {
   width: 100%;
-  height: 188px !important;
+  height: var(--video-preview-height) !important;
   object-fit: cover;
   display: block;
   filter: brightness(0.55);
@@ -358,14 +362,14 @@ body {
 
 .video-slide__play {
   position: absolute;
-  top: 94px !important;
+  top: calc(var(--video-preview-height) / 2) !important;
   left: 50%;
   transform: translate(-50%, -50%);
   z-index: 5;
   border: 0;
   background: transparent;
   color: #ffffff;
-  font-size: 54px !important;
+  font-size: var(--video-play-size) !important;
   line-height: 1;
   cursor: pointer;
   transition: opacity 0.25s ease;
@@ -374,7 +378,7 @@ body {
 .video-slide__bars {
   position: absolute;
   left: 50%;
-  top: 170px !important;
+  top: var(--video-bars-top) !important;
   transform: translateX(-50%);
   display: flex;
   gap: 5px;
@@ -1403,7 +1407,7 @@ body:has(.demo.is-night)::before {
 .video-slide video,
 .video-slide__thumbnail {
   width: 100%;
-  height: 188px !important;
+  height: var(--video-preview-height) !important;
   object-fit: cover;
   display: block;
   filter: brightness(0.55);
@@ -1423,7 +1427,7 @@ body:has(.demo.is-night)::before {
 .video-slide--outdoor .video-slide__thumbnail,
 .video-slide--floodlight .video-slide__thumbnail {
   width: 100%;
-  height: 188px !important;
+  height: var(--video-preview-height) !important;
   object-fit: cover;
   object-position: center;
   background: #000;
@@ -1431,12 +1435,12 @@ body:has(.demo.is-night)::before {
 
 .video-slide--outdoor .video-slide__play,
 .video-slide--floodlight .video-slide__play {
-  top: 94px !important;
+  top: calc(var(--video-preview-height) / 2) !important;
 }
 
 .video-slide--outdoor .video-slide__nav-zone,
 .video-slide--floodlight .video-slide__nav-zone {
-  top: 148px !important;
+  top: var(--video-bars-top) !important;
   bottom: auto;
 }
 
@@ -1460,7 +1464,7 @@ body:has(.demo.is-night)::before {
   position: absolute;
   left: 0;
   right: 0;
-  top: 148px;
+  top: var(--video-bars-top);
   height: 44px;
   z-index: 20;
   display: flex;
@@ -1482,8 +1486,8 @@ body:has(.demo.is-night)::before {
 }
 
 .video-slide__nav-zone .video-slide__bars span {
-  width: 42px;
-  height: 4px;
+  width: clamp(28px, 13cqw, 42px);
+  height: clamp(3px, 1.25cqw, 4px);
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.5);
   cursor: pointer;
