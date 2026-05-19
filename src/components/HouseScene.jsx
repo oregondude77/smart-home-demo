@@ -6,7 +6,6 @@ const GARAGE_MAX_FRAME = 14;
 const GARAGE_FRAME_MS = 110;
 const DOOR_PULSE_MS = 700;
 const DOOR_CALLOUT_MS = 3400;
-const THERMOSTAT_CALLOUT_MS = 3400;
 const SYSTEM_MESSAGE_MS = 2000;
 
 function LockIcon() {
@@ -98,36 +97,49 @@ function SmartLockCallout({ door, unlocked, active, actionKey }) {
   );
 }
 
-function ThermostatCallout({
+function ThermostatSceneDevice({
   roomTemperature,
   setTemperature,
-  active,
 }) {
   const mode =
     setTemperature === roomTemperature
-      ? ""
+      ? "idle"
       : setTemperature > roomTemperature
-        ? "HEATING"
-        : "COOLING";
+        ? "heating"
+        : "cooling";
+  const modeLabel = mode === "idle" ? "" : mode === "heating" ? "HEAT" : "COOLING";
 
   return (
     <div
       className={[
-        "scene-action-callout",
-        "scene-action-callout--thermostat",
-        active ? "is-active" : "",
+        "thermostat-scene-device",
+        `is-${mode}`,
       ].filter(Boolean).join(" ")}
+      data-mode={mode}
       aria-hidden="true"
     >
-      <div className="scene-action-callout__inner">
-        <div className="thermostat-callout__readout">
-          <div className="thermostat-callout__mode" aria-hidden={!mode}>
-            {mode}
+      <div className="thermostat-scene-device__shell">
+        <img
+          src="/smart-thermostate-base.svg"
+          alt=""
+          className="thermostat-scene-device__base"
+        />
+        <div className="thermostat-scene-device__controls">
+          <div className="thermostat-scene-device__glyph thermostat-scene-device__glyph--menu">
+            <span />
+            <span />
+            <span />
           </div>
-          <div className="thermostat-callout__room">
-            <span>{roomTemperature}</span>
+          <div className="thermostat-scene-device__glyph thermostat-scene-device__glyph--next" />
+          <div className="thermostat-scene-device__glyph thermostat-scene-device__glyph--up" />
+          <div className="thermostat-scene-device__glyph thermostat-scene-device__glyph--down" />
+        </div>
+        <div className="thermostat-scene-device__readout">
+          <div className="thermostat-scene-device__mode">
+            {modeLabel}
           </div>
-          <div className="thermostat-callout__set">{setTemperature}</div>
+          <div className="thermostat-scene-device__room">{roomTemperature}</div>
+          <div className="thermostat-scene-device__set">{setTemperature}</div>
         </div>
       </div>
     </div>
@@ -172,22 +184,17 @@ export default function HouseScene({
   const [sidePulse, setSidePulse] = useState(false);
   const [frontCallout, setFrontCallout] = useState({ active: false, key: 0 });
   const [sideCallout, setSideCallout] = useState({ active: false, key: 0 });
-  const [thermostatCallout, setThermostatCallout] = useState({
-    active: false,
-  });
   const [systemMessage, setSystemMessage] = useState("");
   const [systemMessageKey, setSystemMessageKey] = useState(0);
 
   const frontMounted = useRef(false);
   const sideMounted = useRef(false);
-  const thermostatMounted = useRef(false);
   const systemMounted = useRef(false);
 
   const frontTimeoutRef = useRef(null);
   const sideTimeoutRef = useRef(null);
   const frontCalloutTimeoutRef = useRef(null);
   const sideCalloutTimeoutRef = useRef(null);
-  const thermostatCalloutTimeoutRef = useRef(null);
   const systemTimeoutRef = useRef(null);
 
   const frontRaf1Ref = useRef(null);
@@ -206,7 +213,6 @@ export default function HouseScene({
       "/garage-lights-outside.svg",
       "/side-light-outside.svg",
       "/porch-light-outside.svg",
-      "/alert-360-logo.svg",
       "/panel-base.svg",
       "/panel-armed.svg",
       "/panel-disarmed.svg",
@@ -323,29 +329,6 @@ export default function HouseScene({
     triggerDoorFeedback(doorAction.door);
   }, [doorAction, triggerDoorFeedback]);
 
-  useEffect(() => {
-    if (!thermostatMounted.current) {
-      thermostatMounted.current = true;
-      return;
-    }
-
-    if (thermostatCalloutTimeoutRef.current) {
-      clearTimeout(thermostatCalloutTimeoutRef.current);
-    }
-
-    setThermostatCallout((prev) => ({
-      ...prev,
-      active: true,
-    }));
-
-    thermostatCalloutTimeoutRef.current = setTimeout(() => {
-      setThermostatCallout((prev) => ({
-        ...prev,
-        active: false,
-      }));
-    }, THERMOSTAT_CALLOUT_MS);
-  }, [thermostatTemp]);
-
   useEffect(() => (
     () => {
       [
@@ -353,7 +336,6 @@ export default function HouseScene({
         sideTimeoutRef,
         frontCalloutTimeoutRef,
         sideCalloutTimeoutRef,
-        thermostatCalloutTimeoutRef,
         systemTimeoutRef,
       ].forEach((timeoutRef) => {
         if (timeoutRef.current) clearTimeout(timeoutRef.current);
@@ -375,8 +357,6 @@ export default function HouseScene({
     >
       <div className="house-scene__frame">
         <div className="house-container">
-          <img src="/alert-360-logo.svg" alt="Alert 360" className="house-logo" />
-
           {systemMessage && (
             <div
               key={systemMessageKey}
@@ -512,10 +492,9 @@ export default function HouseScene({
             actionKey={sideCallout.key}
           />
 
-          <ThermostatCallout
+          <ThermostatSceneDevice
             roomTemperature={thermostatRoomTemp}
             setTemperature={thermostatTemp}
-            active={thermostatCallout.active}
           />
 
           <div className="house-overlay house-overlay--camera" />

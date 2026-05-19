@@ -58,19 +58,6 @@
   object-fit: contain;
 }
 
-.house-logo {
-  position: absolute;
-  top: 7%;
-  left: 4%;
-  width: clamp(120px, 13%, 220px);
-  height: auto;
-  z-index: 50;
-  opacity: 0.95;
-  pointer-events: none;
-  image-rendering: -webkit-optimize-contrast;
-}
-
-
 .security-panel-group {
   position: absolute;
   top: 7%;
@@ -890,11 +877,6 @@
     height: 26px;
   }
 
-  .house-logo {
-    top: 54px;
-    left: 22px;
-    width: 124px;
-  }
 }
 
 @media (max-width: 767px) {
@@ -955,11 +937,6 @@
     height: 14px;
   }
 
-  .house-logo {
-    top: 42px;
-    left: 18px;
-    width: 100px;
-  }
 }
 /* =========================
    FINAL LAYOUT / NIGHT / CAMERA RESTORE OVERRIDES
@@ -1232,12 +1209,6 @@
     max-width: 1020px !important;
     margin-top: 46px !important;
     transform: scale(0.9) !important;
-  }
-
-  .house-logo {
-    width: 96px !important;
-    top: 54px !important;
-    left: 36px !important;
   }
 
   .security-panel-group {
@@ -1628,73 +1599,208 @@
   opacity: 0.94;
 }
 
-.scene-action-callout--thermostat {
-  left: 3.5% !important;
-  right: auto !important;
-}
-
-.scene-action-callout--thermostat .scene-action-callout__inner {
-  background:
-    linear-gradient(180deg, #cbcbca 0%, #b7b7b7 100%) !important;
-  box-shadow:
-    inset 0 0 0 7px rgba(255, 255, 255, 0.12),
-    inset 0 0 0 10px rgba(94, 98, 94, 0.12),
-    inset 0 1px 28px rgba(255, 255, 255, 0.22),
-    inset 0 -18px 36px rgba(0, 0, 0, 0.16);
-}
-
-.thermostat-callout__readout {
+.thermostat-scene-device {
   position: absolute;
-  left: 50%;
-  top: 51%;
-  z-index: 3;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  color: #ffffff;
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", Arial, sans-serif;
-  text-align: center;
-  text-shadow:
-    0 0 5px rgba(255, 255, 255, 0.72),
-    0 0 16px rgba(255, 255, 255, 0.42),
-    0 0 34px rgba(255, 255, 255, 0.24);
+  top: 7%;
+  left: 4%;
+  bottom: auto;
+  z-index: 18;
+  width: clamp(132px, 9.5vw, 190px);
+  aspect-ratio: 364.17 / 359.77;
+  pointer-events: none;
+  transform: translateZ(0);
+  filter:
+    drop-shadow(0 12px 18px rgba(0, 0, 0, 0.18))
+    drop-shadow(0 4px 6px rgba(0, 0, 0, 0.08));
+  --thermostat-accent: rgba(255, 255, 255, 0.72);
+  --thermostat-accent-soft: rgba(255, 255, 255, 0.22);
+}
+
+.thermostat-scene-device::before {
+  content: "";
+  position: absolute;
+  inset: 4% -2% -3%;
+  z-index: -1;
+  border-radius: 24px;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(0, 0, 0, 0.18),
+    rgba(0, 0, 0, 0.06),
+    transparent 70%
+  );
+  filter: blur(10px);
+  opacity: 0.5;
+}
+
+.thermostat-scene-device.is-cooling {
+  --thermostat-accent: rgba(74, 174, 255, 0.9);
+  --thermostat-accent-soft: rgba(74, 174, 255, 0.16);
+}
+
+.thermostat-scene-device.is-heating {
+  --thermostat-accent: rgba(255, 92, 58, 0.9);
+  --thermostat-accent-soft: rgba(255, 92, 58, 0.16);
+}
+
+.thermostat-scene-device__shell {
+  position: absolute;
+  inset: 0;
+  overflow: visible;
+  background: transparent;
+}
+
+.thermostat-scene-device__base {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.thermostat-scene-device__controls {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.thermostat-scene-device__glyph {
+  position: absolute;
+  color: var(--thermostat-accent);
+  filter:
+    drop-shadow(0 0 1px rgba(255, 255, 255, 0.34))
+    drop-shadow(0 0 2px var(--thermostat-accent-soft));
+}
+
+.thermostat-scene-device__glyph--menu {
+  left: 20%;
+  top: 38.6%;
+  width: 9.8%;
+  height: 6.6%;
   transform: translate(-50%, -50%);
 }
 
-.thermostat-callout__mode {
-  height: clamp(10px, 0.8vw, 14px);
-  margin-bottom: clamp(8px, 0.72vw, 12px);
-  font-size: clamp(10px, 0.82vw, 14px);
-  font-weight: 400;
+.thermostat-scene-device__glyph--menu span {
+  position: absolute;
+  left: 15%;
+  width: 70%;
+  height: 11%;
+  border-radius: 999px;
+  background: currentColor;
+  box-shadow:
+    0 0 1px currentColor,
+    0 0 2px var(--thermostat-accent-soft);
+}
+
+.thermostat-scene-device__glyph--menu span:nth-child(1) {
+  top: 15%;
+}
+
+.thermostat-scene-device__glyph--menu span:nth-child(2) {
+  top: 44%;
+}
+
+.thermostat-scene-device__glyph--menu span:nth-child(3) {
+  top: 73%;
+}
+
+.thermostat-scene-device__glyph--next,
+.thermostat-scene-device__glyph--up,
+.thermostat-scene-device__glyph--down {
+  width: 6.5%;
+  height: 6.5%;
+}
+
+.thermostat-scene-device__glyph--next::before,
+.thermostat-scene-device__glyph--up::before,
+.thermostat-scene-device__glyph--down::before {
+  content: "";
+  position: absolute;
+  inset: 20%;
+  border-top: 2px solid currentColor;
+  border-right: 2px solid currentColor;
+  border-radius: 2px;
+}
+
+.thermostat-scene-device__glyph--next {
+  left: 18.8%;
+  top: 57.9%;
+  transform: translate(-50%, -50%);
+}
+
+.thermostat-scene-device__glyph--next::before {
+  transform: rotate(45deg);
+}
+
+.thermostat-scene-device__glyph--up {
+  left: 80.7%;
+  top: 38.6%;
+  transform: translate(-50%, -50%);
+}
+
+.thermostat-scene-device__glyph--up::before {
+  transform: rotate(-45deg);
+}
+
+.thermostat-scene-device__glyph--down {
+  left: 80.7%;
+  top: 59.2%;
+  transform: translate(-50%, -50%);
+}
+
+.thermostat-scene-device__glyph--down::before {
+  transform: rotate(135deg);
+}
+
+.thermostat-scene-device__readout {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  color: #ffffff;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", Arial, sans-serif;
   line-height: 1;
-  letter-spacing: 0.16em;
-  text-indent: 0.16em;
+  text-align: center;
+  text-shadow:
+    0 0 1px rgba(255, 255, 255, 0.78),
+    0 0 4px rgba(255, 255, 255, 0.42),
+    0 0 8px rgba(255, 255, 255, 0.18);
 }
 
-.thermostat-callout__mode:empty {
-  visibility: hidden;
+.thermostat-scene-device__mode {
+  position: absolute;
+  left: 50%;
+  top: 33.1%;
+  width: 38%;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0;
+  transform: translate(-50%, -50%);
 }
 
-.thermostat-callout__room {
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
+.thermostat-scene-device__room {
+  position: absolute;
+  left: 50%;
+  top: 46.9%;
+  width: 56%;
+  font-size: 52px;
   font-weight: 300;
-  line-height: 0.78;
+  letter-spacing: 0;
+  transform: translate(-50%, -50%);
 }
 
-.thermostat-callout__room span {
-  font-size: clamp(68px, 5.8vw, 94px);
-  letter-spacing: -0.08em;
-}
-
-.thermostat-callout__set {
-  margin-top: clamp(14px, 1.1vw, 20px);
-  font-size: clamp(28px, 2.4vw, 40px);
+.thermostat-scene-device__set {
+  position: absolute;
+  left: 50%;
+  top: 64.1%;
+  width: 34%;
+  color: rgba(255, 255, 255, 0.86);
+  font-size: 25px;
   font-weight: 300;
-  line-height: 1;
-  letter-spacing: -0.05em;
+  letter-spacing: 0;
+  transform: translate(-50%, -50%);
 }
 
 @media (min-width: 901px) and (max-height: 820px) {
@@ -1704,19 +1810,23 @@
     height: clamp(145px, 10.5vw, 180px) !important;
   }
 
-  .thermostat-callout__mode {
-    height: 10px;
-    margin-bottom: 7px;
-    font-size: 10px;
+  .thermostat-scene-device {
+    width: clamp(132px, 9.4vw, 176px);
   }
 
-  .thermostat-callout__room span {
-    font-size: clamp(50px, 4.2vw, 66px);
+  .thermostat-scene-device__mode {
+    top: 33.3%;
+    font-size: 7px;
   }
 
-  .thermostat-callout__set {
-    margin-top: 10px;
-    font-size: clamp(22px, 1.8vw, 29px);
+  .thermostat-scene-device__room {
+    top: 46.9%;
+    font-size: 40px;
+  }
+
+  .thermostat-scene-device__set {
+    top: 63.7%;
+    font-size: 18px;
   }
 }
 
@@ -1727,19 +1837,8 @@
     height: clamp(225px, 13vw, 250px) !important;
   }
 
-  .thermostat-callout__mode {
-    height: 15px;
-    margin-bottom: 13px;
-    font-size: 15px;
-  }
-
-  .thermostat-callout__room span {
-    font-size: 102px;
-  }
-
-  .thermostat-callout__set {
-    margin-top: 21px;
-    font-size: 43px;
+  .thermostat-scene-device {
+    width: clamp(156px, 11vw, 228px);
   }
 }
 
@@ -1797,12 +1896,6 @@
   }
 }
 
-.house-scene .house-logo {
-  top: 6.5% !important;
-  left: 4.5% !important;
-  width: 12.5% !important;
-  height: auto !important;
-}
 
 .house-scene .security-panel-group {
   top: 7% !important;
