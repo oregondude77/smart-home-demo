@@ -21,6 +21,8 @@ export default function PhonePanel({
   setDiningRoomOn,
   garageLightsOn,
   setGarageLightsOn,
+  floodlightOn,
+  setFloodlightOn,
   exteriorSideLightOn,
   setExteriorSideLightOn,
   porchLightOn,
@@ -802,6 +804,7 @@ export default function PhonePanel({
                       ["Living Room", livingRoomOn, setLivingRoomOn],
                       ["Dining Room", diningRoomOn, setDiningRoomOn],
                       ["Garage Lights", garageLightsOn, setGarageLightsOn],
+                      ["Floodlight", floodlightOn, setFloodlightOn],
                       ["Side Light", exteriorSideLightOn, setExteriorSideLightOn],
                       ["Porch Light", porchLightOn, setPorchLightOn],
                     ].map(([label, isOn, setter]) => (
