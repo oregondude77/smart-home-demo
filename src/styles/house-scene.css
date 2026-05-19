@@ -1605,7 +1605,7 @@
   left: 4%;
   bottom: auto;
   z-index: 18;
-  width: clamp(124px, 15.2%, 260px);
+  width: clamp(128px, 15.8%, 270px);
   aspect-ratio: 364.17 / 359.77;
   container-type: inline-size;
   pointer-events: none;
@@ -1677,7 +1677,7 @@
 
 .thermostat-scene-device__glyph--menu {
   left: 20%;
-  top: 38.6%;
+  top: 37.4%;
   width: 9.8%;
   height: 6.6%;
   transform: translate(-50%, -50%);
@@ -1815,7 +1815,7 @@
   }
 
   .thermostat-scene-device {
-    width: clamp(116px, 14.4%, 198px);
+    width: clamp(120px, 14.9%, 205px);
   }
 }
 
@@ -1827,7 +1827,7 @@
   }
 
   .thermostat-scene-device {
-    width: clamp(160px, 15.2%, 296px);
+    width: clamp(166px, 15.8%, 306px);
   }
 }
 
