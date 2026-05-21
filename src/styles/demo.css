@@ -283,6 +283,107 @@ body {
 }
 
 /* =========================
+   WEATHER CARD
+========================= */
+
+.phone-section--weather-card {
+  padding: 0 !important;
+  overflow: hidden !important;
+  background: #fff !important;
+  border-radius: 28px;
+  container-type: inline-size;
+  aspect-ratio: 381 / 191;
+}
+
+.weather-card__header {
+  height: clamp(44px, 14cqw, 55px);
+  padding: clamp(13px, 4.5cqw, 18px) clamp(14px, 4.8cqw, 19px) 0;
+  display: flex;
+  align-items: flex-start;
+}
+
+.weather-card__header .phone-section__title {
+  margin: 0;
+  font-size: clamp(11px, 3.4cqw, 12px);
+  line-height: 1;
+  font-weight: 900;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #708078;
+}
+
+.weather-card__body {
+  height: calc(100% - clamp(44px, 14cqw, 55px));
+  padding:
+    clamp(2px, 0.8cqw, 4px)
+    clamp(16px, 5.3cqw, 24px)
+    clamp(20px, 6.4cqw, 25px)
+    clamp(31px, 9.8cqw, 42px);
+  display: grid;
+  grid-template-columns: clamp(82px, 27.5cqw, 106px) minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(19px, 6.3cqw, 27px);
+}
+
+.weather-card__icon {
+  width: 100%;
+  height: auto;
+  display: block;
+  overflow: visible;
+}
+
+.weather-card__cloud {
+  filter: none;
+}
+
+.weather-card__content {
+  color: #333;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", Arial, sans-serif;
+}
+
+.weather-card__date {
+  font-size: clamp(12px, 4.1cqw, 16px);
+  font-weight: 500;
+  line-height: 1.1;
+  margin-bottom: clamp(6px, 2cqw, 8px);
+}
+
+.weather-card__temp {
+  display: flex;
+  align-items: flex-start;
+  gap: clamp(5px, 1.6cqw, 7px);
+  font-weight: 500;
+  line-height: 0.88;
+  margin-bottom: clamp(8px, 2.9cqw, 12px);
+}
+
+.weather-card__temp span {
+  font-size: clamp(28px, 10.4cqw, 40px);
+  letter-spacing: 0;
+}
+
+.weather-card__temp small {
+  margin-top: clamp(2px, 0.8cqw, 4px);
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  font-size: clamp(10px, 3.5cqw, 13px);
+  font-weight: 500;
+  line-height: 0.95;
+}
+
+.weather-card__temp small span {
+  font-size: inherit;
+  line-height: inherit;
+}
+
+.weather-card__summary {
+  font-size: clamp(12px, 4.1cqw, 16px);
+  font-weight: 500;
+  line-height: 1.15;
+}
+
+/* =========================
    VIDEO CARD
 ========================= */
 
