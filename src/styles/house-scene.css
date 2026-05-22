@@ -188,6 +188,134 @@
   animation: unlockPop 0.42s ease both;
 }
 
+/* =========================
+   SCENE STATUS HUD
+========================= */
+.scene-status-hud {
+  position: absolute;
+  left: 5.4%;
+  bottom: 18.5%;
+  width: min(32%, 430px);
+  min-width: 230px;
+  padding: 0;
+  z-index: 86;
+  pointer-events: none;
+  opacity: 0;
+  transform: translate3d(0, 8px, 0);
+  overflow: visible;
+  color: rgba(255, 255, 255, 0.96);
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  transition:
+    opacity 260ms ease,
+    transform 260ms ease;
+}
+
+.scene-status-hud.is-visible {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+.scene-status-hud::before,
+.scene-status-hud::after {
+  display: none;
+}
+
+.scene-status-hud__title {
+  margin-bottom: 5px;
+  color: rgba(255, 255, 255, 0.68);
+  font-size: clamp(7px, 0.42vw, 9px);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-family: var(--font-inter, Inter, system-ui, sans-serif);
+  text-shadow:
+    0 0 5px rgba(255, 255, 255, 0.34),
+    0 0 14px rgba(255, 255, 255, 0.20),
+    0 0 22px rgba(255, 255, 255, 0.10);
+}
+
+.scene-status-hud__line {
+  display: flex;
+  align-items: baseline;
+  min-height: 1.45em;
+  gap: 7px;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: clamp(12px, 0.72vw, 17px);
+  line-height: 1.2;
+  letter-spacing: 0;
+  text-shadow:
+    0 0 5px rgba(255, 255, 255, 0.58),
+    0 0 13px rgba(255, 255, 255, 0.42),
+    0 0 25px rgba(255, 255, 255, 0.24),
+    0 1px 4px rgba(0, 0, 0, 0.20);
+}
+
+.scene-status-hud__prompt {
+  color: rgba(255, 255, 255, 0.82);
+  text-shadow:
+    0 0 6px rgba(255, 255, 255, 0.50),
+    0 0 14px rgba(255, 255, 255, 0.32);
+}
+
+.scene-status-hud__text {
+  white-space: nowrap;
+}
+
+.scene-status-hud__cursor {
+  width: 0.62em;
+  height: 0.12em;
+  display: inline-block;
+  transform: translateY(0.08em);
+  background: rgba(232, 250, 255, 0.96);
+  box-shadow:
+    0 0 8px rgba(255, 255, 255, 0.55),
+    0 0 16px rgba(34, 161, 193, 0.40);
+  animation: sceneStatusCursor 0.92s steps(2, end) infinite;
+}
+
+.scene-status-hud__meter {
+  display: none;
+}
+
+.scene-status-hud__meter span {
+  width: 24px;
+  height: 3px;
+  border-radius: 999px;
+  background: rgba(174, 241, 255, 0.18);
+  box-shadow: inset 0 0 0 1px rgba(174, 241, 255, 0.10);
+}
+
+.scene-status-hud__meter span.is-active {
+  background: rgba(34, 161, 193, 0.92);
+  box-shadow:
+    0 0 8px rgba(34, 161, 193, 0.50),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.18);
+}
+
+@keyframes sceneStatusCursor {
+  0%,
+  58% {
+    opacity: 1;
+  }
+
+  59%,
+  100% {
+    opacity: 0.2;
+  }
+}
+
+@keyframes sceneStatusScan {
+  0% {
+    transform: translateY(0);
+  }
+
+  100% {
+    transform: translateY(260%);
+  }
+}
+
 @keyframes lockSnap {
   0% {
     transform: translateY(-8px) scale(0.92);

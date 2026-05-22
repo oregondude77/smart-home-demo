@@ -23,6 +23,7 @@ export default function SmartHomeDemo() {
   const [frontDoorUnlocked, setFrontDoorUnlocked] = useState(false);
   const [sideDoorUnlocked, setSideDoorUnlocked] = useState(false);
   const [thermostatTemp, setThermostatTemp] = useState(70);
+  const [sceneStatus, setSceneStatus] = useState(null);
 
   const [nightMode, setNightMode] = useState(false);
 
@@ -93,6 +94,7 @@ export default function SmartHomeDemo() {
           setActiveCamera={setActiveCamera}
           liveCamera={liveCamera}
           setLiveCamera={setLiveCamera}
+          setSceneStatus={setSceneStatus}
         />
 
         <HouseScene
@@ -114,6 +116,7 @@ export default function SmartHomeDemo() {
 
           /* IMPORTANT */
           activeCamera={liveCamera}
+          sceneStatus={sceneStatus}
         />
       </div>
     </div>

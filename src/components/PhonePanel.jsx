@@ -5,6 +5,47 @@ import { useRef, useState } from "react";
 const OUTDOOR_NIGHT_VIDEO_SRC = "/outdoor-camera-night.mp4";
 const THERMOSTAT_MIN_TEMP = 60;
 const THERMOSTAT_MAX_TEMP = 82;
+const SCENE_STATUS_COPY = {
+  home: {
+    title: "Home scene",
+    actions: [
+      "Disarming security system",
+      "Unlocking front door",
+      "Turning on porch light",
+      "Turning on living room lights",
+      "Setting thermostat to 68",
+    ],
+  },
+  away: {
+    title: "Away scene",
+    actions: [
+      "Arming security system",
+      "Locking front door",
+      "Turning on porch, side, and garage lights",
+      "Turning off interior lights",
+      "Setting thermostat to 72",
+    ],
+  },
+  sleep: {
+    title: "Sleep scene",
+    actions: [
+      "Arming security system",
+      "Locking doors",
+      "Turning off interior lights",
+      "Turning on perimeter lights",
+      "Lowering thermostat to 68",
+    ],
+  },
+  "wake-up": {
+    title: "Wake Up scene",
+    actions: [
+      "Disarming security system",
+      "Unlocking front door",
+      "Turning on downstairs lights",
+      "Setting thermostat to 70",
+    ],
+  },
+};
 
 export default function PhonePanel({
   garageOpen,
@@ -40,6 +81,7 @@ export default function PhonePanel({
   setLiveCamera,
   nightMode,
   setNightMode,
+  setSceneStatus,
 }) {
   const [activeDoorSlide, setActiveDoorSlide] = useState(0);
   const [activeVideoSlide, setActiveVideoSlide] = useState(0);
@@ -144,6 +186,59 @@ export default function PhonePanel({
       : thermostatMode === "cooling"
         ? "#22A1C1"
         : "#767676";
+
+  const handleScene = (sceneId) => {
+    const sceneStatus = SCENE_STATUS_COPY[sceneId];
+
+    if (sceneStatus && setSceneStatus) {
+      setSceneStatus({
+        ...sceneStatus,
+        key: Date.now(),
+      });
+    }
+
+    switch (sceneId) {
+      case "home":
+        setArmed(false);
+        setFrontDoorUnlocked(true);
+        setPorchLightOn(true);
+        setLivingRoomOn(true);
+        setThermostatTemp(68);
+        break;
+      case "away":
+        setArmed(true);
+        setFrontDoorUnlocked(false);
+        setPorchLightOn(true);
+        setExteriorSideLightOn(true);
+        setGarageLightsOn(true);
+        setLivingRoomOn(false);
+        setDiningRoomOn(false);
+        setThermostatTemp(72);
+        break;
+      case "sleep":
+        setArmed(true);
+        setFrontDoorUnlocked(false);
+        setSideDoorUnlocked(false);
+        setUpstairsBedroomOn(false);
+        setBedroomOn(false);
+        setLivingRoomOn(false);
+        setDiningRoomOn(false);
+        setPorchLightOn(true);
+        setExteriorSideLightOn(true);
+        setGarageLightsOn(true);
+        setThermostatTemp(68);
+        break;
+      case "wake-up":
+        setArmed(false);
+        setFrontDoorUnlocked(true);
+        setLivingRoomOn(true);
+        setDiningRoomOn(true);
+        setThermostatTemp(70);
+        break;
+      default:
+        break;
+    }
+  };
 
   const DoorLockCard = ({ label, unlocked, onToggle }) => (
     <button
@@ -251,6 +346,73 @@ export default function PhonePanel({
       </svg>
     </button>
   );
+
+  const ScenesCard = () => {
+    const sceneButtons = [
+      { id: "home", label: "Home" },
+      { id: "away", label: "Away" },
+      { id: "sleep", label: "Sleep" },
+      { id: "wake-up", label: "Wake Up" },
+    ];
+
+    return (
+      <section className="phone-section phone-section--scenes-card" aria-label="Scenes">
+        <div className="scenes-card-shell">
+          <svg
+            className="scenes-card-svg"
+            width="381"
+            height="164"
+            viewBox="0 0 381 164"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
+          >
+            <rect x="2" y="1" width="377" height="160" rx="4" fill="white" shapeRendering="crispEdges" />
+
+            <text
+              x="19"
+              y="26"
+              fill="#767676"
+              fontSize="15"
+              fontWeight="900"
+              letterSpacing="0.18em"
+              fontFamily="-apple-system, BlinkMacSystemFont, 'SF Pro Text', Arial, sans-serif"
+            >
+              SCENES
+            </text>
+
+            <path fillRule="evenodd" clipRule="evenodd" d="M354.414 29.9956L363.418 20.9916L354.423 11.9956L353.009 13.4096L360.59 20.9916L353 28.5816L354.414 29.9956Z" fill="#767676" />
+
+            <rect x="20.5" y="49.5" width="63" height="63" rx="3.5" stroke="black" strokeOpacity="0.1" />
+            <path fillRule="evenodd" clipRule="evenodd" d="M51.3223 70.6225L58.3423 63.6008L70.834 77.0108V95.9992H50.834V92.6658H59.1673V82.6658H64.1673V92.6658H67.5007V78.3225L58.2573 68.3992L53.679 72.9792L51.3223 70.6225ZM45.1507 76.69L47.5073 74.3333L55.834 82.66L47.4923 91L45.1357 88.6433L49.4457 84.3333H35.834V81H49.4607L45.1507 76.69Z" fill="#23AB3F" />
+            <text x="52" y="135" fill="#333333" fontSize="13" fontWeight="500" textAnchor="middle" fontFamily="-apple-system, BlinkMacSystemFont, 'SF Pro Text', Arial, sans-serif">Home</text>
+
+            <rect x="112.5" y="49.5" width="63" height="63" rx="3.5" stroke="black" strokeOpacity="0.1" />
+            <path fillRule="evenodd" clipRule="evenodd" d="M143.322 70.6221L150.342 63.6005L162.834 77.0105V96.0005H142.834V92.6671H151.167V82.6671H156.167V92.6671H159.501V78.3221L150.257 68.3988L145.679 72.9788L143.322 70.6221ZM146.167 81V84.3333H132.54L136.85 88.6433L134.493 91L126.167 82.6733L134.507 74.3333L136.863 76.69L132.555 81H146.167Z" fill="#D92C29" />
+            <text x="144" y="135" fill="#333333" fontSize="13" fontWeight="500" textAnchor="middle" fontFamily="-apple-system, BlinkMacSystemFont, 'SF Pro Text', Arial, sans-serif">Away</text>
+
+            <rect x="206.5" y="49.5" width="63" height="63" rx="3.5" stroke="black" strokeOpacity="0.1" />
+            <path fillRule="evenodd" clipRule="evenodd" d="M239.074 96.532C230.299 96.532 223.187 89.2403 223.187 80.2437C223.187 74.1887 226.414 68.9187 231.196 66.1137C231.874 65.717 232.637 66.4337 232.361 67.1687C231.677 68.982 231.301 70.952 231.301 73.0137C231.301 82.0087 238.414 89.302 247.187 89.302C248.419 89.302 249.614 89.152 250.764 88.877C251.522 88.6937 252.139 89.532 251.671 90.157C248.769 94.032 244.209 96.532 239.074 96.532Z" fill="#2071DD" />
+            <text x="238" y="135" fill="#333333" fontSize="13" fontWeight="500" textAnchor="middle" fontFamily="-apple-system, BlinkMacSystemFont, 'SF Pro Text', Arial, sans-serif">Sleep</text>
+
+            <rect x="298.5" y="49.5" width="63" height="63" rx="3.5" stroke="black" strokeOpacity="0.1" />
+            <path fillRule="evenodd" clipRule="evenodd" d="M317.655 66.9764L316.476 68.1547C315.175 69.4564 315.175 71.568 316.476 72.8697L322.368 66.9764C321.066 65.6747 318.956 65.6747 317.655 66.9764ZM320.5 81C320.5 86.5134 324.987 91 330.5 91C336.013 91 340.5 86.5134 340.5 81C340.5 75.4867 336.013 71 330.5 71C324.987 71 320.5 75.4867 320.5 81ZM317.167 81C317.167 73.6367 323.137 67.6667 330.5 67.6667C337.863 67.6667 343.833 73.6367 343.833 81C343.833 83.34 343.227 85.5384 342.167 87.45V94.3334H338.833V91.4C336.55 93.2317 333.655 94.3334 330.5 94.3334C327.345 94.3334 324.45 93.2317 322.167 91.4V94.3334H318.833V87.45C317.773 85.5384 317.167 83.34 317.167 81ZM325.5 82.6667H328.833V76H332.167V81V82.6667V86H325.5V82.6667ZM343.345 66.9765L344.524 68.1549C345.825 69.4565 345.825 71.5665 344.524 72.8682L338.63 66.9765C339.934 65.6749 342.044 65.6749 343.345 66.9765Z" fill="#FFCD00" />
+            <text x="330" y="135" fill="#333333" fontSize="13" fontWeight="500" textAnchor="middle" fontFamily="-apple-system, BlinkMacSystemFont, 'SF Pro Text', Arial, sans-serif">Wake Up</text>
+          </svg>
+
+          {sceneButtons.map((scene) => (
+            <button
+              key={scene.id}
+              type="button"
+              className={`scenes-card-hit scenes-card-hit--${scene.id}`}
+              aria-label={`Run ${scene.label} scene`}
+              onClick={() => handleScene(scene.id)}
+            />
+          ))}
+        </div>
+      </section>
+    );
+  };
 
   const WeatherCard = () => (
     <section className="phone-section phone-section--weather-card" aria-label="Weather">
@@ -493,6 +655,8 @@ export default function PhonePanel({
               </div>
 
               <div className="phone-app__sections">
+                <ScenesCard />
+
                 {/* SECURITY SYSTEM */}
                 <section className="phone-section phone-section--security-system-card">
                   <button

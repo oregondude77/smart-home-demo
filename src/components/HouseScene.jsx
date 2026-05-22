@@ -7,6 +7,8 @@ const GARAGE_FRAME_MS = 110;
 const DOOR_PULSE_MS = 700;
 const DOOR_CALLOUT_MS = 3400;
 const SYSTEM_MESSAGE_MS = 2000;
+const SCENE_STATUS_STEP_MS = 920;
+const SCENE_STATUS_HOLD_MS = 1300;
 
 function LockIcon() {
   return (
@@ -179,6 +181,7 @@ export default function HouseScene({
 
   activeCamera = null,
   doorAction = null,
+  sceneStatus = null,
 }) {
   const [garageFrame, setGarageFrame] = useState(0);
   const [frontPulse, setFrontPulse] = useState(false);
@@ -187,6 +190,8 @@ export default function HouseScene({
   const [sideCallout, setSideCallout] = useState({ active: false, key: 0 });
   const [systemMessage, setSystemMessage] = useState("");
   const [systemMessageKey, setSystemMessageKey] = useState(0);
+  const [sceneStatusIndex, setSceneStatusIndex] = useState(0);
+  const [sceneStatusVisible, setSceneStatusVisible] = useState(false);
 
   const frontMounted = useRef(false);
   const sideMounted = useRef(false);
@@ -197,6 +202,8 @@ export default function HouseScene({
   const frontCalloutTimeoutRef = useRef(null);
   const sideCalloutTimeoutRef = useRef(null);
   const systemTimeoutRef = useRef(null);
+  const sceneStatusIntervalRef = useRef(null);
+  const sceneStatusTimeoutRef = useRef(null);
 
   const frontRaf1Ref = useRef(null);
   const frontRaf2Ref = useRef(null);
@@ -331,6 +338,51 @@ export default function HouseScene({
     triggerDoorFeedback(doorAction.door);
   }, [doorAction, triggerDoorFeedback]);
 
+  useEffect(() => {
+    if (!sceneStatus?.actions?.length) return;
+
+    if (sceneStatusIntervalRef.current) {
+      clearInterval(sceneStatusIntervalRef.current);
+    }
+
+    if (sceneStatusTimeoutRef.current) {
+      clearTimeout(sceneStatusTimeoutRef.current);
+    }
+
+    let step = 0;
+
+    setSceneStatusIndex(0);
+    setSceneStatusVisible(true);
+
+    sceneStatusIntervalRef.current = setInterval(() => {
+      step += 1;
+
+      if (step < sceneStatus.actions.length) {
+        setSceneStatusIndex(step);
+        return;
+      }
+
+      clearInterval(sceneStatusIntervalRef.current);
+      sceneStatusIntervalRef.current = null;
+
+      sceneStatusTimeoutRef.current = setTimeout(() => {
+        setSceneStatusVisible(false);
+      }, SCENE_STATUS_HOLD_MS);
+    }, SCENE_STATUS_STEP_MS);
+
+    return () => {
+      if (sceneStatusIntervalRef.current) {
+        clearInterval(sceneStatusIntervalRef.current);
+        sceneStatusIntervalRef.current = null;
+      }
+
+      if (sceneStatusTimeoutRef.current) {
+        clearTimeout(sceneStatusTimeoutRef.current);
+        sceneStatusTimeoutRef.current = null;
+      }
+    };
+  }, [sceneStatus]);
+
   useEffect(() => (
     () => {
       [
@@ -339,9 +391,14 @@ export default function HouseScene({
         frontCalloutTimeoutRef,
         sideCalloutTimeoutRef,
         systemTimeoutRef,
+        sceneStatusTimeoutRef,
       ].forEach((timeoutRef) => {
         if (timeoutRef.current) clearTimeout(timeoutRef.current);
       });
+
+      if (sceneStatusIntervalRef.current) {
+        clearInterval(sceneStatusIntervalRef.current);
+      }
 
       [frontRaf1Ref, frontRaf2Ref, sideRaf1Ref, sideRaf2Ref].forEach((rafRef) => {
         if (rafRef.current) cancelAnimationFrame(rafRef.current);
@@ -509,6 +566,34 @@ export default function HouseScene({
             roomTemperature={thermostatRoomTemp}
             setTemperature={thermostatTemp}
           />
+
+          {sceneStatus?.actions?.length > 0 && (
+            <div
+              key={sceneStatus.key}
+              className={[
+                "scene-status-hud",
+                sceneStatusVisible ? "is-visible" : "",
+              ].filter(Boolean).join(" ")}
+              aria-live="polite"
+            >
+              <div className="scene-status-hud__title">{sceneStatus.title}</div>
+              <div className="scene-status-hud__line">
+                <span className="scene-status-hud__prompt">&gt;</span>
+                <span className="scene-status-hud__text">
+                  {sceneStatus.actions[sceneStatusIndex]}
+                </span>
+                <span className="scene-status-hud__cursor" />
+              </div>
+              <div className="scene-status-hud__meter">
+                {sceneStatus.actions.map((action, index) => (
+                  <span
+                    key={`${action}-${index}`}
+                    className={index <= sceneStatusIndex ? "is-active" : ""}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
 
           <div className="house-overlay house-overlay--camera" />
         </div>

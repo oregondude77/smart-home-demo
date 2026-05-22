@@ -252,6 +252,58 @@ body {
    SECURITY SYSTEM CARD
 ========================= */
 
+.phone-section--scenes-card {
+  padding: 0 !important;
+  overflow: hidden !important;
+  background: #fff !important;
+  border-radius: 28px;
+}
+
+.scenes-card-shell {
+  position: relative;
+  width: 100%;
+}
+
+.scenes-card-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.scenes-card-hit {
+  position: absolute;
+  top: 30%;
+  width: 16.6%;
+  height: 58%;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.scenes-card-hit--home {
+  left: 5.3%;
+}
+
+.scenes-card-hit--away {
+  left: 29.5%;
+}
+
+.scenes-card-hit--sleep {
+  left: 54.2%;
+}
+
+.scenes-card-hit--wake-up {
+  left: 78.4%;
+}
+
+.scenes-card-hit:active {
+  transform: scale(0.975);
+}
+
 .phone-section--security-system-card {
   padding: 0 !important;
   overflow: hidden !important;
