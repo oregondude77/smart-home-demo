@@ -7,6 +7,11 @@ const THERMOSTAT_MIN_TEMP = 60;
 const THERMOSTAT_MAX_TEMP = 82;
 const SCENE_ACTION_STEP_MS = 1550;
 const MANUAL_ACTION_STEP_MS = 1450;
+const SCENE_STATUS_TYPE_MIN_MS = 18;
+const SCENE_STATUS_TYPE_MAX_MS = 34;
+const SCENE_ACTION_MIN_RUN_DELAY_MS = 520;
+const SCENE_ACTION_COMPLETION_BUFFER_MS = 120;
+const SCENE_ACTION_END_GUARD_MS = 220;
 const SCENE_STATUS_COPY = {
   home: {
     title: "Home scene",
@@ -48,6 +53,26 @@ const SCENE_STATUS_COPY = {
     ],
   },
 };
+
+const getSceneStatusTypeMs = (action, stepMs) => (
+  Math.min(
+    SCENE_STATUS_TYPE_MAX_MS,
+    Math.max(
+      SCENE_STATUS_TYPE_MIN_MS,
+      Math.floor((stepMs * 0.58) / Math.max(action.length, 1))
+    )
+  )
+);
+
+const getSceneActionRunDelay = (action, stepMs) => (
+  Math.min(
+    stepMs - SCENE_ACTION_END_GUARD_MS,
+    Math.max(
+      SCENE_ACTION_MIN_RUN_DELAY_MS,
+      (getSceneStatusTypeMs(action, stepMs) * action.length) + SCENE_ACTION_COMPLETION_BUFFER_MS
+    )
+  )
+);
 
 export default function PhonePanel({
   garageOpen,
@@ -327,17 +352,23 @@ export default function PhonePanel({
       return;
     }
 
+    const sceneStepMs = SCENE_ACTION_STEP_MS;
+
     if (feedEnabled && setSceneStatus) {
       setSceneStatus({
         title: sceneStatus.title,
         actions: sceneSteps.map((step) => step.label),
-        stepMs: SCENE_ACTION_STEP_MS,
+        stepMs: sceneStepMs,
         key: getFeedKey(),
       });
     }
 
     sceneActionTimeoutsRef.current = sceneSteps.map((step, index) =>
-      setTimeout(step.run, index * SCENE_ACTION_STEP_MS)
+      setTimeout(
+        step.run,
+        (index * sceneStepMs)
+          + (feedEnabled ? getSceneActionRunDelay(step.label, sceneStepMs) : 0)
+      )
     );
   };
 
