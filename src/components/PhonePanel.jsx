@@ -1,10 +1,12 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const OUTDOOR_NIGHT_VIDEO_SRC = "/outdoor-camera-night.mp4";
 const THERMOSTAT_MIN_TEMP = 60;
 const THERMOSTAT_MAX_TEMP = 82;
+const SCENE_ACTION_STEP_MS = 1550;
+const MANUAL_ACTION_STEP_MS = 1450;
 const SCENE_STATUS_COPY = {
   home: {
     title: "Home scene",
@@ -81,6 +83,8 @@ export default function PhonePanel({
   setLiveCamera,
   nightMode,
   setNightMode,
+  feedEnabled,
+  setFeedEnabled,
   setSceneStatus,
 }) {
   const [activeDoorSlide, setActiveDoorSlide] = useState(0);
@@ -88,6 +92,50 @@ export default function PhonePanel({
 
   const doorCarouselRef = useRef(null);
   const videoCarouselRef = useRef(null);
+  const sceneActionTimeoutsRef = useRef([]);
+  const feedKeyRef = useRef(0);
+
+  const clearSceneActionTimeouts = () => {
+    sceneActionTimeoutsRef.current.forEach((timeoutId) => clearTimeout(timeoutId));
+    sceneActionTimeoutsRef.current = [];
+  };
+
+  useEffect(() => (
+    () => {
+      clearSceneActionTimeouts();
+    }
+  ), []);
+
+  const getFeedKey = () => {
+    feedKeyRef.current += 1;
+    return `${Date.now()}-${feedKeyRef.current}`;
+  };
+
+  const pushActionFeed = (title, action, stepMs = MANUAL_ACTION_STEP_MS) => {
+    clearSceneActionTimeouts();
+
+    if (feedEnabled && setSceneStatus) {
+      setSceneStatus({
+        title,
+        actions: Array.isArray(action) ? action : [action],
+        stepMs,
+        key: getFeedKey(),
+      });
+    }
+  };
+
+  const pushFeedToggleStatus = (enabled) => {
+    clearSceneActionTimeouts();
+
+    if (setSceneStatus) {
+      setSceneStatus({
+        title: "Action feed",
+        actions: [enabled ? "Feed enabled" : "Feed disabled"],
+        stepMs: MANUAL_ACTION_STEP_MS,
+        key: getFeedKey(),
+      });
+    }
+  };
 
   const cameraFeeds = [
     {
@@ -147,6 +195,9 @@ export default function PhonePanel({
   };
 
   const handleExpandCamera = (cameraId) => {
+    const feed = cameraFeeds.find((cameraFeed) => cameraFeed.id === cameraId);
+
+    pushActionFeed("Video", `Opening ${feed?.label ?? "camera"} feed`);
     setActiveCamera(cameraId);
 
     if (typeof setLiveCamera === "function") {
@@ -155,6 +206,10 @@ export default function PhonePanel({
   };
 
   const handleCloseCamera = () => {
+    if (activeFeed) {
+      pushActionFeed("Video", `Closing ${activeFeed.label} feed`);
+    }
+
     setActiveCamera(null);
 
     if (typeof setLiveCamera === "function") {
@@ -169,9 +224,15 @@ export default function PhonePanel({
   }).format(new Date()).replace(",", "");
 
   const adjustThermostat = (amount) => {
-    setThermostatTemp((prev) =>
-      Math.min(THERMOSTAT_MAX_TEMP, Math.max(THERMOSTAT_MIN_TEMP, prev + amount))
+    const nextTemp = Math.min(
+      THERMOSTAT_MAX_TEMP,
+      Math.max(THERMOSTAT_MIN_TEMP, thermostatTemp + amount)
     );
+
+    if (nextTemp !== thermostatTemp) {
+      pushActionFeed("Thermostat", `Setting thermostat to ${nextTemp}`);
+      setThermostatTemp(nextTemp);
+    }
   };
 
   const thermostatMode =
@@ -189,55 +250,95 @@ export default function PhonePanel({
 
   const handleScene = (sceneId) => {
     const sceneStatus = SCENE_STATUS_COPY[sceneId];
+    const sceneStepsById = {
+      home: [
+        { label: "Disarming security system", run: () => setArmed(false) },
+        { label: "Unlocking front door", run: () => setFrontDoorUnlocked(true) },
+        { label: "Turning on porch light", run: () => setPorchLightOn(true) },
+        { label: "Turning on living room lights", run: () => setLivingRoomOn(true) },
+        { label: "Setting thermostat to 68", run: () => setThermostatTemp(68) },
+      ],
+      away: [
+        { label: "Arming security system", run: () => setArmed(true) },
+        { label: "Locking front door", run: () => setFrontDoorUnlocked(false) },
+        {
+          label: "Turning on porch, side, and garage lights",
+          run: () => {
+            setPorchLightOn(true);
+            setExteriorSideLightOn(true);
+            setGarageLightsOn(true);
+          },
+        },
+        {
+          label: "Turning off interior lights",
+          run: () => {
+            setLivingRoomOn(false);
+            setDiningRoomOn(false);
+          },
+        },
+        { label: "Setting thermostat to 72", run: () => setThermostatTemp(72) },
+      ],
+      sleep: [
+        { label: "Arming security system", run: () => setArmed(true) },
+        {
+          label: "Locking doors",
+          run: () => {
+            setFrontDoorUnlocked(false);
+            setSideDoorUnlocked(false);
+          },
+        },
+        {
+          label: "Turning off interior lights",
+          run: () => {
+            setUpstairsBedroomOn(false);
+            setBedroomOn(false);
+            setLivingRoomOn(false);
+            setDiningRoomOn(false);
+          },
+        },
+        {
+          label: "Turning on perimeter lights",
+          run: () => {
+            setPorchLightOn(true);
+            setExteriorSideLightOn(true);
+            setGarageLightsOn(true);
+          },
+        },
+        { label: "Lowering thermostat to 68", run: () => setThermostatTemp(68) },
+      ],
+      "wake-up": [
+        { label: "Disarming security system", run: () => setArmed(false) },
+        { label: "Unlocking front door", run: () => setFrontDoorUnlocked(true) },
+        {
+          label: "Turning on downstairs lights",
+          run: () => {
+            setLivingRoomOn(true);
+            setDiningRoomOn(true);
+          },
+        },
+        { label: "Setting thermostat to 70", run: () => setThermostatTemp(70) },
+      ],
+    };
+    const sceneSteps = sceneStepsById[sceneId];
 
-    if (sceneStatus && setSceneStatus) {
+    clearSceneActionTimeouts();
+
+    if (!sceneStatus || !sceneSteps) {
+      return;
+    }
+
+    if (feedEnabled && setSceneStatus) {
       setSceneStatus({
-        ...sceneStatus,
-        key: Date.now(),
+        title: sceneStatus.title,
+        actions: sceneSteps.map((step) => step.label),
+        stepMs: SCENE_ACTION_STEP_MS,
+        key: getFeedKey(),
       });
     }
 
-    switch (sceneId) {
-      case "home":
-        setArmed(false);
-        setFrontDoorUnlocked(true);
-        setPorchLightOn(true);
-        setLivingRoomOn(true);
-        setThermostatTemp(68);
-        break;
-      case "away":
-        setArmed(true);
-        setFrontDoorUnlocked(false);
-        setPorchLightOn(true);
-        setExteriorSideLightOn(true);
-        setGarageLightsOn(true);
-        setLivingRoomOn(false);
-        setDiningRoomOn(false);
-        setThermostatTemp(72);
-        break;
-      case "sleep":
-        setArmed(true);
-        setFrontDoorUnlocked(false);
-        setSideDoorUnlocked(false);
-        setUpstairsBedroomOn(false);
-        setBedroomOn(false);
-        setLivingRoomOn(false);
-        setDiningRoomOn(false);
-        setPorchLightOn(true);
-        setExteriorSideLightOn(true);
-        setGarageLightsOn(true);
-        setThermostatTemp(68);
-        break;
-      case "wake-up":
-        setArmed(false);
-        setFrontDoorUnlocked(true);
-        setLivingRoomOn(true);
-        setDiningRoomOn(true);
-        setThermostatTemp(70);
-        break;
-      default:
-        break;
-    }
+    sceneActionTimeoutsRef.current = sceneSteps.map((step, index) =>
+      setTimeout(step.run, index * SCENE_ACTION_STEP_MS)
+    );
   };
 
   const DoorLockCard = ({ label, unlocked, onToggle }) => (
@@ -662,7 +763,15 @@ export default function PhonePanel({
                   <button
                     type="button"
                     className="security-system-card-button"
-                    onClick={() => setArmed((prev) => !prev)}
+                    onClick={() => {
+                      const nextArmed = !armed;
+
+                      pushActionFeed(
+                        "Security system",
+                        nextArmed ? "Arming security system" : "Disarming security system"
+                      );
+                      setArmed(nextArmed);
+                    }}
                   >
                     <svg
                       className="security-system-full-svg"
@@ -804,13 +913,29 @@ export default function PhonePanel({
                     <DoorLockCard
                       label="Front Door"
                       unlocked={frontDoorUnlocked}
-                      onToggle={() => setFrontDoorUnlocked((prev) => !prev)}
+                      onToggle={() => {
+                        const nextUnlocked = !frontDoorUnlocked;
+
+                        pushActionFeed(
+                          "Door locks",
+                          `${nextUnlocked ? "Unlocking" : "Locking"} front door`
+                        );
+                        setFrontDoorUnlocked(nextUnlocked);
+                      }}
                     />
 
                     <DoorLockCard
                       label="Side Door"
                       unlocked={sideDoorUnlocked}
-                      onToggle={() => setSideDoorUnlocked((prev) => !prev)}
+                      onToggle={() => {
+                        const nextUnlocked = !sideDoorUnlocked;
+
+                        pushActionFeed(
+                          "Door locks",
+                          `${nextUnlocked ? "Unlocking" : "Locking"} side door`
+                        );
+                        setSideDoorUnlocked(nextUnlocked);
+                      }}
                     />
                   </div>
 
@@ -845,7 +970,15 @@ export default function PhonePanel({
                   <button
                     type="button"
                     className="garage-card-button"
-                    onClick={() => setGarageOpen((prev) => !prev)}
+                    onClick={() => {
+                      const nextOpen = !garageOpen;
+
+                      pushActionFeed(
+                        "Garage door",
+                        `${nextOpen ? "Opening" : "Closing"} garage door`
+                      );
+                      setGarageOpen(nextOpen);
+                    }}
                   >
                     <svg
                       className="garage-card-svg"
@@ -1034,7 +1167,15 @@ export default function PhonePanel({
                         key={label}
                         type="button"
                         className={`light-row ${isOn ? "is-on" : ""}`}
-                        onClick={() => setter((prev) => !prev)}
+                        onClick={() => {
+                          const nextOn = !isOn;
+
+                          pushActionFeed(
+                            "Lighting",
+                            `${nextOn ? "Turning on" : "Turning off"} ${label.toLowerCase()}`
+                          );
+                          setter(nextOn);
+                        }}
                       >
                         <span className="light-row__icon">💡</span>
 
@@ -1104,8 +1245,72 @@ export default function PhonePanel({
 
       <button
         type="button"
+        className={`feed-toggle ${feedEnabled ? "is-on" : ""}`}
+        onClick={() => {
+          const nextFeedEnabled = !feedEnabled;
+
+          pushFeedToggleStatus(nextFeedEnabled);
+          setFeedEnabled(nextFeedEnabled);
+        }}
+        aria-label={`${feedEnabled ? "Turn off" : "Turn on"} action feed`}
+        aria-pressed={feedEnabled}
+      >
+        <span className="feed-toggle__icon" aria-hidden="true">
+          <svg viewBox="0 0 42 42" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path
+              d="M11.5 14.5L16 19L11.5 23.5"
+              stroke="currentColor"
+              strokeWidth="2.8"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+            <path
+              d="M19 16H30"
+              stroke="currentColor"
+              strokeWidth="2.8"
+              strokeLinecap="round"
+            />
+            <path
+              d="M19 22H27"
+              stroke="currentColor"
+              strokeWidth="2.8"
+              strokeLinecap="round"
+              opacity="0.72"
+            />
+            <path
+              d="M19 28H24"
+              stroke="currentColor"
+              strokeWidth="2.8"
+              strokeLinecap="round"
+              opacity="0.48"
+            />
+            {feedEnabled ? (
+              <circle cx="32" cy="11" r="3.6" fill="currentColor" />
+            ) : (
+              <path
+                d="M31 11L11 31"
+                stroke="currentColor"
+                strokeWidth="3.2"
+                strokeLinecap="round"
+              />
+            )}
+          </svg>
+        </span>
+        <span className="feed-toggle__label">Action Feed</span>
+      </button>
+
+      <button
+        type="button"
         className={`mode-toggle ${nightMode ? "is-night" : ""}`}
-        onClick={() => setNightMode((prev) => !prev)}
+        onClick={() => {
+          const nextNightMode = !nightMode;
+
+          pushActionFeed(
+            "Display mode",
+            nextNightMode ? "Switching to night mode" : "Switching to day mode"
+          );
+          setNightMode(nextNightMode);
+        }}
       >
         <span className="mode-toggle__icon">{nightMode ? "☾" : "☀"}</span>
         <span className="mode-toggle__label">{nightMode ? "Night Mode" : "Day Mode"}</span>

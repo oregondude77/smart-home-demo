@@ -7,8 +7,10 @@ const GARAGE_FRAME_MS = 110;
 const DOOR_PULSE_MS = 700;
 const DOOR_CALLOUT_MS = 3400;
 const SYSTEM_MESSAGE_MS = 2000;
-const SCENE_STATUS_STEP_MS = 920;
-const SCENE_STATUS_HOLD_MS = 1300;
+const SCENE_STATUS_STEP_MS = 1550;
+const SCENE_STATUS_HOLD_MS = 2400;
+const SCENE_STATUS_TYPE_MIN_MS = 18;
+const SCENE_STATUS_TYPE_MAX_MS = 34;
 
 function LockIcon() {
   return (
@@ -191,6 +193,7 @@ export default function HouseScene({
   const [systemMessage, setSystemMessage] = useState("");
   const [systemMessageKey, setSystemMessageKey] = useState(0);
   const [sceneStatusIndex, setSceneStatusIndex] = useState(0);
+  const [sceneStatusTextLength, setSceneStatusTextLength] = useState(0);
   const [sceneStatusVisible, setSceneStatusVisible] = useState(false);
 
   const frontMounted = useRef(false);
@@ -204,6 +207,7 @@ export default function HouseScene({
   const systemTimeoutRef = useRef(null);
   const sceneStatusIntervalRef = useRef(null);
   const sceneStatusTimeoutRef = useRef(null);
+  const sceneStatusTypingIntervalRef = useRef(null);
 
   const frontRaf1Ref = useRef(null);
   const frontRaf2Ref = useRef(null);
@@ -350,8 +354,10 @@ export default function HouseScene({
     }
 
     let step = 0;
+    const stepMs = sceneStatus.stepMs ?? SCENE_STATUS_STEP_MS;
 
     setSceneStatusIndex(0);
+    setSceneStatusTextLength(0);
     setSceneStatusVisible(true);
 
     sceneStatusIntervalRef.current = setInterval(() => {
@@ -368,7 +374,7 @@ export default function HouseScene({
       sceneStatusTimeoutRef.current = setTimeout(() => {
         setSceneStatusVisible(false);
       }, SCENE_STATUS_HOLD_MS);
-    }, SCENE_STATUS_STEP_MS);
+    }, stepMs);
 
     return () => {
       if (sceneStatusIntervalRef.current) {
@@ -382,6 +388,49 @@ export default function HouseScene({
       }
     };
   }, [sceneStatus]);
+
+  useEffect(() => {
+    const action = sceneStatus?.actions?.[sceneStatusIndex];
+
+    if (sceneStatusTypingIntervalRef.current) {
+      clearInterval(sceneStatusTypingIntervalRef.current);
+      sceneStatusTypingIntervalRef.current = null;
+    }
+
+    if (!action) {
+      setSceneStatusTextLength(0);
+      return undefined;
+    }
+
+    const stepMs = sceneStatus.stepMs ?? SCENE_STATUS_STEP_MS;
+    const typeMs = Math.min(
+      SCENE_STATUS_TYPE_MAX_MS,
+      Math.max(
+        SCENE_STATUS_TYPE_MIN_MS,
+        Math.floor((stepMs * 0.58) / Math.max(action.length, 1))
+      )
+    );
+
+    let characterCount = 0;
+    setSceneStatusTextLength(0);
+
+    sceneStatusTypingIntervalRef.current = setInterval(() => {
+      characterCount += 1;
+      setSceneStatusTextLength(characterCount);
+
+      if (characterCount >= action.length) {
+        clearInterval(sceneStatusTypingIntervalRef.current);
+        sceneStatusTypingIntervalRef.current = null;
+      }
+    }, typeMs);
+
+    return () => {
+      if (sceneStatusTypingIntervalRef.current) {
+        clearInterval(sceneStatusTypingIntervalRef.current);
+        sceneStatusTypingIntervalRef.current = null;
+      }
+    };
+  }, [sceneStatus, sceneStatusIndex]);
 
   useEffect(() => (
     () => {
@@ -398,6 +447,10 @@ export default function HouseScene({
 
       if (sceneStatusIntervalRef.current) {
         clearInterval(sceneStatusIntervalRef.current);
+      }
+
+      if (sceneStatusTypingIntervalRef.current) {
+        clearInterval(sceneStatusTypingIntervalRef.current);
       }
 
       [frontRaf1Ref, frontRaf2Ref, sideRaf1Ref, sideRaf2Ref].forEach((rafRef) => {
@@ -577,20 +630,37 @@ export default function HouseScene({
               aria-live="polite"
             >
               <div className="scene-status-hud__title">{sceneStatus.title}</div>
-              <div className="scene-status-hud__line">
-                <span className="scene-status-hud__prompt">&gt;</span>
-                <span className="scene-status-hud__text">
-                  {sceneStatus.actions[sceneStatusIndex]}
-                </span>
-                <span className="scene-status-hud__cursor" />
-              </div>
-              <div className="scene-status-hud__meter">
-                {sceneStatus.actions.map((action, index) => (
-                  <span
-                    key={`${action}-${index}`}
-                    className={index <= sceneStatusIndex ? "is-active" : ""}
-                  />
-                ))}
+              <div className="scene-status-hud__stack">
+                {sceneStatus.actions
+                  .slice(0, sceneStatusIndex + 1)
+                  .reverse()
+                  .map((action, displayIndex, visibleActions) => ({
+                    action,
+                    sourceIndex: visibleActions.length - 1 - displayIndex,
+                    displayIndex,
+                  }))
+                  .map(({ action, sourceIndex, displayIndex }) => (
+                    <div
+                      key={`${sceneStatus.key}-${action}-${sourceIndex}`}
+                      className={[
+                        "scene-status-hud__line",
+                        displayIndex === 0 ? "is-current" : "",
+                      ].filter(Boolean).join(" ")}
+                      style={{
+                        "--scene-status-offset": `${displayIndex * 1.9}em`,
+                        "--scene-status-opacity": Math.max(0.24, 1 - displayIndex * 0.23),
+                        "--scene-status-z": sceneStatus.actions.length - displayIndex,
+                      }}
+                    >
+                      <span className="scene-status-hud__prompt">&gt;</span>
+                      <span className="scene-status-hud__text">
+                        {displayIndex === 0
+                          ? action.slice(0, Math.min(action.length, sceneStatusTextLength))
+                          : action}
+                      </span>
+                      {displayIndex === 0 && <span className="scene-status-hud__cursor" />}
+                    </div>
+                  ))}
               </div>
             </div>
           )}
