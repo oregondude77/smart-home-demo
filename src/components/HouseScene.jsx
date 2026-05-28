@@ -648,7 +648,6 @@ export default function HouseScene({
                       ].filter(Boolean).join(" ")}
                       style={{
                         "--scene-status-offset": `${displayIndex * 1.9}em`,
-                        "--scene-status-opacity": Math.max(0.24, 1 - displayIndex * 0.23),
                         "--scene-status-z": sceneStatus.actions.length - displayIndex,
                       }}
                     >

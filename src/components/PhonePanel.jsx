@@ -221,8 +221,9 @@ export default function PhonePanel({
 
   const handleExpandCamera = (cameraId) => {
     const feed = cameraFeeds.find((cameraFeed) => cameraFeed.id === cameraId);
+    const feedName = feed?.label?.replace(/\s+Camera$/, "") ?? "camera";
 
-    pushActionFeed("Video", `Opening ${feed?.label ?? "camera"} feed`);
+    pushActionFeed("Video", `Viewing ${feedName} camera feed`);
     setActiveCamera(cameraId);
 
     if (typeof setLiveCamera === "function") {
@@ -231,10 +232,6 @@ export default function PhonePanel({
   };
 
   const handleCloseCamera = () => {
-    if (activeFeed) {
-      pushActionFeed("Video", `Closing ${activeFeed.label} feed`);
-    }
-
     setActiveCamera(null);
 
     if (typeof setLiveCamera === "function") {

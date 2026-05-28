@@ -243,9 +243,24 @@
 .scene-status-hud__stack {
   position: relative;
   min-height: 7.2em;
+  overflow: hidden;
   font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
   font-size: clamp(12px, 0.72vw, 17px);
   line-height: 1.28;
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 1) 0%,
+    rgba(0, 0, 0, 1) 45%,
+    rgba(0, 0, 0, 0.52) 72%,
+    rgba(0, 0, 0, 0) 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 1) 0%,
+    rgba(0, 0, 0, 1) 45%,
+    rgba(0, 0, 0, 0.52) 72%,
+    rgba(0, 0, 0, 0) 100%
+  );
 }
 
 .scene-status-hud__line {
@@ -262,13 +277,12 @@
   font-weight: 500;
   letter-spacing: 0;
   color: rgba(255, 255, 255, 0.98);
-  opacity: var(--scene-status-opacity, 1);
+  opacity: 1;
   transform: translate3d(0, var(--scene-status-offset, 0), 0);
   will-change: transform, opacity, filter;
   transition:
-    opacity 860ms cubic-bezier(0.22, 1, 0.36, 1),
-    filter 860ms cubic-bezier(0.22, 1, 0.36, 1),
-    transform 780ms cubic-bezier(0.22, 1, 0.36, 1);
+    filter 780ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 880ms cubic-bezier(0.2, 0.86, 0.28, 1);
   text-shadow:
     0 0 5px rgba(255, 255, 255, 0.68),
     0 0 14px rgba(255, 255, 255, 0.48),
@@ -318,7 +332,7 @@
 }
 
 .scene-status-hud__line.is-current {
-  animation: sceneStatusLineIn 1.18s cubic-bezier(0.16, 1, 0.3, 1) both;
+  filter: none;
 }
 
 .scene-status-hud__line::before {
@@ -395,32 +409,6 @@
 
   100% {
     transform: translateY(260%);
-  }
-}
-
-@keyframes sceneStatusLineIn {
-  0% {
-    opacity: 0;
-    transform: translate3d(0, -0.08em, 0) scale(0.965);
-    filter: blur(1.4px);
-  }
-
-  28% {
-    opacity: 0;
-    transform: translate3d(0, -0.04em, 0) scale(0.975);
-    filter: blur(1px);
-  }
-
-  64% {
-    opacity: 0.62;
-    transform: translate3d(0, calc(var(--scene-status-offset, 0) * 0.42), 0) scale(0.992);
-    filter: blur(0.4px);
-  }
-
-  100% {
-    opacity: var(--scene-status-opacity, 1);
-    transform: translate3d(0, var(--scene-status-offset, 0), 0) scale(1);
-    filter: blur(0);
   }
 }
 
