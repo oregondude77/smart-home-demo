@@ -1,11 +1,12 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import HouseScene from "./HouseScene";
 import PhonePanel from "./PhonePanel";
 
 const THERMOSTAT_ROOM_TEMP = 72;
 const A360_FEED_STEP_MS = 1800;
+const A360_AUTO_STEP_MS = 5000;
 
 export default function SmartHomeDemo() {
   const [garageOpen, setGarageOpen] = useState(false);
@@ -52,19 +53,34 @@ export default function SmartHomeDemo() {
     });
   };
 
+  const resetDemoState = () => {
+    setGarageOpen(false);
+    setArmed(false);
+    setUpstairsBedroomOn(false);
+    setBedroomOn(false);
+    setLivingRoomOn(false);
+    setDiningRoomOn(false);
+    setGarageLightsOn(false);
+    setFloodlightOn(false);
+    setExteriorSideLightOn(false);
+    setPorchLightOn(false);
+    setFrontDoorUnlocked(false);
+    setSideDoorUnlocked(false);
+    setThermostatTemp(70);
+    setActiveCamera(null);
+    setLiveCamera(null);
+    setSceneStatus(null);
+  };
+
   const a360TourSteps = [
-    {
-      message: "Hi, I'm A-360. I can walk you through how the smart home responds in real time.",
-      feed: "Starting guided tour",
-      run: () => {
-        setActiveCamera(null);
-        setLiveCamera(null);
-      },
-    },
     {
       message: "First, the security panel updates immediately as the system arms or disarms.",
       feed: "Disarming security system",
-      run: () => setArmed(false),
+      run: () => {
+        setActiveCamera(null);
+        setLiveCamera(null);
+        setArmed(false);
+      },
     },
     {
       message: "Door locks can be controlled from the phone while the house gives visual feedback.",
@@ -123,12 +139,18 @@ export default function SmartHomeDemo() {
     runA360Step(0);
   };
 
+  const finishA360Tour = () => {
+    setA360Open(false);
+    setA360TourActive(false);
+    setA360StepIndex(0);
+    resetDemoState();
+  };
+
   const advanceA360Tour = () => {
     const nextStepIndex = a360StepIndex + 1;
 
     if (nextStepIndex >= a360TourSteps.length) {
-      setA360TourActive(false);
-      setA360StepIndex(0);
+      finishA360Tour();
       return;
     }
 
@@ -140,6 +162,24 @@ export default function SmartHomeDemo() {
     setA360TourActive(false);
     setA360StepIndex(0);
   };
+
+  useEffect(() => {
+    if (!a360TourActive) return undefined;
+    if (a360StepIndex >= a360TourSteps.length - 1) return undefined;
+
+    const timeoutId = window.setTimeout(() => {
+      const nextStepIndex = a360StepIndex + 1;
+
+      if (nextStepIndex >= a360TourSteps.length) {
+        finishA360Tour();
+        return;
+      }
+
+      runA360Step(nextStepIndex);
+    }, A360_AUTO_STEP_MS);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [a360TourActive, a360StepIndex]);
 
   const currentA360Step = a360TourSteps[a360StepIndex];
 
@@ -245,13 +285,28 @@ export default function SmartHomeDemo() {
               </button>
               <div className="a360-guide__content">
                 <div className="a360-guide__eyebrow">A-360 Concierge</div>
-                <p>{a360TourActive ? currentA360Step.message : "Want a quick guided tour of the smart home system?"}</p>
+                <p>
+                  {a360TourActive
+                    ? currentA360Step.message
+                    : "Hi, I'm A-360, your smart home security virtual assistant. Want a quick tour?"}
+                </p>
                 {a360TourActive && (
-                  <div className="a360-guide__progress">
+                  <div
+                    className="a360-guide__progress"
+                    style={{ "--a360-step-duration": `${A360_AUTO_STEP_MS}ms` }}
+                  >
                     {a360TourSteps.map((step, index) => (
-                      <span
+                      <button
+                        type="button"
                         key={step.message}
-                        className={index <= a360StepIndex ? "is-active" : ""}
+                        onClick={() => runA360Step(index)}
+                        aria-label={`Go to tour step ${index + 1}`}
+                        className={[
+                          index < a360StepIndex && "is-active",
+                          index === a360StepIndex && "is-active is-current",
+                        ]
+                          .filter(Boolean)
+                          .join(" ")}
                       />
                     ))}
                   </div>
@@ -290,8 +345,10 @@ export default function SmartHomeDemo() {
             onClick={() => setA360Open(true)}
             aria-label="Open A-360 concierge"
           >
-            <img src="/a360-avatar.png" alt="" />
-            <span>A-360</span>
+            <span className="a360-guide__launcher-orb" aria-hidden="true">
+              <img src="/a360-avatar.png" alt="" />
+            </span>
+            <span>Start Tour</span>
           </button>
         )}
       </div>
