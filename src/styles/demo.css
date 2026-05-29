@@ -39,6 +39,330 @@ body {
 }
 
 /* =========================
+   A-360 CONCIERGE
+========================= */
+
+.a360-guide {
+  position: fixed;
+  right: clamp(18px, 2.4vw, 40px);
+  bottom: clamp(76px, 8vh, 118px);
+  z-index: 140;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", Arial, sans-serif;
+}
+
+.a360-guide__panel {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  gap: clamp(10px, 1.1vw, 18px);
+}
+
+.a360-guide__bubble {
+  position: relative;
+  width: clamp(286px, 22vw, 378px);
+  min-height: 118px;
+  padding: 17px 42px 16px 18px;
+  border-radius: 22px;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.88), rgba(244, 251, 248, 0.68)),
+    radial-gradient(circle at 0% 0%, rgba(0, 153, 86, 0.18), transparent 58%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.5), transparent);
+  border: 1px solid rgba(255, 255, 255, 0.78);
+  box-shadow:
+    0 22px 46px rgba(9, 27, 20, 0.22),
+    0 7px 18px rgba(9, 27, 20, 0.12),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.58),
+    inset 0 -22px 36px rgba(0, 153, 86, 0.04);
+  backdrop-filter: blur(24px) saturate(1.18);
+}
+
+.a360-guide__bubble::before {
+  content: "";
+  position: absolute;
+  right: -9px;
+  top: 24px;
+  width: 18px;
+  height: 18px;
+  transform: rotate(45deg);
+  border-radius: 4px;
+  background: rgba(247, 252, 249, 0.74);
+  border-top: 1px solid rgba(255, 255, 255, 0.74);
+  border-right: 1px solid rgba(255, 255, 255, 0.74);
+  backdrop-filter: blur(20px) saturate(1.1);
+}
+
+.a360-guide__bubble::after {
+  content: "";
+  position: absolute;
+  inset: 11px;
+  border-radius: 17px;
+  border: 1px solid rgba(0, 153, 86, 0.08);
+  pointer-events: none;
+}
+
+.demo.is-night .a360-guide__bubble {
+  background:
+    linear-gradient(135deg, rgba(23, 32, 31, 0.84), rgba(10, 18, 17, 0.66)),
+    radial-gradient(circle at 0% 0%, rgba(36, 198, 132, 0.18), transparent 58%);
+  border-color: rgba(180, 255, 224, 0.18);
+  box-shadow:
+    0 22px 52px rgba(0, 0, 0, 0.34),
+    0 0 32px rgba(34, 161, 193, 0.1),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+.demo.is-night .a360-guide__bubble::before {
+  background: rgba(19, 29, 28, 0.74);
+  border-color: rgba(180, 255, 224, 0.12);
+}
+
+.demo.is-night .a360-guide__bubble::after {
+  border-color: rgba(128, 255, 198, 0.1);
+}
+
+.a360-guide__avatar-wrap {
+  position: relative;
+  align-self: center;
+  width: clamp(96px, 7.6vw, 146px);
+  aspect-ratio: 575 / 694;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  overflow: visible;
+  filter:
+    drop-shadow(0 24px 28px rgba(9, 27, 20, 0.22))
+    drop-shadow(0 0 18px rgba(0, 153, 86, 0.12));
+}
+
+.a360-guide__avatar-wrap::after {
+  display: none;
+}
+
+.a360-guide__avatar {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transform: translateY(3%);
+  filter: none;
+}
+
+.a360-guide__content {
+  min-width: 0;
+  padding: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.a360-guide__eyebrow {
+  margin-bottom: 5px;
+  color: rgba(0, 112, 66, 0.86);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.demo.is-night .a360-guide__eyebrow {
+  color: rgba(128, 255, 198, 0.88);
+}
+
+.a360-guide__content p {
+  margin: 0;
+  color: rgba(28, 42, 38, 0.92);
+  font-size: clamp(13px, 0.78vw, 15px);
+  line-height: 1.35;
+  letter-spacing: 0;
+}
+
+.demo.is-night .a360-guide__content p {
+  color: rgba(238, 255, 249, 0.88);
+}
+
+.a360-guide__progress {
+  display: flex;
+  gap: 5px;
+  margin-top: 11px;
+}
+
+.a360-guide__progress span {
+  width: 18px;
+  height: 3px;
+  border-radius: 999px;
+  background: rgba(36, 50, 46, 0.16);
+}
+
+.a360-guide__progress span.is-active {
+  background: rgba(0, 153, 86, 0.86);
+  box-shadow: 0 0 9px rgba(0, 153, 86, 0.22);
+}
+
+.demo.is-night .a360-guide__progress span {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.demo.is-night .a360-guide__progress span.is-active {
+  background: rgba(96, 255, 184, 0.9);
+  box-shadow: 0 0 10px rgba(96, 255, 184, 0.24);
+}
+
+.a360-guide__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 13px;
+}
+
+.a360-guide__button,
+.a360-guide__launcher {
+  appearance: none;
+  border: 0;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.a360-guide__button {
+  min-height: 34px;
+  padding: 0 14px;
+  border-radius: 999px;
+  background: #009954;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 800;
+  box-shadow:
+    0 10px 18px rgba(0, 153, 86, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22);
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.a360-guide__button--ghost {
+  background: rgba(18, 30, 26, 0.08);
+  color: rgba(28, 42, 38, 0.72);
+  box-shadow: inset 0 0 0 1px rgba(28, 42, 38, 0.08);
+}
+
+.demo.is-night .a360-guide__button--ghost {
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(238, 255, 249, 0.76);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+.a360-guide__button:hover,
+.a360-guide__launcher:hover {
+  transform: translateY(-1px);
+}
+
+.a360-guide__button:active,
+.a360-guide__launcher:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.a360-guide__close {
+  position: absolute;
+  top: 12px;
+  right: 13px;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(24, 36, 32, 0.08);
+  color: rgba(24, 36, 32, 0.58);
+  font-size: 13px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.demo.is-night .a360-guide__close {
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.68);
+}
+
+.a360-guide__launcher {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 54px;
+  padding: 7px 13px 7px 7px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.86);
+  color: rgba(21, 35, 31, 0.86);
+  box-shadow:
+    0 18px 36px rgba(9, 27, 20, 0.2),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.58);
+  backdrop-filter: blur(16px) saturate(1.08);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.a360-guide__launcher img {
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  object-fit: contain;
+  background: radial-gradient(circle, #ffffff, rgba(230, 240, 235, 0.72));
+}
+
+.demo.is-night .a360-guide__launcher {
+  background: rgba(18, 28, 27, 0.82);
+  color: rgba(238, 255, 249, 0.86);
+  box-shadow:
+    0 18px 36px rgba(0, 0, 0, 0.28),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+@media (max-width: 900px) {
+  .a360-guide {
+    right: 14px;
+    bottom: 76px;
+  }
+
+  .a360-guide__panel {
+    gap: 9px;
+  }
+
+  .a360-guide__bubble {
+    width: min(calc(100vw - 142px), 330px);
+    min-height: 108px;
+    padding: 15px 38px 15px 16px;
+  }
+
+  .a360-guide__avatar-wrap {
+    width: 96px;
+  }
+}
+
+@media (max-width: 560px) {
+  .a360-guide {
+    left: 12px;
+    right: 12px;
+    bottom: 72px;
+  }
+
+  .a360-guide__panel {
+    justify-content: flex-end;
+  }
+
+  .a360-guide__bubble {
+    width: min(calc(100vw - 118px), 300px);
+    border-radius: 20px;
+  }
+
+  .a360-guide__avatar-wrap {
+    width: 82px;
+  }
+
+  .a360-guide__content p {
+    font-size: 12px;
+  }
+}
+
+/* =========================
    PHONE PANEL
 ========================= */
 

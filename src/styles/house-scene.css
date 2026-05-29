@@ -194,7 +194,7 @@
 .scene-status-hud {
   position: absolute;
   left: 5.4%;
-  bottom: 13.6%;
+  bottom: 7.5%;
   width: min(32%, 430px);
   min-width: 230px;
   padding: 0;
@@ -2073,7 +2073,7 @@
 
 .scene-action-callout--side {
   top: 62% !important;
-  left: 31% !important;
+  left: 29.5% !important;
   right: auto !important;
   --door-callout-origin-x: 116%;
   --door-callout-origin-y: -18%;
@@ -2081,9 +2081,9 @@
 
 .scene-action-callout--front {
   top: 64% !important;
-  left: 56% !important;
+  left: 54% !important;
   right: auto !important;
-  --door-callout-origin-x: 115%;
+  --door-callout-origin-x: 162%;
   --door-callout-origin-y: -20%;
 }
 
@@ -2093,6 +2093,65 @@
     translate(-50%, -50%)
     scale(1) !important;
   filter: blur(0) saturate(1);
+}
+
+/* Deadbolt lock callout */
+:is(.scene-action-callout--front, .scene-action-callout--side) {
+  width: clamp(158px, 10.8vw, 214px) !important;
+  height: clamp(158px, 10.8vw, 214px) !important;
+  border-radius: 28px !important;
+  clip-path: none !important;
+  overflow: visible !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+:is(.scene-action-callout--front, .scene-action-callout--side) .scene-action-callout__inner {
+  border-radius: 28px !important;
+  clip-path: none !important;
+  overflow: hidden !important;
+  background:
+    radial-gradient(circle at 44% 28%, rgba(255, 255, 255, 0.22), transparent 32%),
+    linear-gradient(145deg, rgba(235, 239, 237, 0.94), rgba(198, 207, 202, 0.9)) !important;
+  box-shadow:
+    0 28px 58px rgba(0, 0, 0, 0.22),
+    0 10px 22px rgba(0, 0, 0, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.68),
+    inset 0 -18px 34px rgba(31, 42, 38, 0.11) !important;
+}
+
+:is(.scene-action-callout--front, .scene-action-callout--side) .scene-action-callout__inner::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  border-radius: 28px !important;
+  pointer-events: none;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.58),
+    inset 0 0 0 2px rgba(20, 31, 28, 0.06);
+}
+
+.scene-action-callout__deadbolt-base,
+.scene-action-callout__deadbolt-frame {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  object-position: center !important;
+  display: block !important;
+  pointer-events: none;
+  clip-path: inset(0 round 28px);
+  filter: contrast(1.02) saturate(1.03);
+}
+
+.scene-action-callout__deadbolt-base {
+  z-index: 2;
+}
+
+.scene-action-callout__deadbolt-frame {
+  z-index: 3;
 }
 
 @media (min-width: 901px) {

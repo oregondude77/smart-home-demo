@@ -117,6 +117,8 @@ export default function PhonePanel({
 
   const doorCarouselRef = useRef(null);
   const videoCarouselRef = useRef(null);
+  const desiredDoorSlideRef = useRef(0);
+  const suppressDoorScrollSyncRef = useRef(false);
   const sceneActionTimeoutsRef = useRef([]);
   const feedKeyRef = useRef(0);
 
@@ -197,16 +199,37 @@ export default function PhonePanel({
 
   const activeFeed = cameraFeeds.find((feed) => feed.id === activeCamera);
 
-  const goToDoorSlide = (slideIndex) => {
+  const scrollDoorCarouselTo = (slideIndex, behavior = "smooth") => {
+    if (!doorCarouselRef.current) return;
+
+    doorCarouselRef.current.scrollTo({
+      left: doorCarouselRef.current.offsetWidth * slideIndex,
+      behavior,
+    });
+  };
+
+  const restoreDoorSlide = (slideIndex) => {
+    desiredDoorSlideRef.current = slideIndex;
+    suppressDoorScrollSyncRef.current = true;
     setActiveDoorSlide(slideIndex);
 
-    if (doorCarouselRef.current) {
-      doorCarouselRef.current.scrollTo({
-        left: doorCarouselRef.current.offsetWidth * slideIndex,
-        behavior: "smooth",
+    requestAnimationFrame(() => {
+      scrollDoorCarouselTo(slideIndex, "auto");
+      requestAnimationFrame(() => {
+        suppressDoorScrollSyncRef.current = false;
       });
-    }
+    });
   };
+
+  const goToDoorSlide = (slideIndex) => {
+    desiredDoorSlideRef.current = slideIndex;
+    setActiveDoorSlide(slideIndex);
+    scrollDoorCarouselTo(slideIndex);
+  };
+
+  useEffect(() => {
+    restoreDoorSlide(desiredDoorSlideRef.current);
+  }, [frontDoorUnlocked, sideDoorUnlocked]);
 
   const goToVideoSlide = (slideIndex) => {
     setActiveVideoSlide(slideIndex);
@@ -932,9 +955,13 @@ export default function PhonePanel({
                     ref={doorCarouselRef}
                     className="door-locks-carousel"
                     onScroll={(event) => {
+                      if (suppressDoorScrollSyncRef.current) return;
+
                       const slide = Math.round(
                         event.currentTarget.scrollLeft / event.currentTarget.offsetWidth
                       );
+
+                      desiredDoorSlideRef.current = slide;
                       setActiveDoorSlide(slide);
                     }}
                   >
@@ -942,6 +969,7 @@ export default function PhonePanel({
                       label="Front Door"
                       unlocked={frontDoorUnlocked}
                       onToggle={() => {
+                        restoreDoorSlide(0);
                         const nextUnlocked = !frontDoorUnlocked;
 
                         pushActionFeed(
@@ -956,6 +984,7 @@ export default function PhonePanel({
                       label="Side Door"
                       unlocked={sideDoorUnlocked}
                       onToggle={() => {
+                        restoreDoorSlide(1);
                         const nextUnlocked = !sideDoorUnlocked;
 
                         pushActionFeed(

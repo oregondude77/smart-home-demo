@@ -4,6 +4,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 const GARAGE_MAX_FRAME = 14;
 const GARAGE_FRAME_MS = 110;
+const DEADBOLT_MAX_FRAME = 15;
+const DEADBOLT_FRAME_MS = 55;
 const DOOR_PULSE_MS = 700;
 const DOOR_CALLOUT_MS = 3400;
 const SYSTEM_MESSAGE_MS = 2000;
@@ -72,6 +74,30 @@ function DoorLockSource({ door, unlocked, active }) {
 }
 
 function SmartLockCallout({ door, unlocked, active, actionKey }) {
+  const [boltFrame, setBoltFrame] = useState(unlocked ? 0 : DEADBOLT_MAX_FRAME);
+  const renderedBoltFrame = DEADBOLT_MAX_FRAME - boltFrame;
+
+  useEffect(() => {
+    if (!active) return;
+
+    setBoltFrame(unlocked ? DEADBOLT_MAX_FRAME : 0);
+
+    const timer = setInterval(() => {
+      setBoltFrame((prev) => {
+        const next = unlocked ? prev - 1 : prev + 1;
+        const bounded = Math.max(0, Math.min(DEADBOLT_MAX_FRAME, next));
+
+        if (bounded === prev) {
+          clearInterval(timer);
+        }
+
+        return bounded;
+      });
+    }, DEADBOLT_FRAME_MS);
+
+    return () => clearInterval(timer);
+  }, [active, actionKey, unlocked]);
+
   return (
     <div
       className={[
@@ -87,14 +113,14 @@ function SmartLockCallout({ door, unlocked, active, actionKey }) {
         className="scene-action-callout__inner"
       >
         <img
-          src="/smart-lock-base.svg"
+          src="/door-lock-no-deadbolt.svg"
           alt=""
-          className="scene-action-callout__base"
+          className="scene-action-callout__deadbolt-base"
         />
         <img
-          src="/smart-lock-rotate.svg"
+          src={`/door-lock-bolt-${renderedBoltFrame}.svg`}
           alt=""
-          className="scene-action-callout__rotate"
+          className="scene-action-callout__deadbolt-frame"
         />
       </div>
     </div>
@@ -229,7 +255,12 @@ export default function HouseScene({
       "/panel-base.svg",
       "/panel-armed.svg",
       "/panel-disarmed.svg",
+      "/door-lock-no-deadbolt.svg",
     ];
+
+    for (let i = 0; i <= DEADBOLT_MAX_FRAME; i += 1) {
+      images.push(`/door-lock-bolt-${i}.svg`);
+    }
 
     for (let i = 0; i <= GARAGE_MAX_FRAME; i += 1) {
       images.push(`/garage-door-${i}.svg`);
