@@ -137,7 +137,7 @@ function ThermostatSceneDevice({
       : setTemperature > roomTemperature
         ? "heating"
         : "cooling";
-  const modeLabel = mode === "idle" ? "" : mode === "heating" ? "HEAT" : "COOLING";
+  const modeLabel = mode === "idle" ? "" : mode === "heating" ? "HEATING" : "COOLING";
 
   return (
     <div

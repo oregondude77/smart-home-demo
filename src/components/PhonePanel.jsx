@@ -947,8 +947,6 @@ export default function PhonePanel({
                   </button>
                 </section>
 
-                <WeatherCard />
-
                 {/* DOORS */}
                 <section className="phone-section phone-section--door-locks-card">
                   <div
@@ -1204,6 +1202,8 @@ export default function PhonePanel({
                 </section>
 
                 <ThermostatCard />
+
+                <WeatherCard />
 
                 {/* LIGHTS */}
                 <section className="phone-section phone-section--lights">
