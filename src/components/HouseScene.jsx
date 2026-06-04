@@ -230,6 +230,10 @@ export default function HouseScene({
   const sideTimeoutRef = useRef(null);
   const frontCalloutTimeoutRef = useRef(null);
   const sideCalloutTimeoutRef = useRef(null);
+  const frontCalloutRaf1Ref = useRef(null);
+  const frontCalloutRaf2Ref = useRef(null);
+  const sideCalloutRaf1Ref = useRef(null);
+  const sideCalloutRaf2Ref = useRef(null);
   const systemTimeoutRef = useRef(null);
   const sceneStatusIntervalRef = useRef(null);
   const sceneStatusTimeoutRef = useRef(null);
@@ -320,32 +324,53 @@ export default function HouseScene({
     });
   }, []);
 
-  const triggerCallout = useCallback((setCallout, timeoutRef) => {
+  const triggerCallout = useCallback((setCallout, timeoutRef, raf1Ref, raf2Ref) => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    if (raf1Ref.current) cancelAnimationFrame(raf1Ref.current);
+    if (raf2Ref.current) cancelAnimationFrame(raf2Ref.current);
 
     setCallout((prev) => ({
-      active: true,
-      key: prev.key + 1,
+      ...prev,
+      active: false,
     }));
 
-    timeoutRef.current = setTimeout(() => {
-      setCallout((prev) => ({
-        ...prev,
-        active: false,
-      }));
-    }, DOOR_CALLOUT_MS);
+    raf1Ref.current = requestAnimationFrame(() => {
+      raf2Ref.current = requestAnimationFrame(() => {
+        setCallout((prev) => ({
+          active: true,
+          key: prev.key + 1,
+        }));
+
+        timeoutRef.current = setTimeout(() => {
+          setCallout((prev) => ({
+            ...prev,
+            active: false,
+          }));
+        }, DOOR_CALLOUT_MS);
+      });
+    });
   }, []);
 
   const triggerDoorFeedback = useCallback((door) => {
     if (door === "front") {
       triggerPulse(setFrontPulse, frontTimeoutRef, frontRaf1Ref, frontRaf2Ref);
-      triggerCallout(setFrontCallout, frontCalloutTimeoutRef);
+      triggerCallout(
+        setFrontCallout,
+        frontCalloutTimeoutRef,
+        frontCalloutRaf1Ref,
+        frontCalloutRaf2Ref
+      );
       return;
     }
 
     if (door === "side") {
       triggerPulse(setSidePulse, sideTimeoutRef, sideRaf1Ref, sideRaf2Ref);
-      triggerCallout(setSideCallout, sideCalloutTimeoutRef);
+      triggerCallout(
+        setSideCallout,
+        sideCalloutTimeoutRef,
+        sideCalloutRaf1Ref,
+        sideCalloutRaf2Ref
+      );
     }
   }, [triggerCallout, triggerPulse]);
 
@@ -484,7 +509,16 @@ export default function HouseScene({
         clearInterval(sceneStatusTypingIntervalRef.current);
       }
 
-      [frontRaf1Ref, frontRaf2Ref, sideRaf1Ref, sideRaf2Ref].forEach((rafRef) => {
+      [
+        frontRaf1Ref,
+        frontRaf2Ref,
+        sideRaf1Ref,
+        sideRaf2Ref,
+        frontCalloutRaf1Ref,
+        frontCalloutRaf2Ref,
+        sideCalloutRaf1Ref,
+        sideCalloutRaf2Ref,
+      ].forEach((rafRef) => {
         if (rafRef.current) cancelAnimationFrame(rafRef.current);
       });
     }
