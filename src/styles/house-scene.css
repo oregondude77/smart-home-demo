@@ -195,8 +195,9 @@
   position: absolute;
   left: 5.4%;
   bottom: 7.5%;
-  width: min(32%, 430px);
+  width: min(43%, 560px);
   min-width: 230px;
+  max-width: calc(100% - 48px);
   padding: 0;
   z-index: 86;
   pointer-events: none;

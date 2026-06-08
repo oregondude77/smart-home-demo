@@ -6,10 +6,13 @@ import PhonePanel from "./PhonePanel";
 
 const THERMOSTAT_ROOM_TEMP = 72;
 const A360_FEED_STEP_MS = 2200;
-const A360_AUTO_STEP_MS = 7000;
+const A360_AUTO_STEP_MS = 5600;
+const A360_HOME_AUTOMATION_DURATION_MS = (A360_FEED_STEP_MS * 3) + 1200;
 const A360_SECURITY_SCAN_STEP_MS = 3000;
 const A360_AWAY_STEP_MS = 2600;
+const A360_AWAY_AUTO_ADVANCE_BUFFER_MS = 450;
 const A360_AWAY_FEED_ACTIONS = [
+  "Running Away Scene",
   "Arming security system",
   "Security system armed",
   "Locking front door",
@@ -18,8 +21,12 @@ const A360_AWAY_FEED_ACTIONS = [
   "Turning on side light",
   "Turning on garage lights",
   "Turning off interior lighting",
-  "Setting thermostat to 72",
+  "Setting thermostat to 72°",
 ];
+const A360_AWAY_DURATION_MS =
+  ((A360_AWAY_FEED_ACTIONS.length - 1) * A360_AWAY_STEP_MS) +
+  Math.round(A360_AWAY_STEP_MS * 0.62) +
+  A360_AWAY_AUTO_ADVANCE_BUFFER_MS;
 
 export default function SmartHomeDemo() {
   const [garageOpen, setGarageOpen] = useState(false);
@@ -40,12 +47,15 @@ export default function SmartHomeDemo() {
   const [thermostatTemp, setThermostatTemp] = useState(70);
   const [sceneStatus, setSceneStatus] = useState(null);
   const [doorAction, setDoorAction] = useState(null);
+  const [systemAction, setSystemAction] = useState(null);
   const [feedEnabled, setFeedEnabled] = useState(true);
   const [a360Open, setA360Open] = useState(true);
   const [a360TourActive, setA360TourActive] = useState(false);
   const [a360StepIndex, setA360StepIndex] = useState(0);
+  const [phoneTourFocus, setPhoneTourFocus] = useState(null);
   const [quietResetKey, setQuietResetKey] = useState(0);
   const a360FeedKeyRef = useRef(0);
+  const doorActionKeyRef = useRef(0);
   const a360ActionTimeoutsRef = useRef([]);
 
   const [nightMode, setNightMode] = useState(false);
@@ -69,16 +79,16 @@ export default function SmartHomeDemo() {
     a360FeedKeyRef.current += 1;
 
     setSceneStatus({
-      title: "A-360",
+      title: "Smart Home Security Tour",
       actions: feedActions,
       stepMs,
       key: `a360-${Date.now()}-${a360FeedKeyRef.current}`,
     });
   };
 
-  const scheduleA360Actions = (actions, stepMs) => {
+  const scheduleA360Actions = (actions, stepMs, startIndex = 0) => {
     a360ActionTimeoutsRef.current = actions.map((action, index) =>
-      window.setTimeout(action.run, (index * stepMs) + Math.round(stepMs * 0.62))
+      window.setTimeout(action.run, ((index + startIndex) * stepMs) + Math.round(stepMs * 0.62))
     );
   };
 
@@ -102,8 +112,27 @@ export default function SmartHomeDemo() {
     setThermostatTemp(70);
     setActiveCamera(null);
     setLiveCamera(null);
+    setPhoneTourFocus(null);
     setSceneStatus(null);
     setDoorAction(null);
+    setSystemAction(null);
+  };
+
+  const setTourDoorState = (door, unlocked) => {
+    doorActionKeyRef.current += 1;
+
+    if (door === "front") {
+      setFrontDoorUnlocked(unlocked);
+    } else {
+      setSideDoorUnlocked(unlocked);
+    }
+
+    setDoorAction({
+      door,
+      unlocked,
+      suppressStateFeedback: true,
+      key: `tour-door-${Date.now()}-${doorActionKeyRef.current}`,
+    });
   };
 
   const closeAndResetA360Tour = () => {
@@ -125,7 +154,15 @@ export default function SmartHomeDemo() {
       run: () => {
         setActiveCamera(null);
         setLiveCamera(null);
-        setArmed(false);
+        a360ActionTimeoutsRef.current.push(
+          window.setTimeout(() => {
+            setArmed(false);
+            setSystemAction({
+              armed: false,
+              key: Date.now(),
+            });
+          }, A360_SECURITY_SCAN_STEP_MS)
+        );
       },
     },
     {
@@ -154,23 +191,37 @@ export default function SmartHomeDemo() {
       },
     },
     {
-      message: "Lighting and climate work together with security, making the home feel responsive instead of managed one device at a time.",
-      feed: "Adjusting lights and comfort",
+      message: "Home automation can coordinate lighting and climate together, so the environment adjusts to the moment without managing each device one at a time.",
+      feed: [
+        "Running home automation sequence",
+        "Setting thermostat to 68°",
+        "Turning on living room light",
+      ],
+      durationMs: A360_HOME_AUTOMATION_DURATION_MS,
       run: () => {
-        setLivingRoomOn(true);
-        setThermostatTemp(68);
+        setActiveCamera(null);
+        setLiveCamera(null);
+        setPhoneTourFocus({ section: "automation", key: Date.now() });
+        a360ActionTimeoutsRef.current.push(
+          window.setTimeout(() => {
+            setThermostatTemp(68);
+          }, A360_FEED_STEP_MS),
+          window.setTimeout(() => {
+            setLivingRoomOn(true);
+          }, A360_FEED_STEP_MS * 2)
+        );
       },
     },
     {
-      message: "Scenes turn everyday routines into one tap, coordinating locks, lights, security, and temperature for moments like leaving home.",
+      message: "Now I’ll run Away Scene, a one-tap routine that prepares the home by coordinating security, locks, lights, and temperature.",
       feed: A360_AWAY_FEED_ACTIONS,
       feedStepMs: A360_AWAY_STEP_MS,
-      durationMs: (A360_AWAY_FEED_ACTIONS.length * A360_AWAY_STEP_MS) + 1600,
+      durationMs: A360_AWAY_DURATION_MS,
       run: () => {
         scheduleA360Actions([
           { run: () => setArmed(true) },
-          { run: () => setArmed(true) },
-          { run: () => setFrontDoorUnlocked(false) },
+          { run: () => {} },
+          { run: () => setTourDoorState("front", false) },
           { run: () => setFrontDoorUnlocked(false) },
           { run: () => setPorchLightOn(true) },
           { run: () => setExteriorSideLightOn(true) },
@@ -184,12 +235,12 @@ export default function SmartHomeDemo() {
             },
           },
           { run: () => setThermostatTemp(72) },
-        ], A360_AWAY_STEP_MS);
+        ], A360_AWAY_STEP_MS, 1);
       },
     },
     {
-      message: "That is the connected experience: security, access, video, lighting, and comfort working together from one app.",
-      feed: "Smart home overview complete",
+      message: "Tour complete. You can keep exploring the smart home at your own pace.",
+      feed: "Guided tour complete",
       run: () => {},
     },
   ];
@@ -317,6 +368,8 @@ export default function SmartHomeDemo() {
           liveCamera={liveCamera}
           setLiveCamera={setLiveCamera}
           setSceneStatus={setSceneStatus}
+          setDoorAction={setDoorAction}
+          tourFocus={phoneTourFocus}
         />
 
         <HouseScene
@@ -339,6 +392,7 @@ export default function SmartHomeDemo() {
           /* IMPORTANT */
           activeCamera={liveCamera}
           doorAction={doorAction}
+          systemAction={systemAction}
           sceneStatus={sceneStatus}
           quietResetKey={quietResetKey}
         />

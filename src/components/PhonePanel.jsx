@@ -20,7 +20,7 @@ const SCENE_STATUS_COPY = {
       "Unlocking front door",
       "Turning on porch light",
       "Turning on living room lights",
-      "Setting thermostat to 68",
+      "Setting thermostat to 68°",
     ],
   },
   away: {
@@ -30,7 +30,7 @@ const SCENE_STATUS_COPY = {
       "Locking front door",
       "Turning on porch, side, and garage lights",
       "Turning off interior lights",
-      "Setting thermostat to 72",
+      "Setting thermostat to 72°",
     ],
   },
   sleep: {
@@ -40,7 +40,7 @@ const SCENE_STATUS_COPY = {
       "Locking doors",
       "Turning off interior lights",
       "Turning on perimeter lights",
-      "Lowering thermostat to 68",
+      "Lowering thermostat to 68°",
     ],
   },
   "wake-up": {
@@ -49,7 +49,7 @@ const SCENE_STATUS_COPY = {
       "Disarming security system",
       "Unlocking front door",
       "Turning on downstairs lights",
-      "Setting thermostat to 70",
+      "Setting thermostat to 70°",
     ],
   },
 };
@@ -118,16 +118,22 @@ export default function PhonePanel({
   feedEnabled,
   setFeedEnabled,
   setSceneStatus,
+  setDoorAction,
+  tourFocus,
 }) {
   const [activeDoorSlide, setActiveDoorSlide] = useState(0);
   const [activeVideoSlide, setActiveVideoSlide] = useState(0);
 
+  const phoneAppRef = useRef(null);
+  const thermostatCardRef = useRef(null);
+  const lightsCardRef = useRef(null);
   const doorCarouselRef = useRef(null);
   const videoCarouselRef = useRef(null);
   const desiredDoorSlideRef = useRef(0);
   const suppressDoorScrollSyncRef = useRef(false);
   const sceneActionTimeoutsRef = useRef([]);
   const feedKeyRef = useRef(0);
+  const doorActionKeyRef = useRef(0);
 
   const clearSceneActionTimeouts = () => {
     sceneActionTimeoutsRef.current.forEach((timeoutId) => clearTimeout(timeoutId));
@@ -139,6 +145,25 @@ export default function PhonePanel({
       clearSceneActionTimeouts();
     }
   ), []);
+
+  useEffect(() => {
+    if (!tourFocus?.section || !phoneAppRef.current) return;
+
+    const targetRef = tourFocus.section === "lights" ? lightsCardRef : thermostatCardRef;
+    const target = targetRef.current;
+
+    if (!target) return;
+
+    const phoneApp = phoneAppRef.current;
+    const phoneRect = phoneApp.getBoundingClientRect();
+    const targetRect = target.getBoundingClientRect();
+    const top = phoneApp.scrollTop + targetRect.top - phoneRect.top - 12;
+
+    phoneApp.scrollTo({
+      top: Math.max(0, top),
+      behavior: "smooth",
+    });
+  }, [tourFocus]);
 
   const getFeedKey = () => {
     feedKeyRef.current += 1;
@@ -282,7 +307,7 @@ export default function PhonePanel({
     );
 
     if (nextTemp !== thermostatTemp) {
-      pushActionFeed("Thermostat", `Setting thermostat to ${nextTemp}`);
+      pushActionFeed("Thermostat", `Setting thermostat to ${nextTemp}°`);
       setThermostatTemp(nextTemp);
     }
   };
@@ -300,19 +325,38 @@ export default function PhonePanel({
         ? "#22A1C1"
         : "#767676";
 
+  const setSceneDoorState = (door, unlocked) => {
+    doorActionKeyRef.current += 1;
+
+    if (door === "front") {
+      setFrontDoorUnlocked(unlocked);
+    } else {
+      setSideDoorUnlocked(unlocked);
+    }
+
+    if (setDoorAction) {
+      setDoorAction({
+        door,
+        unlocked,
+        suppressStateFeedback: true,
+        key: `scene-door-${Date.now()}-${doorActionKeyRef.current}`,
+      });
+    }
+  };
+
   const handleScene = (sceneId) => {
     const sceneStatus = SCENE_STATUS_COPY[sceneId];
     const sceneStepsById = {
       home: [
         { label: "Disarming security system", run: () => setArmed(false) },
-        { label: "Unlocking front door", run: () => setFrontDoorUnlocked(true) },
+        { label: "Unlocking front door", run: () => setSceneDoorState("front", true) },
         { label: "Turning on porch light", run: () => setPorchLightOn(true) },
         { label: "Turning on living room lights", run: () => setLivingRoomOn(true) },
-        { label: "Setting thermostat to 68", run: () => setThermostatTemp(68) },
+        { label: "Setting thermostat to 68°", run: () => setThermostatTemp(68) },
       ],
       away: [
         { label: "Arming security system", run: () => setArmed(true) },
-        { label: "Locking front door", run: () => setFrontDoorUnlocked(false) },
+        { label: "Locking front door", run: () => setSceneDoorState("front", false) },
         {
           label: "Turning on porch, side, and garage lights",
           run: () => {
@@ -328,15 +372,17 @@ export default function PhonePanel({
             setDiningRoomOn(false);
           },
         },
-        { label: "Setting thermostat to 72", run: () => setThermostatTemp(72) },
+        { label: "Setting thermostat to 72°", run: () => setThermostatTemp(72) },
       ],
       sleep: [
         { label: "Arming security system", run: () => setArmed(true) },
         {
           label: "Locking doors",
           run: () => {
-            setFrontDoorUnlocked(false);
-            setSideDoorUnlocked(false);
+            setSceneDoorState("front", false);
+            window.setTimeout(() => {
+              setSceneDoorState("side", false);
+            }, 450);
           },
         },
         {
@@ -356,11 +402,11 @@ export default function PhonePanel({
             setGarageLightsOn(true);
           },
         },
-        { label: "Lowering thermostat to 68", run: () => setThermostatTemp(68) },
+        { label: "Lowering thermostat to 68°", run: () => setThermostatTemp(68) },
       ],
       "wake-up": [
         { label: "Disarming security system", run: () => setArmed(false) },
-        { label: "Unlocking front door", run: () => setFrontDoorUnlocked(true) },
+        { label: "Unlocking front door", run: () => setSceneDoorState("front", true) },
         {
           label: "Turning on downstairs lights",
           run: () => {
@@ -368,7 +414,7 @@ export default function PhonePanel({
             setDiningRoomOn(true);
           },
         },
-        { label: "Setting thermostat to 70", run: () => setThermostatTemp(70) },
+        { label: "Setting thermostat to 70°", run: () => setThermostatTemp(70) },
       ],
     };
     const sceneSteps = sceneStepsById[sceneId];
@@ -628,7 +674,7 @@ export default function PhonePanel({
   );
 
   const ThermostatCard = () => (
-    <section className="phone-section phone-section--thermostat-card">
+    <section ref={thermostatCardRef} className="phone-section phone-section--thermostat-card">
       <div className="thermostat-card-shell">
         <svg
           className="thermostat-card-svg"
@@ -744,7 +790,7 @@ export default function PhonePanel({
           </div>
 
           <div className="phone-shell__screen">
-            <div className="phone-app">
+            <div ref={phoneAppRef} className="phone-app">
               <div className="phone-app__top-svg">
                 <svg
                   width="393"
@@ -1217,7 +1263,7 @@ export default function PhonePanel({
                 <WeatherCard />
 
                 {/* LIGHTS */}
-                <section className="phone-section phone-section--lights">
+                <section ref={lightsCardRef} className="phone-section phone-section--lights">
                   <h3 className="phone-section__title">Lights</h3>
 
                   <div className="light-list">

@@ -215,6 +215,7 @@ export default function HouseScene({
 
   activeCamera = null,
   doorAction = null,
+  systemAction = null,
   sceneStatus = null,
   quietResetKey = 0,
 }) {
@@ -355,6 +356,17 @@ export default function HouseScene({
     return () => clearInterval(timer);
   }, [garageOpen]);
 
+  const showSystemFeedback = useCallback((isArmed) => {
+    if (systemTimeoutRef.current) clearTimeout(systemTimeoutRef.current);
+
+    setSystemMessageKey((k) => k + 1);
+    setSystemMessage(isArmed ? "armed" : "disarmed");
+
+    systemTimeoutRef.current = setTimeout(() => {
+      setSystemMessage("");
+    }, SYSTEM_MESSAGE_MS);
+  }, []);
+
   useEffect(() => {
     if (!systemMounted.current) {
       systemMounted.current = true;
@@ -367,17 +379,16 @@ export default function HouseScene({
       return;
     }
 
-    if (systemTimeoutRef.current) clearTimeout(systemTimeoutRef.current);
-
-    setSystemMessageKey((k) => k + 1);
-    setSystemMessage(armed ? "armed" : "disarmed");
-
-    systemTimeoutRef.current = setTimeout(() => {
-      setSystemMessage("");
-    }, SYSTEM_MESSAGE_MS);
+    showSystemFeedback(armed);
 
     return () => clearTimeout(systemTimeoutRef.current);
-  }, [armed]);
+  }, [armed, showSystemFeedback]);
+
+  useEffect(() => {
+    if (!systemAction) return;
+
+    showSystemFeedback(systemAction.armed);
+  }, [systemAction, showSystemFeedback]);
 
   const triggerPulse = useCallback((setPulse, timeoutRef, raf1Ref, raf2Ref) => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
