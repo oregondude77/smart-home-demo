@@ -7,6 +7,19 @@ import PhonePanel from "./PhonePanel";
 const THERMOSTAT_ROOM_TEMP = 72;
 const A360_FEED_STEP_MS = 2200;
 const A360_AUTO_STEP_MS = 7000;
+const A360_SECURITY_SCAN_STEP_MS = 3000;
+const A360_AWAY_STEP_MS = 2600;
+const A360_AWAY_FEED_ACTIONS = [
+  "Arming security system",
+  "Security system armed",
+  "Locking front door",
+  "Front door locked",
+  "Turning on porch light",
+  "Turning on side light",
+  "Turning on garage lights",
+  "Turning off interior lighting",
+  "Setting thermostat to 72",
+];
 
 export default function SmartHomeDemo() {
   const [garageOpen, setGarageOpen] = useState(false);
@@ -22,15 +35,17 @@ export default function SmartHomeDemo() {
   const [exteriorSideLightOn, setExteriorSideLightOn] = useState(false);
   const [porchLightOn, setPorchLightOn] = useState(false);
 
-  const [frontDoorUnlocked, setFrontDoorUnlocked] = useState(false);
-  const [sideDoorUnlocked, setSideDoorUnlocked] = useState(false);
+  const [frontDoorUnlocked, setFrontDoorUnlocked] = useState(true);
+  const [sideDoorUnlocked, setSideDoorUnlocked] = useState(true);
   const [thermostatTemp, setThermostatTemp] = useState(70);
   const [sceneStatus, setSceneStatus] = useState(null);
+  const [doorAction, setDoorAction] = useState(null);
   const [feedEnabled, setFeedEnabled] = useState(true);
   const [a360Open, setA360Open] = useState(true);
   const [a360TourActive, setA360TourActive] = useState(false);
   const [a360StepIndex, setA360StepIndex] = useState(0);
   const a360FeedKeyRef = useRef(0);
+  const a360ActionTimeoutsRef = useRef([]);
 
   const [nightMode, setNightMode] = useState(false);
 
@@ -40,17 +55,30 @@ export default function SmartHomeDemo() {
   /* HOUSE LIVE CAMERA MARKER */
   const [liveCamera, setLiveCamera] = useState(null);
 
-  const pushA360Feed = (action) => {
-    if (!feedEnabled || !action) return;
+  const clearA360ActionTimeouts = () => {
+    a360ActionTimeoutsRef.current.forEach((timeoutId) => window.clearTimeout(timeoutId));
+    a360ActionTimeoutsRef.current = [];
+  };
+
+  const pushA360Feed = (actions, stepMs = A360_FEED_STEP_MS) => {
+    const feedActions = Array.isArray(actions) ? actions : [actions];
+
+    if (!feedEnabled || !feedActions.length || !feedActions[0]) return;
 
     a360FeedKeyRef.current += 1;
 
     setSceneStatus({
       title: "A-360",
-      actions: [action],
-      stepMs: A360_FEED_STEP_MS,
+      actions: feedActions,
+      stepMs,
       key: `a360-${Date.now()}-${a360FeedKeyRef.current}`,
     });
+  };
+
+  const scheduleA360Actions = (actions, stepMs) => {
+    a360ActionTimeoutsRef.current = actions.map((action, index) =>
+      window.setTimeout(action.run, (index * stepMs) + Math.round(stepMs * 0.62))
+    );
   };
 
   const resetDemoState = () => {
@@ -64,18 +92,23 @@ export default function SmartHomeDemo() {
     setFloodlightOn(false);
     setExteriorSideLightOn(false);
     setPorchLightOn(false);
-    setFrontDoorUnlocked(false);
-    setSideDoorUnlocked(false);
+    setFrontDoorUnlocked(true);
+    setSideDoorUnlocked(true);
     setThermostatTemp(70);
     setActiveCamera(null);
     setLiveCamera(null);
     setSceneStatus(null);
+    setDoorAction(null);
   };
 
   const a360TourSteps = [
     {
       message: "Your security status stays visible at a glance, so you always know whether the system is armed, disarmed, or ready for action.",
-      feed: "Checking security status",
+      feed: [
+        "Checking security system status",
+        "System disarmed",
+      ],
+      feedStepMs: A360_SECURITY_SCAN_STEP_MS,
       run: () => {
         setActiveCamera(null);
         setLiveCamera(null);
@@ -84,12 +117,24 @@ export default function SmartHomeDemo() {
     },
     {
       message: "Smart locks give you direct control of each entry point, with clear status for the exact door you are managing.",
-      feed: "Reviewing front door lock",
-      run: () => setFrontDoorUnlocked(true),
+      feed: [
+        "Reviewing front door lock",
+        "Front door unlocked",
+      ],
+      run: () => {
+        setFrontDoorUnlocked(true);
+        setDoorAction({
+          door: "front",
+          unlocked: true,
+          noAnimation: true,
+          suppressStateFeedback: true,
+          key: Date.now(),
+        });
+      },
     },
     {
       message: "Live video brings your cameras into the same app, so you can see what is happening before deciding what to do next.",
-      feed: "Opening doorbell camera",
+      feed: "Viewing doorbell camera feed",
       run: () => {
         setActiveCamera("doorbell");
         setLiveCamera("doorbell");
@@ -100,20 +145,33 @@ export default function SmartHomeDemo() {
       feed: "Adjusting lights and comfort",
       run: () => {
         setLivingRoomOn(true);
-        setPorchLightOn(true);
         setThermostatTemp(68);
       },
     },
     {
       message: "Scenes turn everyday routines into one tap, coordinating locks, lights, security, and temperature for moments like leaving home.",
-      feed: "Coordinating away routine",
+      feed: A360_AWAY_FEED_ACTIONS,
+      feedStepMs: A360_AWAY_STEP_MS,
+      durationMs: (A360_AWAY_FEED_ACTIONS.length * A360_AWAY_STEP_MS) + 1600,
       run: () => {
-        setArmed(true);
-        setFrontDoorUnlocked(false);
-        setPorchLightOn(true);
-        setExteriorSideLightOn(true);
-        setGarageLightsOn(true);
-        setThermostatTemp(72);
+        scheduleA360Actions([
+          { run: () => setArmed(true) },
+          { run: () => setArmed(true) },
+          { run: () => setFrontDoorUnlocked(false) },
+          { run: () => setFrontDoorUnlocked(false) },
+          { run: () => setPorchLightOn(true) },
+          { run: () => setExteriorSideLightOn(true) },
+          { run: () => setGarageLightsOn(true) },
+          {
+            run: () => {
+              setUpstairsBedroomOn(false);
+              setBedroomOn(false);
+              setLivingRoomOn(false);
+              setDiningRoomOn(false);
+            },
+          },
+          { run: () => setThermostatTemp(72) },
+        ], A360_AWAY_STEP_MS);
       },
     },
     {
@@ -128,9 +186,10 @@ export default function SmartHomeDemo() {
 
     if (!step) return;
 
+    clearA360ActionTimeouts();
     setA360StepIndex(stepIndex);
     step.run();
-    pushA360Feed(step.feed);
+    pushA360Feed(step.feed, step.feedStepMs);
   };
 
   const startA360Tour = () => {
@@ -140,6 +199,7 @@ export default function SmartHomeDemo() {
   };
 
   const finishA360Tour = () => {
+    clearA360ActionTimeouts();
     setA360Open(false);
     setA360TourActive(false);
     setA360StepIndex(0);
@@ -158,6 +218,7 @@ export default function SmartHomeDemo() {
   };
 
   const closeA360Guide = () => {
+    clearA360ActionTimeouts();
     setA360Open(false);
     setA360TourActive(false);
     setA360StepIndex(0);
@@ -176,12 +237,15 @@ export default function SmartHomeDemo() {
       }
 
       runA360Step(nextStepIndex);
-    }, A360_AUTO_STEP_MS);
+    }, currentA360Step?.durationMs ?? A360_AUTO_STEP_MS);
 
     return () => window.clearTimeout(timeoutId);
   }, [a360TourActive, a360StepIndex]);
 
+  useEffect(() => () => clearA360ActionTimeouts(), []);
+
   const currentA360Step = a360TourSteps[a360StepIndex];
+  const currentA360StepDuration = currentA360Step?.durationMs ?? A360_AUTO_STEP_MS;
 
   return (
   <div className={`demo ${nightMode ? "is-night" : ""}`}>
@@ -268,6 +332,7 @@ export default function SmartHomeDemo() {
 
           /* IMPORTANT */
           activeCamera={liveCamera}
+          doorAction={doorAction}
           sceneStatus={sceneStatus}
         />
       </div>
@@ -293,7 +358,7 @@ export default function SmartHomeDemo() {
                 {a360TourActive && (
                   <div
                     className="a360-guide__progress"
-                    style={{ "--a360-step-duration": `${A360_AUTO_STEP_MS}ms` }}
+                    style={{ "--a360-step-duration": `${currentA360StepDuration}ms` }}
                   >
                     {a360TourSteps.map((step, index) => (
                       <button

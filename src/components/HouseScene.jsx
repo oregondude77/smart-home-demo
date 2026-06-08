@@ -73,18 +73,24 @@ function DoorLockSource({ door, unlocked, active }) {
   );
 }
 
-function SmartLockCallout({ door, unlocked, active, actionKey }) {
-  const [boltFrame, setBoltFrame] = useState(unlocked ? 0 : DEADBOLT_MAX_FRAME);
+function SmartLockCallout({ door, unlocked, active, actionKey, noAnimation = false, unlockedOverride = null }) {
+  const calloutUnlocked = unlockedOverride ?? unlocked;
+  const [boltFrame, setBoltFrame] = useState(calloutUnlocked ? 0 : DEADBOLT_MAX_FRAME);
   const renderedBoltFrame = DEADBOLT_MAX_FRAME - boltFrame;
 
   useEffect(() => {
     if (!active) return;
 
-    setBoltFrame(unlocked ? DEADBOLT_MAX_FRAME : 0);
+    if (noAnimation) {
+      setBoltFrame(calloutUnlocked ? 0 : DEADBOLT_MAX_FRAME);
+      return;
+    }
+
+    setBoltFrame(calloutUnlocked ? DEADBOLT_MAX_FRAME : 0);
 
     const timer = setInterval(() => {
       setBoltFrame((prev) => {
-        const next = unlocked ? prev - 1 : prev + 1;
+        const next = calloutUnlocked ? prev - 1 : prev + 1;
         const bounded = Math.max(0, Math.min(DEADBOLT_MAX_FRAME, next));
 
         if (bounded === prev) {
@@ -96,7 +102,7 @@ function SmartLockCallout({ door, unlocked, active, actionKey }) {
     }, DEADBOLT_FRAME_MS);
 
     return () => clearInterval(timer);
-  }, [active, actionKey, unlocked]);
+  }, [active, actionKey, calloutUnlocked, noAnimation]);
 
   return (
     <div
@@ -104,12 +110,12 @@ function SmartLockCallout({ door, unlocked, active, actionKey }) {
         "scene-action-callout",
         `scene-action-callout--${door}`,
         active ? "is-active" : "",
-        unlocked ? "is-unlocking" : "is-locking",
+        calloutUnlocked ? "is-unlocking" : "is-locking",
       ].filter(Boolean).join(" ")}
       aria-hidden="true"
     >
       <div
-        key={`${door}-${actionKey}-${unlocked ? "unlocking" : "locking"}`}
+        key={`${door}-${actionKey}-${calloutUnlocked ? "unlocking" : "locking"}-${noAnimation ? "static" : "animated"}`}
         className="scene-action-callout__inner"
       >
         <img
@@ -224,6 +230,8 @@ export default function HouseScene({
 
   const frontMounted = useRef(false);
   const sideMounted = useRef(false);
+  const previousFrontDoorUnlockedRef = useRef(frontDoorUnlocked);
+  const previousSideDoorUnlockedRef = useRef(sideDoorUnlocked);
   const systemMounted = useRef(false);
 
   const frontTimeoutRef = useRef(null);
@@ -324,7 +332,7 @@ export default function HouseScene({
     });
   }, []);
 
-  const triggerCallout = useCallback((setCallout, timeoutRef, raf1Ref, raf2Ref) => {
+  const triggerCallout = useCallback((setCallout, timeoutRef, raf1Ref, raf2Ref, options = {}) => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
     if (raf1Ref.current) cancelAnimationFrame(raf1Ref.current);
     if (raf2Ref.current) cancelAnimationFrame(raf2Ref.current);
@@ -339,26 +347,31 @@ export default function HouseScene({
         setCallout((prev) => ({
           active: true,
           key: prev.key + 1,
+          noAnimation: Boolean(options.noAnimation),
+          unlockedOverride: options.unlockedOverride ?? null,
         }));
 
         timeoutRef.current = setTimeout(() => {
           setCallout((prev) => ({
             ...prev,
             active: false,
+            noAnimation: false,
+            unlockedOverride: null,
           }));
         }, DOOR_CALLOUT_MS);
       });
     });
   }, []);
 
-  const triggerDoorFeedback = useCallback((door) => {
+  const triggerDoorFeedback = useCallback((door, options = {}) => {
     if (door === "front") {
       triggerPulse(setFrontPulse, frontTimeoutRef, frontRaf1Ref, frontRaf2Ref);
       triggerCallout(
         setFrontCallout,
         frontCalloutTimeoutRef,
         frontCalloutRaf1Ref,
-        frontCalloutRaf2Ref
+        frontCalloutRaf2Ref,
+        options
       );
       return;
     }
@@ -369,7 +382,8 @@ export default function HouseScene({
         setSideCallout,
         sideCalloutTimeoutRef,
         sideCalloutRaf1Ref,
-        sideCalloutRaf2Ref
+        sideCalloutRaf2Ref,
+        options
       );
     }
   }, [triggerCallout, triggerPulse]);
@@ -377,25 +391,54 @@ export default function HouseScene({
   useEffect(() => {
     if (!frontMounted.current) {
       frontMounted.current = true;
+      previousFrontDoorUnlockedRef.current = frontDoorUnlocked;
+      return;
+    }
+
+    if (previousFrontDoorUnlockedRef.current === frontDoorUnlocked) return;
+
+    previousFrontDoorUnlockedRef.current = frontDoorUnlocked;
+
+    if (
+      doorAction?.door === "front"
+      && doorAction.suppressStateFeedback
+      && doorAction.unlocked === frontDoorUnlocked
+    ) {
       return;
     }
 
     triggerDoorFeedback("front");
-  }, [frontDoorUnlocked, triggerDoorFeedback]);
+  }, [frontDoorUnlocked, doorAction, triggerDoorFeedback]);
 
   useEffect(() => {
     if (!sideMounted.current) {
       sideMounted.current = true;
+      previousSideDoorUnlockedRef.current = sideDoorUnlocked;
+      return;
+    }
+
+    if (previousSideDoorUnlockedRef.current === sideDoorUnlocked) return;
+
+    previousSideDoorUnlockedRef.current = sideDoorUnlocked;
+
+    if (
+      doorAction?.door === "side"
+      && doorAction.suppressStateFeedback
+      && doorAction.unlocked === sideDoorUnlocked
+    ) {
       return;
     }
 
     triggerDoorFeedback("side");
-  }, [sideDoorUnlocked, triggerDoorFeedback]);
+  }, [sideDoorUnlocked, doorAction, triggerDoorFeedback]);
 
   useEffect(() => {
     if (!doorAction) return;
 
-    triggerDoorFeedback(doorAction.door);
+    triggerDoorFeedback(doorAction.door, {
+      noAnimation: doorAction.noAnimation,
+      unlockedOverride: doorAction.unlocked,
+    });
   }, [doorAction, triggerDoorFeedback]);
 
   useEffect(() => {
@@ -671,6 +714,8 @@ export default function HouseScene({
             unlocked={frontDoorUnlocked}
             active={frontCallout.active}
             actionKey={frontCallout.key}
+            noAnimation={frontCallout.noAnimation}
+            unlockedOverride={frontCallout.unlockedOverride}
           />
 
           <SmartLockCallout
@@ -678,6 +723,8 @@ export default function HouseScene({
             unlocked={sideDoorUnlocked}
             active={sideCallout.active}
             actionKey={sideCallout.key}
+            noAnimation={sideCallout.noAnimation}
+            unlockedOverride={sideCallout.unlockedOverride}
           />
 
           <ThermostatSceneDevice
