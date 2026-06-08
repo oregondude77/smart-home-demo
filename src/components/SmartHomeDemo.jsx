@@ -5,8 +5,8 @@ import HouseScene from "./HouseScene";
 import PhonePanel from "./PhonePanel";
 
 const THERMOSTAT_ROOM_TEMP = 72;
-const A360_FEED_STEP_MS = 1800;
-const A360_AUTO_STEP_MS = 5000;
+const A360_FEED_STEP_MS = 2200;
+const A360_AUTO_STEP_MS = 7000;
 
 export default function SmartHomeDemo() {
   const [garageOpen, setGarageOpen] = useState(false);
@@ -74,8 +74,8 @@ export default function SmartHomeDemo() {
 
   const a360TourSteps = [
     {
-      message: "First, the security panel updates immediately as the system arms or disarms.",
-      feed: "Disarming security system",
+      message: "Your security status stays visible at a glance, so you always know whether the system is armed, disarmed, or ready for action.",
+      feed: "Checking security status",
       run: () => {
         setActiveCamera(null);
         setLiveCamera(null);
@@ -83,21 +83,21 @@ export default function SmartHomeDemo() {
       },
     },
     {
-      message: "Door locks can be controlled from the phone while the house gives visual feedback.",
-      feed: "Unlocking front door",
+      message: "Smart locks give you direct control of each entry point, with clear status for the exact door you are managing.",
+      feed: "Reviewing front door lock",
       run: () => setFrontDoorUnlocked(true),
     },
     {
-      message: "Live cameras can open from the video card and mark the active view on the scene.",
-      feed: "Viewing Doorbell camera feed",
+      message: "Live video brings your cameras into the same app, so you can see what is happening before deciding what to do next.",
+      feed: "Opening doorbell camera",
       run: () => {
         setActiveCamera("doorbell");
         setLiveCamera("doorbell");
       },
     },
     {
-      message: "Comfort controls can combine lights and climate into one smooth home state.",
-      feed: "Setting comfort scene",
+      message: "Lighting and climate work together with security, making the home feel responsive instead of managed one device at a time.",
+      feed: "Adjusting lights and comfort",
       run: () => {
         setLivingRoomOn(true);
         setPorchLightOn(true);
@@ -105,8 +105,8 @@ export default function SmartHomeDemo() {
       },
     },
     {
-      message: "Scenes let the whole system shift together, like preparing the house for away mode.",
-      feed: "Preparing away scene",
+      message: "Scenes turn everyday routines into one tap, coordinating locks, lights, security, and temperature for moments like leaving home.",
+      feed: "Coordinating away routine",
       run: () => {
         setArmed(true);
         setFrontDoorUnlocked(false);
@@ -117,8 +117,8 @@ export default function SmartHomeDemo() {
       },
     },
     {
-      message: "That's the core flow. You can keep exploring, or bring me back any time.",
-      feed: "Guided tour complete",
+      message: "That is the connected experience: security, access, video, lighting, and comfort working together from one app.",
+      feed: "Smart home overview complete",
       run: () => {},
     },
   ];
