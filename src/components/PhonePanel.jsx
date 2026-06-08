@@ -54,6 +54,13 @@ const SCENE_STATUS_COPY = {
   },
 };
 
+const formatSceneStartLabel = (sceneTitle) => (
+  `Starting ${sceneTitle
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ")}`
+);
+
 const getSceneStatusTypeMs = (action, stepMs) => (
   Math.min(
     SCENE_STATUS_TYPE_MAX_MS,
@@ -373,11 +380,15 @@ export default function PhonePanel({
     }
 
     const sceneStepMs = SCENE_ACTION_STEP_MS;
+    const sceneFeedActions = [
+      formatSceneStartLabel(sceneStatus.title),
+      ...sceneSteps.map((step) => step.label),
+    ];
 
     if (feedEnabled && setSceneStatus) {
       setSceneStatus({
         title: sceneStatus.title,
-        actions: sceneSteps.map((step) => step.label),
+        actions: sceneFeedActions,
         stepMs: sceneStepMs,
         key: getFeedKey(),
       });
@@ -386,7 +397,7 @@ export default function PhonePanel({
     sceneActionTimeoutsRef.current = sceneSteps.map((step, index) =>
       setTimeout(
         step.run,
-        (index * sceneStepMs)
+        ((feedEnabled ? index + 1 : index) * sceneStepMs)
           + (feedEnabled ? getSceneActionRunDelay(step.label, sceneStepMs) : 0)
       )
     );

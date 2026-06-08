@@ -44,6 +44,7 @@ export default function SmartHomeDemo() {
   const [a360Open, setA360Open] = useState(true);
   const [a360TourActive, setA360TourActive] = useState(false);
   const [a360StepIndex, setA360StepIndex] = useState(0);
+  const [quietResetKey, setQuietResetKey] = useState(0);
   const a360FeedKeyRef = useRef(0);
   const a360ActionTimeoutsRef = useRef([]);
 
@@ -81,7 +82,11 @@ export default function SmartHomeDemo() {
     );
   };
 
-  const resetDemoState = () => {
+  const resetDemoState = ({ quiet = false } = {}) => {
+    if (quiet) {
+      setQuietResetKey((key) => key + 1);
+    }
+
     setGarageOpen(false);
     setArmed(false);
     setUpstairsBedroomOn(false);
@@ -99,6 +104,14 @@ export default function SmartHomeDemo() {
     setLiveCamera(null);
     setSceneStatus(null);
     setDoorAction(null);
+  };
+
+  const closeAndResetA360Tour = () => {
+    clearA360ActionTimeouts();
+    setA360Open(false);
+    setA360TourActive(false);
+    setA360StepIndex(0);
+    resetDemoState({ quiet: true });
   };
 
   const a360TourSteps = [
@@ -199,11 +212,7 @@ export default function SmartHomeDemo() {
   };
 
   const finishA360Tour = () => {
-    clearA360ActionTimeouts();
-    setA360Open(false);
-    setA360TourActive(false);
-    setA360StepIndex(0);
-    resetDemoState();
+    closeAndResetA360Tour();
   };
 
   const advanceA360Tour = () => {
@@ -218,10 +227,7 @@ export default function SmartHomeDemo() {
   };
 
   const closeA360Guide = () => {
-    clearA360ActionTimeouts();
-    setA360Open(false);
-    setA360TourActive(false);
-    setA360StepIndex(0);
+    closeAndResetA360Tour();
   };
 
   useEffect(() => {
@@ -334,6 +340,7 @@ export default function SmartHomeDemo() {
           activeCamera={liveCamera}
           doorAction={doorAction}
           sceneStatus={sceneStatus}
+          quietResetKey={quietResetKey}
         />
       </div>
       <div className={["a360-guide", a360Open ? "is-open" : "is-collapsed"].join(" ")}>

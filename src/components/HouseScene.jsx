@@ -216,6 +216,7 @@ export default function HouseScene({
   activeCamera = null,
   doorAction = null,
   sceneStatus = null,
+  quietResetKey = 0,
 }) {
   const [garageFrame, setGarageFrame] = useState(0);
   const [frontPulse, setFrontPulse] = useState(false);
@@ -233,6 +234,7 @@ export default function HouseScene({
   const previousFrontDoorUnlockedRef = useRef(frontDoorUnlocked);
   const previousSideDoorUnlockedRef = useRef(sideDoorUnlocked);
   const systemMounted = useRef(false);
+  const suppressSystemFeedbackRef = useRef(false);
 
   const frontTimeoutRef = useRef(null);
   const sideTimeoutRef = useRef(null);
@@ -251,6 +253,63 @@ export default function HouseScene({
   const frontRaf2Ref = useRef(null);
   const sideRaf1Ref = useRef(null);
   const sideRaf2Ref = useRef(null);
+
+  useEffect(() => {
+    if (!quietResetKey) return;
+
+    [
+      frontTimeoutRef,
+      sideTimeoutRef,
+      frontCalloutTimeoutRef,
+      sideCalloutTimeoutRef,
+      systemTimeoutRef,
+      sceneStatusTimeoutRef,
+    ].forEach((timeoutRef) => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
+    });
+
+    [
+      frontCalloutRaf1Ref,
+      frontCalloutRaf2Ref,
+      sideCalloutRaf1Ref,
+      sideCalloutRaf2Ref,
+      frontRaf1Ref,
+      frontRaf2Ref,
+      sideRaf1Ref,
+      sideRaf2Ref,
+    ].forEach((rafRef) => {
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current);
+        rafRef.current = null;
+      }
+    });
+
+    if (sceneStatusIntervalRef.current) {
+      clearInterval(sceneStatusIntervalRef.current);
+      sceneStatusIntervalRef.current = null;
+    }
+
+    if (sceneStatusTypingIntervalRef.current) {
+      clearInterval(sceneStatusTypingIntervalRef.current);
+      sceneStatusTypingIntervalRef.current = null;
+    }
+
+    previousFrontDoorUnlockedRef.current = frontDoorUnlocked;
+    previousSideDoorUnlockedRef.current = sideDoorUnlocked;
+    suppressSystemFeedbackRef.current = true;
+    setGarageFrame(0);
+    setFrontPulse(false);
+    setSidePulse(false);
+    setFrontCallout({ active: false, key: 0 });
+    setSideCallout({ active: false, key: 0 });
+    setSystemMessage("");
+    setSceneStatusVisible(false);
+    setSceneStatusIndex(0);
+    setSceneStatusTextLength(0);
+  }, [quietResetKey, frontDoorUnlocked, sideDoorUnlocked]);
 
   useEffect(() => {
     const images = [
@@ -299,6 +358,12 @@ export default function HouseScene({
   useEffect(() => {
     if (!systemMounted.current) {
       systemMounted.current = true;
+      return;
+    }
+
+    if (suppressSystemFeedbackRef.current) {
+      suppressSystemFeedbackRef.current = false;
+      setSystemMessage("");
       return;
     }
 
