@@ -328,7 +328,10 @@ export default function PhonePanel({
   const setSceneDoorState = (door, unlocked) => {
     doorActionKeyRef.current += 1;
 
-    if (door === "front") {
+    if (door === "both") {
+      setFrontDoorUnlocked(unlocked);
+      setSideDoorUnlocked(unlocked);
+    } else if (door === "front") {
       setFrontDoorUnlocked(unlocked);
     } else {
       setSideDoorUnlocked(unlocked);
@@ -378,12 +381,7 @@ export default function PhonePanel({
         { label: "Arming security system", run: () => setArmed(true) },
         {
           label: "Locking doors",
-          run: () => {
-            setSceneDoorState("front", false);
-            window.setTimeout(() => {
-              setSceneDoorState("side", false);
-            }, 450);
-          },
+          run: () => setSceneDoorState("both", false),
         },
         {
           label: "Turning off interior lights",
