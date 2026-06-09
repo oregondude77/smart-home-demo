@@ -328,7 +328,9 @@ export default function SmartHomeDemo() {
   </p>
 
   <div className="demo-hero-actions">
-    <button type="button">Explore Protection</button>
+    <a href="https://www.alert360.com/home-security-package-specials">
+      Explore Protection
+    </a>
     <span>24/7 Monitoring • Smart Automation • Live Video</span>
   </div>
 </div>
