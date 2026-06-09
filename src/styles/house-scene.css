@@ -199,7 +199,7 @@
   min-width: 230px;
   max-width: calc(100% - 48px);
   padding: 0;
-  z-index: 86;
+  z-index: 10020;
   pointer-events: none;
   opacity: 0;
   transform: translate3d(0, 8px, 0);
@@ -2100,6 +2100,7 @@
 :is(.scene-action-callout--front, .scene-action-callout--side) {
   width: clamp(158px, 10.8vw, 214px) !important;
   height: clamp(158px, 10.8vw, 214px) !important;
+  z-index: 90 !important;
   border-radius: 28px !important;
   clip-path: none !important;
   overflow: visible !important;

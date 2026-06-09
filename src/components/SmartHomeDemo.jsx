@@ -7,16 +7,15 @@ import PhonePanel from "./PhonePanel";
 const THERMOSTAT_ROOM_TEMP = 72;
 const A360_FEED_STEP_MS = 2200;
 const A360_AUTO_STEP_MS = 5600;
-const A360_HOME_AUTOMATION_DURATION_MS = (A360_FEED_STEP_MS * 3) + 1200;
+const A360_STEP_PAUSE_MS = 900;
+const A360_HOME_AUTOMATION_DURATION_MS = (A360_FEED_STEP_MS * 3) + 2200;
 const A360_SECURITY_SCAN_STEP_MS = 3000;
 const A360_AWAY_STEP_MS = 2600;
 const A360_AWAY_AUTO_ADVANCE_BUFFER_MS = 450;
 const A360_AWAY_FEED_ACTIONS = [
   "Running Away Scene",
   "Arming security system",
-  "Security system armed",
-  "Locking front door",
-  "Front door locked",
+  "Locking doors",
   "Turning on porch light",
   "Turning on side light",
   "Turning on garage lights",
@@ -82,6 +81,7 @@ export default function SmartHomeDemo() {
       title: "Smart Home Security Tour",
       actions: feedActions,
       stepMs,
+      persist: true,
       key: `a360-${Date.now()}-${a360FeedKeyRef.current}`,
     });
   };
@@ -121,7 +121,10 @@ export default function SmartHomeDemo() {
   const setTourDoorState = (door, unlocked) => {
     doorActionKeyRef.current += 1;
 
-    if (door === "front") {
+    if (door === "both") {
+      setFrontDoorUnlocked(unlocked);
+      setSideDoorUnlocked(unlocked);
+    } else if (door === "front") {
       setFrontDoorUnlocked(unlocked);
     } else {
       setSideDoorUnlocked(unlocked);
@@ -220,9 +223,7 @@ export default function SmartHomeDemo() {
       run: () => {
         scheduleA360Actions([
           { run: () => setArmed(true) },
-          { run: () => {} },
-          { run: () => setTourDoorState("front", false) },
-          { run: () => setFrontDoorUnlocked(false) },
+          { run: () => setTourDoorState("both", false) },
           { run: () => setPorchLightOn(true) },
           { run: () => setExteriorSideLightOn(true) },
           { run: () => setGarageLightsOn(true) },
@@ -294,7 +295,7 @@ export default function SmartHomeDemo() {
       }
 
       runA360Step(nextStepIndex);
-    }, currentA360Step?.durationMs ?? A360_AUTO_STEP_MS);
+    }, (currentA360Step?.durationMs ?? A360_AUTO_STEP_MS) + A360_STEP_PAUSE_MS);
 
     return () => window.clearTimeout(timeoutId);
   }, [a360TourActive, a360StepIndex]);
@@ -302,7 +303,8 @@ export default function SmartHomeDemo() {
   useEffect(() => () => clearA360ActionTimeouts(), []);
 
   const currentA360Step = a360TourSteps[a360StepIndex];
-  const currentA360StepDuration = currentA360Step?.durationMs ?? A360_AUTO_STEP_MS;
+  const currentA360StepDuration =
+    (currentA360Step?.durationMs ?? A360_AUTO_STEP_MS) + A360_STEP_PAUSE_MS;
 
   return (
   <div className={`demo ${nightMode ? "is-night" : ""}`}>

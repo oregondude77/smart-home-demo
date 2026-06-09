@@ -440,6 +440,12 @@ export default function HouseScene({
   }, []);
 
   const triggerDoorFeedback = useCallback((door, options = {}) => {
+    if (door === "both") {
+      triggerDoorFeedback("front", options);
+      triggerDoorFeedback("side", options);
+      return;
+    }
+
     if (door === "front") {
       triggerPulse(setFrontPulse, frontTimeoutRef, frontRaf1Ref, frontRaf2Ref);
       triggerCallout(
@@ -476,7 +482,7 @@ export default function HouseScene({
     previousFrontDoorUnlockedRef.current = frontDoorUnlocked;
 
     if (
-      doorAction?.door === "front"
+      (doorAction?.door === "front" || doorAction?.door === "both")
       && doorAction.suppressStateFeedback
       && doorAction.unlocked === frontDoorUnlocked
     ) {
@@ -498,7 +504,7 @@ export default function HouseScene({
     previousSideDoorUnlockedRef.current = sideDoorUnlocked;
 
     if (
-      doorAction?.door === "side"
+      (doorAction?.door === "side" || doorAction?.door === "both")
       && doorAction.suppressStateFeedback
       && doorAction.unlocked === sideDoorUnlocked
     ) {
@@ -545,6 +551,8 @@ export default function HouseScene({
 
       clearInterval(sceneStatusIntervalRef.current);
       sceneStatusIntervalRef.current = null;
+
+      if (sceneStatus.persist) return;
 
       sceneStatusTimeoutRef.current = setTimeout(() => {
         setSceneStatusVisible(false);
