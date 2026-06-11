@@ -4,8 +4,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 const GARAGE_MAX_FRAME = 14;
 const GARAGE_FRAME_MS = 110;
-const GARAGE_CAR_MAX_FRAME = 17;
-const GARAGE_CAR_FRAME_MS = 95;
+const GARAGE_CAR_MAX_FRAME = 83;
+const GARAGE_CAR_FRAME_MS = 42;
 const DEADBOLT_MAX_FRAME = 15;
 const DEADBOLT_FRAME_MS = 55;
 const GARAGE_CAR_EXIT_MS = 1500;
