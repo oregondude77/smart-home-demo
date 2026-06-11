@@ -53,6 +53,38 @@ const SCENE_STATUS_COPY = {
     ],
   },
 };
+const SCENE_BUTTONS = [
+  { id: "home", label: "Home", accent: "#23AB3F" },
+  { id: "away", label: "Away", accent: "#D92C29" },
+  { id: "sleep", label: "Sleep", accent: "#2071DD" },
+  { id: "wake-up", label: "Wake Up", accent: "#FFBB34" },
+];
+const SCENARIO_MENU_ITEMS = [
+  { id: "garage-left-open", label: "Garage Left Open", accent: "#23AB3F" },
+  { id: "kids-arrived-home", label: "Kids Arrived Home", accent: "#22A1C1" },
+  { id: "package-delivered", label: "Package Delivered", accent: "#FFBB34" },
+  { id: "water-leak-alert", label: "Water Leak Alert", accent: "#2071DD" },
+];
+const MOCK_HOME_APPS = [
+  { label: "Calendar", glyph: "10", color: "linear-gradient(180deg, #ffffff, #f3f5f4)" },
+  { label: "Photos", glyph: "✦", color: "conic-gradient(from 10deg, #ff5f57, #ffcc33, #34c759, #5ac8fa, #af52de, #ff5f57)" },
+  { label: "Maps", glyph: "⌖", color: "linear-gradient(135deg, #5ac8fa, #34c759 48%, #ffffff 49%, #ffffff 62%, #ffcc33 63%)" },
+  { label: "Mail", glyph: "✉", color: "linear-gradient(180deg, #5ac8fa, #007aff)" },
+  { label: "Weather", glyph: "☀", color: "linear-gradient(180deg, #47c6ff, #147efb)" },
+  { label: "Wallet", glyph: "▰", color: "linear-gradient(180deg, #2d3748, #111827)" },
+  { label: "Music", glyph: "♪", color: "linear-gradient(180deg, #ff2d55, #ff375f)" },
+  { label: "Notes", glyph: "≡", color: "linear-gradient(180deg, #fff4a3 0 35%, #ffffff 36%)" },
+  { label: "Camera", glyph: "◉", color: "linear-gradient(180deg, #d9dee3, #9aa4ad)" },
+  { label: "Clock", glyph: "◷", color: "linear-gradient(180deg, #20242a, #05070c)" },
+  { label: "Safari", glyph: "⌁", color: "linear-gradient(180deg, #ffffff, #dff7ff)" },
+  { label: "Settings", glyph: "⚙", color: "linear-gradient(180deg, #c7cdd3, #8e98a2)" },
+];
+const MOCK_DOCK_APPS = [
+  { label: "Phone", glyph: "☎", color: "linear-gradient(180deg, #34d75f, #0ea33f)" },
+  { label: "Messages", glyph: "●", color: "linear-gradient(180deg, #4be36d, #22b64d)" },
+  { label: "Safari", glyph: "⌁", color: "linear-gradient(180deg, #ffffff, #c8f2ff)" },
+  { label: "Camera", glyph: "◉", color: "linear-gradient(180deg, #d9dee3, #9aa4ad)" },
+];
 
 const formatSceneStartLabel = (sceneTitle) => (
   `Starting ${sceneTitle
@@ -120,13 +152,20 @@ export default function PhonePanel({
   setSceneStatus,
   setDoorAction,
   tourFocus,
+  onRunScenario,
+  phoneNotification,
+  scenarioPhoneMode,
+  onPhoneNotificationAction,
+  onGarageScenarioResolved,
 }) {
   const [activeDoorSlide, setActiveDoorSlide] = useState(0);
   const [activeVideoSlide, setActiveVideoSlide] = useState(0);
+  const [scenarioMenuOpen, setScenarioMenuOpen] = useState(false);
 
   const phoneAppRef = useRef(null);
   const thermostatCardRef = useRef(null);
   const lightsCardRef = useRef(null);
+  const garageCardRef = useRef(null);
   const doorCarouselRef = useRef(null);
   const videoCarouselRef = useRef(null);
   const desiredDoorSlideRef = useRef(0);
@@ -149,7 +188,12 @@ export default function PhonePanel({
   useEffect(() => {
     if (!tourFocus?.section || !phoneAppRef.current) return;
 
-    const targetRef = tourFocus.section === "lights" ? lightsCardRef : thermostatCardRef;
+    const targetRef =
+      tourFocus.section === "lights"
+        ? lightsCardRef
+        : tourFocus.section === "garage"
+          ? garageCardRef
+          : thermostatCardRef;
     const target = targetRef.current;
 
     if (!target) return;
@@ -555,13 +599,6 @@ export default function PhonePanel({
   );
 
   const ScenesCard = () => {
-    const sceneButtons = [
-      { id: "home", label: "Home" },
-      { id: "away", label: "Away" },
-      { id: "sleep", label: "Sleep" },
-      { id: "wake-up", label: "Wake Up" },
-    ];
-
     return (
       <section className="phone-section phone-section--scenes-card" aria-label="Scenes">
         <div className="scenes-card-shell">
@@ -607,7 +644,7 @@ export default function PhonePanel({
             <text x="330" y="135" fill="#333333" fontSize="13" fontWeight="500" textAnchor="middle" fontFamily="-apple-system, BlinkMacSystemFont, 'SF Pro Text', Arial, sans-serif">Wake Up</text>
           </svg>
 
-          {sceneButtons.map((scene) => (
+          {SCENE_BUTTONS.map((scene) => (
             <button
               key={scene.id}
               type="button"
@@ -779,6 +816,37 @@ export default function PhonePanel({
     </section>
   );
 
+  const IPhoneHomeScreen = () => (
+    <div className="iphone-home-screen" aria-hidden="true">
+      <div className="iphone-home-screen__wallpaper" />
+      <div className="iphone-home-screen__status">
+        <span>1:42</span>
+        <span className="iphone-home-screen__status-icons">
+          <span />
+          <span />
+          <span />
+        </span>
+      </div>
+      <div className="iphone-home-screen__grid">
+        {MOCK_HOME_APPS.map((app) => (
+          <div className="iphone-home-app" key={app.label}>
+            <span className="iphone-home-app__icon" style={{ background: app.color }}>
+              {app.glyph}
+            </span>
+            <span className="iphone-home-app__label">{app.label}</span>
+          </div>
+        ))}
+      </div>
+      <div className="iphone-home-screen__dock">
+        {MOCK_DOCK_APPS.map((app) => (
+          <span className="iphone-home-app__icon" key={app.label} style={{ background: app.color }}>
+            {app.glyph}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+
   return (
     <div className={`phone-panel-wrap ${nightMode ? "is-night" : ""}`}>
       <div className="phone-panel">
@@ -788,8 +856,11 @@ export default function PhonePanel({
           </div>
 
           <div className="phone-shell__screen">
-            <div ref={phoneAppRef} className="phone-app">
-              <div className="phone-app__top-svg">
+            {scenarioPhoneMode ? (
+              <IPhoneHomeScreen />
+            ) : (
+              <div ref={phoneAppRef} className="phone-app">
+                <div className="phone-app__top-svg">
                 <svg
                   width="393"
                   height="104"
@@ -859,9 +930,9 @@ export default function PhonePanel({
                     ALERT 360
                   </text>
                 </svg>
-              </div>
+                </div>
 
-              <div className="phone-app__sections">
+                <div className="phone-app__sections">
                 <ScenesCard />
 
                 {/* SECURITY SYSTEM */}
@@ -1076,7 +1147,7 @@ export default function PhonePanel({
                 </section>
 
                 {/* GARAGE */}
-                <section className="phone-section phone-section--garage-card">
+                <section ref={garageCardRef} className="phone-section phone-section--garage-card">
                   <button
                     type="button"
                     className="garage-card-button"
@@ -1088,6 +1159,10 @@ export default function PhonePanel({
                         `${nextOpen ? "Opening" : "Closing"} garage door`
                       );
                       setGarageOpen(nextOpen);
+
+                      if (!nextOpen && typeof onGarageScenarioResolved === "function") {
+                        onGarageScenarioResolved();
+                      }
                     }}
                   >
                     <svg
@@ -1303,8 +1378,51 @@ export default function PhonePanel({
                     ))}
                   </div>
                 </section>
+                </div>
               </div>
-            </div>
+            )}
+
+            {phoneNotification && (
+              <button
+                type="button"
+                key={phoneNotification.key}
+                className="ios-alert360-notification-stack"
+                onClick={onPhoneNotificationAction}
+                role="status"
+                aria-live="polite"
+              >
+                <div className="ios-alert360-notification">
+                  <div className="ios-alert360-notification__header">
+                    <span className="ios-alert360-notification__brand">
+                      <img
+                        className="ios-alert360-notification__logo"
+                        src="/alert-360-logo.svg"
+                        alt=""
+                        aria-hidden="true"
+                      />
+                      <span>{phoneNotification.app}</span>
+                    </span>
+                    <span className="ios-alert360-notification__now">now</span>
+                    <span className="ios-alert360-notification__dots" aria-hidden="true">
+                      <span />
+                      <span />
+                      <span />
+                    </span>
+                  </div>
+                  <p className="ios-alert360-notification__message">
+                    {phoneNotification.message ?? phoneNotification.body}
+                  </p>
+                </div>
+
+                {phoneNotification.actionLabel && (
+                  <span
+                    className="ios-alert360-notification__action"
+                  >
+                    {phoneNotification.actionLabel}
+                  </span>
+                )}
+              </button>
+            )}
 
             {activeFeed && (
               <div
@@ -1354,6 +1472,66 @@ export default function PhonePanel({
           <div className="phone-shell__power-button" />
         </div>
       </div>
+
+      {scenarioMenuOpen && (
+        <div className="scenario-menu" id="scenario-menu" role="menu" aria-label="Scenario menu">
+          <div className="scenario-menu__header">
+            <span>Scenarios</span>
+            <button
+              type="button"
+              className="scenario-menu__close"
+              onClick={() => setScenarioMenuOpen(false)}
+              aria-label="Close scenario menu"
+            >
+              ×
+            </button>
+          </div>
+          <div className="scenario-menu__list">
+            {SCENARIO_MENU_ITEMS.map((scenario) => (
+              <button
+                key={scenario.id}
+                type="button"
+                className="scenario-menu__item"
+                style={{ "--scenario-accent": scenario.accent }}
+                role="menuitem"
+                onClick={() => {
+                  setScenarioMenuOpen(false);
+                  onRunScenario?.(scenario.id);
+                }}
+              >
+                <span className="scenario-menu__mark" aria-hidden="true" />
+                <span>{scenario.label}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <button
+        type="button"
+        className={`scenario-toggle ${scenarioMenuOpen ? "is-open" : ""}`}
+        onClick={() => setScenarioMenuOpen((isOpen) => !isOpen)}
+        aria-label="Open scenario menu"
+        aria-controls="scenario-menu"
+        aria-expanded={scenarioMenuOpen}
+      >
+        <span className="scenario-toggle__icon" aria-hidden="true">
+          <svg viewBox="0 0 42 42" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="10" y="10" width="8" height="8" rx="2" fill="currentColor" />
+            <rect x="24" y="10" width="8" height="8" rx="2" fill="currentColor" opacity="0.7" />
+            <rect x="10" y="24" width="8" height="8" rx="2" fill="currentColor" opacity="0.7" />
+            <rect x="24" y="24" width="8" height="8" rx="2" fill="currentColor" />
+            <path
+              d="M18 14H24M14 18V24M28 18V24M18 28H24"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              opacity="0.55"
+            />
+          </svg>
+        </span>
+        <span className="scenario-toggle__label">Scenarios</span>
+      </button>
 
       <button
         type="button"

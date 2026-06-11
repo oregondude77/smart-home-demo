@@ -4,8 +4,11 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 const GARAGE_MAX_FRAME = 14;
 const GARAGE_FRAME_MS = 110;
+const GARAGE_CAR_MAX_FRAME = 17;
+const GARAGE_CAR_FRAME_MS = 95;
 const DEADBOLT_MAX_FRAME = 15;
 const DEADBOLT_FRAME_MS = 55;
+const GARAGE_CAR_EXIT_MS = 1500;
 const DOOR_PULSE_MS = 700;
 const DOOR_CALLOUT_MS = 3400;
 const SYSTEM_MESSAGE_MS = 2000;
@@ -216,6 +219,8 @@ export default function HouseScene({
   activeCamera = null,
   doorAction = null,
   systemAction = null,
+  scenarioAction = null,
+  activeScenario = null,
   sceneStatus = null,
   quietResetKey = 0,
 }) {
@@ -229,6 +234,11 @@ export default function HouseScene({
   const [sceneStatusIndex, setSceneStatusIndex] = useState(0);
   const [sceneStatusTextLength, setSceneStatusTextLength] = useState(0);
   const [sceneStatusVisible, setSceneStatusVisible] = useState(false);
+  const [garageScenarioCar, setGarageScenarioCar] = useState({
+    active: false,
+    key: 0,
+    frame: 1,
+  });
 
   const frontMounted = useRef(false);
   const sideMounted = useRef(false);
@@ -249,6 +259,8 @@ export default function HouseScene({
   const sceneStatusIntervalRef = useRef(null);
   const sceneStatusTimeoutRef = useRef(null);
   const sceneStatusTypingIntervalRef = useRef(null);
+  const garageScenarioCarExitTimeoutRef = useRef(null);
+  const garageScenarioCarFrameIntervalRef = useRef(null);
 
   const frontRaf1Ref = useRef(null);
   const frontRaf2Ref = useRef(null);
@@ -265,6 +277,7 @@ export default function HouseScene({
       sideCalloutTimeoutRef,
       systemTimeoutRef,
       sceneStatusTimeoutRef,
+      garageScenarioCarExitTimeoutRef,
     ].forEach((timeoutRef) => {
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
@@ -298,6 +311,11 @@ export default function HouseScene({
       sceneStatusTypingIntervalRef.current = null;
     }
 
+    if (garageScenarioCarFrameIntervalRef.current) {
+      clearInterval(garageScenarioCarFrameIntervalRef.current);
+      garageScenarioCarFrameIntervalRef.current = null;
+    }
+
     previousFrontDoorUnlockedRef.current = frontDoorUnlocked;
     previousSideDoorUnlockedRef.current = sideDoorUnlocked;
     suppressSystemFeedbackRef.current = true;
@@ -310,11 +328,13 @@ export default function HouseScene({
     setSceneStatusVisible(false);
     setSceneStatusIndex(0);
     setSceneStatusTextLength(0);
+    setGarageScenarioCar({ active: false, key: 0, frame: 1 });
   }, [quietResetKey, frontDoorUnlocked, sideDoorUnlocked]);
 
   useEffect(() => {
     const images = [
       "/house-base.svg",
+      "/house-base-under-car.svg",
       "/house-shadow.svg",
       "/light-bedroom-upstairs.svg",
       "/light-bedroom2-upstairs.svg",
@@ -338,11 +358,66 @@ export default function HouseScene({
       images.push(`/garage-door-${i}.svg`);
     }
 
+    for (let i = 1; i <= GARAGE_CAR_MAX_FRAME; i += 1) {
+      images.push(`/car-motion-${i}.svg`);
+    }
+
     images.forEach((src) => {
       const img = new Image();
       img.src = src;
     });
   }, []);
+
+  useEffect(() => {
+    if (scenarioAction?.type !== "garage-left-open") return undefined;
+
+    if (garageScenarioCarExitTimeoutRef.current) {
+      clearTimeout(garageScenarioCarExitTimeoutRef.current);
+    }
+
+    if (garageScenarioCarFrameIntervalRef.current) {
+      clearInterval(garageScenarioCarFrameIntervalRef.current);
+    }
+
+    setGarageScenarioCar({
+      active: true,
+      key: scenarioAction.key ?? Date.now(),
+      frame: 1,
+    });
+
+    garageScenarioCarFrameIntervalRef.current = setInterval(() => {
+      setGarageScenarioCar((current) => {
+        if (!current.active) return current;
+        if (current.frame >= GARAGE_CAR_MAX_FRAME) return current;
+        return { ...current, frame: current.frame + 1 };
+      });
+    }, GARAGE_CAR_FRAME_MS);
+
+    garageScenarioCarExitTimeoutRef.current = setTimeout(() => {
+      if (garageScenarioCarFrameIntervalRef.current) {
+        clearInterval(garageScenarioCarFrameIntervalRef.current);
+        garageScenarioCarFrameIntervalRef.current = null;
+      }
+
+      setGarageScenarioCar((current) => ({
+        ...current,
+        active: false,
+      }));
+      garageScenarioCarExitTimeoutRef.current = null;
+    }, GARAGE_CAR_MAX_FRAME * GARAGE_CAR_FRAME_MS + GARAGE_CAR_EXIT_MS);
+
+    return () => {
+      if (garageScenarioCarExitTimeoutRef.current) {
+        clearTimeout(garageScenarioCarExitTimeoutRef.current);
+        garageScenarioCarExitTimeoutRef.current = null;
+      }
+
+      if (garageScenarioCarFrameIntervalRef.current) {
+        clearInterval(garageScenarioCarFrameIntervalRef.current);
+        garageScenarioCarFrameIntervalRef.current = null;
+      }
+    };
+  }, [scenarioAction]);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -717,6 +792,28 @@ export default function HouseScene({
               alt=""
             />
           ))}
+
+          {activeScenario === "garage-left-open" && (
+              <img
+                src="/house-base-under-car.svg"
+                alt=""
+                className="garage-scenario-car-underlay"
+                aria-hidden="true"
+              />
+          )}
+
+          {garageScenarioCar.active && (
+            <img
+              key={garageScenarioCar.key}
+              src={`/car-motion-${garageScenarioCar.frame}.svg`}
+              alt=""
+              className={[
+                "garage-scenario-car",
+                garageScenarioCar.frame >= GARAGE_CAR_MAX_FRAME ? "is-exiting" : "",
+              ].filter(Boolean).join(" ")}
+              aria-hidden="true"
+            />
+          )}
 
           {upstairsBedroomOn && (
             <img src="/light-bedroom-upstairs.svg" alt="" className="light-layer light-layer--master-bedroom" />

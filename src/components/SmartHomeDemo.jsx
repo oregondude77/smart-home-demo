@@ -26,6 +26,10 @@ const A360_AWAY_DURATION_MS =
   ((A360_AWAY_FEED_ACTIONS.length - 1) * A360_AWAY_STEP_MS) +
   Math.round(A360_AWAY_STEP_MS * 0.62) +
   A360_AWAY_AUTO_ADVANCE_BUFFER_MS;
+const GARAGE_SCENARIO_DOOR_OPEN_MS = 1500;
+const GARAGE_SCENARIO_FEED_STEP_MS = 1900;
+const GARAGE_SCENARIO_CAR_START_MS = 4800;
+const GARAGE_SCENARIO_NOTIFICATION_MS = 8800;
 
 export default function SmartHomeDemo() {
   const [garageOpen, setGarageOpen] = useState(false);
@@ -47,6 +51,10 @@ export default function SmartHomeDemo() {
   const [sceneStatus, setSceneStatus] = useState(null);
   const [doorAction, setDoorAction] = useState(null);
   const [systemAction, setSystemAction] = useState(null);
+  const [scenarioAction, setScenarioAction] = useState(null);
+  const [activeScenario, setActiveScenario] = useState(null);
+  const [scenarioPhoneMode, setScenarioPhoneMode] = useState(false);
+  const [phoneNotification, setPhoneNotification] = useState(null);
   const [feedEnabled, setFeedEnabled] = useState(true);
   const [a360Open, setA360Open] = useState(true);
   const [a360TourActive, setA360TourActive] = useState(false);
@@ -56,6 +64,7 @@ export default function SmartHomeDemo() {
   const a360FeedKeyRef = useRef(0);
   const doorActionKeyRef = useRef(0);
   const a360ActionTimeoutsRef = useRef([]);
+  const scenarioTimeoutsRef = useRef([]);
 
   const [nightMode, setNightMode] = useState(false);
 
@@ -69,6 +78,19 @@ export default function SmartHomeDemo() {
     a360ActionTimeoutsRef.current.forEach((timeoutId) => window.clearTimeout(timeoutId));
     a360ActionTimeoutsRef.current = [];
   };
+
+  const clearScenarioTimeouts = () => {
+    scenarioTimeoutsRef.current.forEach((timeoutId) => window.clearTimeout(timeoutId));
+    scenarioTimeoutsRef.current = [];
+  };
+
+  const getNotificationTime = () =>
+    new Intl.DateTimeFormat("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+    })
+      .format(new Date())
+      .replace(/\s?(AM|PM)$/i, (period) => ` ${period.trim().toLowerCase()}`);
 
   const pushA360Feed = (actions, stepMs = A360_FEED_STEP_MS) => {
     const feedActions = Array.isArray(actions) ? actions : [actions];
@@ -116,6 +138,81 @@ export default function SmartHomeDemo() {
     setSceneStatus(null);
     setDoorAction(null);
     setSystemAction(null);
+    setScenarioAction(null);
+    setActiveScenario(null);
+    setScenarioPhoneMode(false);
+    setPhoneNotification(null);
+    clearScenarioTimeouts();
+  };
+
+  const runScenario = (scenarioId) => {
+    clearScenarioTimeouts();
+    setActiveScenario(null);
+    setScenarioAction(null);
+    setScenarioPhoneMode(false);
+    setPhoneNotification(null);
+
+    if (scenarioId !== "garage-left-open") return;
+
+    setActiveCamera(null);
+    setLiveCamera(null);
+    setGarageOpen(false);
+    setScenarioPhoneMode(true);
+    setA360Open(false);
+
+    if (feedEnabled) {
+      setSceneStatus({
+        title: "Garage Door Alert",
+        actions: [
+          "Running scenario: Garage Left Open",
+          "Opening garage door",
+          "Vehicle leaving driveway",
+          "Garage door left open",
+          "Sending Alert 360 notification",
+        ],
+        stepMs: GARAGE_SCENARIO_FEED_STEP_MS,
+        persist: false,
+        key: `scenario-garage-${Date.now()}`,
+      });
+    }
+
+    scenarioTimeoutsRef.current.push(
+      window.setTimeout(() => {
+        setGarageOpen(true);
+      }, GARAGE_SCENARIO_DOOR_OPEN_MS),
+      window.setTimeout(() => {
+        setActiveScenario("garage-left-open");
+        setScenarioAction({
+          type: "garage-left-open",
+          key: `garage-left-open-${Date.now()}`,
+        });
+      }, GARAGE_SCENARIO_CAR_START_MS),
+      window.setTimeout(() => {
+        setPhoneNotification({
+          key: `garage-alert-${Date.now()}`,
+          app: "ALERT 360",
+          message: `Home: The Garage Door was left open at ${getNotificationTime()}.`,
+          type: "garage-left-open",
+        });
+      }, GARAGE_SCENARIO_NOTIFICATION_MS)
+    );
+  };
+
+  const handlePhoneNotificationAction = () => {
+    if (phoneNotification?.type !== "garage-left-open") return;
+
+    setPhoneNotification(null);
+    setScenarioPhoneMode(false);
+    setPhoneTourFocus({ section: "garage", key: Date.now() });
+  };
+
+  const handleGarageScenarioResolved = () => {
+    if (activeScenario !== "garage-left-open") return;
+
+    clearScenarioTimeouts();
+    setScenarioAction(null);
+    setScenarioPhoneMode(false);
+    setPhoneNotification(null);
   };
 
   const setTourDoorState = (door, unlocked) => {
@@ -300,7 +397,10 @@ export default function SmartHomeDemo() {
     return () => window.clearTimeout(timeoutId);
   }, [a360TourActive, a360StepIndex]);
 
-  useEffect(() => () => clearA360ActionTimeouts(), []);
+  useEffect(() => () => {
+    clearA360ActionTimeouts();
+    clearScenarioTimeouts();
+  }, []);
 
   const currentA360Step = a360TourSteps[a360StepIndex];
   const currentA360StepDuration =
@@ -374,6 +474,11 @@ export default function SmartHomeDemo() {
           setSceneStatus={setSceneStatus}
           setDoorAction={setDoorAction}
           tourFocus={phoneTourFocus}
+          onRunScenario={runScenario}
+          phoneNotification={phoneNotification}
+          scenarioPhoneMode={scenarioPhoneMode}
+          onPhoneNotificationAction={handlePhoneNotificationAction}
+          onGarageScenarioResolved={handleGarageScenarioResolved}
         />
 
         <HouseScene
@@ -397,6 +502,8 @@ export default function SmartHomeDemo() {
           activeCamera={liveCamera}
           doorAction={doorAction}
           systemAction={systemAction}
+          scenarioAction={scenarioAction}
+          activeScenario={activeScenario}
           sceneStatus={sceneStatus}
           quietResetKey={quietResetKey}
         />
