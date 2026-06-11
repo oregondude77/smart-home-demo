@@ -92,7 +92,11 @@ export default function SmartHomeDemo() {
       .format(new Date())
       .replace(/\s?(AM|PM)$/i, (period) => ` ${period.trim().toLowerCase()}`);
 
-  const pushA360Feed = (actions, stepMs = A360_FEED_STEP_MS) => {
+  const pushA360Feed = (
+    actions,
+    stepMs = A360_FEED_STEP_MS,
+    title = "Smart Home Security Tour"
+  ) => {
     const feedActions = Array.isArray(actions) ? actions : [actions];
 
     if (!feedEnabled || !feedActions.length || !feedActions[0]) return;
@@ -100,7 +104,7 @@ export default function SmartHomeDemo() {
     a360FeedKeyRef.current += 1;
 
     setSceneStatus({
-      title: "Smart Home Security Tour",
+      title,
       actions: feedActions,
       stepMs,
       persist: true,
@@ -194,6 +198,11 @@ export default function SmartHomeDemo() {
           message: `Home: The Garage Door was left open at ${getNotificationTime()}.`,
           type: "garage-left-open",
         });
+        pushA360Feed(
+          "Tap the notification to open the app",
+          A360_FEED_STEP_MS,
+          "Garage Door Alert"
+        );
       }, GARAGE_SCENARIO_NOTIFICATION_MS)
     );
   };
@@ -204,6 +213,7 @@ export default function SmartHomeDemo() {
     setPhoneNotification(null);
     setScenarioPhoneMode(false);
     setPhoneTourFocus({ section: "garage", key: Date.now() });
+    pushA360Feed("Close the garage door", A360_FEED_STEP_MS, "Garage Door Alert");
   };
 
   const handleGarageScenarioResolved = () => {
@@ -213,6 +223,11 @@ export default function SmartHomeDemo() {
     setScenarioAction(null);
     setScenarioPhoneMode(false);
     setPhoneNotification(null);
+    scenarioTimeoutsRef.current.push(
+      window.setTimeout(() => {
+        pushA360Feed("Scenario complete", A360_FEED_STEP_MS, "Garage Door Alert");
+      }, 1200)
+    );
   };
 
   const setTourDoorState = (door, unlocked) => {

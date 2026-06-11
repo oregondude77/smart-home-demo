@@ -66,24 +66,28 @@ const SCENARIO_MENU_ITEMS = [
   { id: "water-leak-alert", label: "Water Leak Alert", accent: "#2071DD" },
 ];
 const MOCK_HOME_APPS = [
-  { label: "Calendar", glyph: "10", color: "linear-gradient(180deg, #ffffff, #f3f5f4)" },
-  { label: "Photos", glyph: "✦", color: "conic-gradient(from 10deg, #ff5f57, #ffcc33, #34c759, #5ac8fa, #af52de, #ff5f57)" },
-  { label: "Maps", glyph: "⌖", color: "linear-gradient(135deg, #5ac8fa, #34c759 48%, #ffffff 49%, #ffffff 62%, #ffcc33 63%)" },
-  { label: "Mail", glyph: "✉", color: "linear-gradient(180deg, #5ac8fa, #007aff)" },
-  { label: "Weather", glyph: "☀", color: "linear-gradient(180deg, #47c6ff, #147efb)" },
-  { label: "Wallet", glyph: "▰", color: "linear-gradient(180deg, #2d3748, #111827)" },
-  { label: "Music", glyph: "♪", color: "linear-gradient(180deg, #ff2d55, #ff375f)" },
-  { label: "Notes", glyph: "≡", color: "linear-gradient(180deg, #fff4a3 0 35%, #ffffff 36%)" },
-  { label: "Camera", glyph: "◉", color: "linear-gradient(180deg, #d9dee3, #9aa4ad)" },
-  { label: "Clock", glyph: "◷", color: "linear-gradient(180deg, #20242a, #05070c)" },
-  { label: "Safari", glyph: "⌁", color: "linear-gradient(180deg, #ffffff, #dff7ff)" },
-  { label: "Settings", glyph: "⚙", color: "linear-gradient(180deg, #c7cdd3, #8e98a2)" },
+  { label: "FaceTime", glyph: "▰", color: "linear-gradient(180deg, #65f879, #12bc45)" },
+  { label: "Calendar", glyph: "1", color: "linear-gradient(180deg, #ffffff, #f3f4f6)" },
+  { label: "Photos", glyph: "✽", color: "conic-gradient(from 10deg, #ff3b30, #ffcc00, #34c759, #5ac8fa, #5856d6, #ff2d55, #ff3b30)" },
+  { label: "Camera", glyph: "◉", color: "linear-gradient(180deg, #d7dce2, #79838f)" },
+  { label: "Mail", glyph: "✉", color: "linear-gradient(180deg, #69d5ff, #007aff)" },
+  { label: "Notes", glyph: "≡", color: "linear-gradient(180deg, #fff079 0 28%, #ffffff 29% 100%)" },
+  { label: "Reminders", glyph: "•••", color: "linear-gradient(180deg, #ffffff, #eef1f5)" },
+  { label: "Clock", glyph: "◷", color: "radial-gradient(circle at 50% 50%, #ffffff 0 48%, #1b1d22 49% 100%)" },
+  { label: "News", glyph: "N", color: "linear-gradient(135deg, #ffffff 0 50%, #ff2d55 51% 100%)" },
+  { label: "TV", glyph: "tv", color: "linear-gradient(180deg, #22252b, #030507)" },
+  { label: "Podcasts", glyph: "◌", color: "linear-gradient(180deg, #b46cff, #722ed1)" },
+  { label: "App Store", glyph: "A", color: "linear-gradient(180deg, #5ac8fa, #007aff)" },
+  { label: "Maps", glyph: "⌖", color: "linear-gradient(135deg, #36c56f, #63d8ff 45%, #ffffff 46% 58%, #ffcc00 59% 100%)" },
+  { label: "Health", glyph: "♥", color: "linear-gradient(180deg, #ffffff, #f7f7f7)" },
+  { label: "Wallet", glyph: "▰", color: "linear-gradient(180deg, #fbfbfb, #dfe4ea)" },
+  { label: "Settings", glyph: "⚙", color: "linear-gradient(180deg, #cfd5db, #808b96)" },
 ];
 const MOCK_DOCK_APPS = [
   { label: "Phone", glyph: "☎", color: "linear-gradient(180deg, #34d75f, #0ea33f)" },
-  { label: "Messages", glyph: "●", color: "linear-gradient(180deg, #4be36d, #22b64d)" },
   { label: "Safari", glyph: "⌁", color: "linear-gradient(180deg, #ffffff, #c8f2ff)" },
-  { label: "Camera", glyph: "◉", color: "linear-gradient(180deg, #d9dee3, #9aa4ad)" },
+  { label: "Messages", glyph: "●", color: "linear-gradient(180deg, #4be36d, #22b64d)" },
+  { label: "Music", glyph: "♪", color: "linear-gradient(180deg, #ff2d55, #ff375f)" },
 ];
 
 const formatSceneStartLabel = (sceneTitle) => (
@@ -201,7 +205,11 @@ export default function PhonePanel({
     const phoneApp = phoneAppRef.current;
     const phoneRect = phoneApp.getBoundingClientRect();
     const targetRect = target.getBoundingClientRect();
-    const top = phoneApp.scrollTop + targetRect.top - phoneRect.top - 12;
+    const alignmentOffset =
+      tourFocus.section === "garage"
+        ? (phoneApp.clientHeight - targetRect.height) / 2
+        : 12;
+    const top = phoneApp.scrollTop + targetRect.top - phoneRect.top - alignmentOffset;
 
     phoneApp.scrollTo({
       top: Math.max(0, top),
@@ -820,12 +828,26 @@ export default function PhonePanel({
     <div className="iphone-home-screen" aria-hidden="true">
       <div className="iphone-home-screen__wallpaper" />
       <div className="iphone-home-screen__status">
-        <span>1:42</span>
+        <span>9:41</span>
         <span className="iphone-home-screen__status-icons">
           <span />
           <span />
           <span />
         </span>
+      </div>
+      <div className="iphone-home-screen__widgets">
+        <div className="iphone-widget iphone-widget--weather">
+          <strong>San Francisco</strong>
+          <span className="iphone-widget__temp">53°</span>
+          <small>🌤 Partly Cloudy</small>
+          <small>H:56° L:50°</small>
+        </div>
+        <div className="iphone-widget iphone-widget--map">
+          <span className="iphone-widget__avatar">👤</span>
+          <strong>Now</strong>
+          <span>Marina Green</span>
+          <small>San Francisco, CA</small>
+        </div>
       </div>
       <div className="iphone-home-screen__grid">
         {MOCK_HOME_APPS.map((app) => (
