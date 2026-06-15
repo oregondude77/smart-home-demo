@@ -349,6 +349,10 @@ export default function HouseScene({
       "/panel-disarmed.svg",
       "/door-lock-no-deadbolt.svg",
       "/kids-running.svg",
+      "/delivery-walk-package.svg",
+      "/delivery-box-down.svg",
+      "/delivery-box.svg",
+      "/delivery-walk-no-package.svg",
     ];
 
     for (let i = 0; i <= DEADBOLT_MAX_FRAME; i += 1) {
@@ -727,6 +731,23 @@ export default function HouseScene({
     }
   ), []);
 
+  const packageDeliveryPhase =
+    activeScenario === "package-delivered" ? scenarioAction?.phase ?? "approach" : null;
+  const packageDeliveryRunnerSrc =
+    packageDeliveryPhase === "dropoff"
+      ? "/delivery-box-down.svg"
+      : packageDeliveryPhase === "leaving"
+        ? "/delivery-walk-no-package.svg"
+        : "/delivery-walk-package.svg";
+  const showPackageDeliveryRunner =
+    packageDeliveryPhase === "approach" ||
+    packageDeliveryPhase === "dropoff" ||
+    packageDeliveryPhase === "leaving";
+  const showPackageDeliveryBox =
+    packageDeliveryPhase === "box" ||
+    packageDeliveryPhase === "leaving" ||
+    packageDeliveryPhase === "complete";
+
   return (
     <div
       className={[
@@ -866,6 +887,32 @@ export default function HouseScene({
                   : "kids-arrival-runner--approaching"
               }`}
               aria-hidden="true"
+            />
+          )}
+
+          {showPackageDeliveryBox && (
+            <img
+              key={`package-box-${scenarioAction?.key ?? "package-delivery-box"}`}
+              src="/delivery-box.svg"
+              alt=""
+              className="package-delivery-box"
+              aria-hidden="true"
+              onError={(event) => {
+                event.currentTarget.style.display = "none";
+              }}
+            />
+          )}
+
+          {showPackageDeliveryRunner && (
+            <img
+              key={scenarioAction?.key ?? "package-delivery"}
+              src={packageDeliveryRunnerSrc}
+              alt=""
+              className={`package-delivery-runner package-delivery-runner--${packageDeliveryPhase}`}
+              aria-hidden="true"
+              onError={(event) => {
+                event.currentTarget.style.display = "none";
+              }}
             />
           )}
 

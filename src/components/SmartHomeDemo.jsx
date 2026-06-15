@@ -36,6 +36,13 @@ const KIDS_SCENARIO_NOTIFICATION_MS = 3600;
 const KIDS_SCENARIO_UNLOCK_DELAY_MS = 7600;
 const KIDS_SCENARIO_COMPLETE_DELAY_MS = 11200;
 const KIDS_SCENARIO_CLEANUP_DELAY_MS = 13000;
+const PACKAGE_SCENARIO_FEED_STEP_MS = 1900;
+const PACKAGE_SCENARIO_NOTIFICATION_MS = 3600;
+const PACKAGE_SCENARIO_APPROACH_ANIMATION_MS = 5900;
+const PACKAGE_SCENARIO_DROPOFF_ANIMATION_MS = 1450;
+const PACKAGE_SCENARIO_LEAVE_ANIMATION_MS = 3350;
+const PACKAGE_SCENARIO_POST_DROPOFF_BUFFER_MS = 120;
+const PACKAGE_SCENARIO_COMPLETE_BUFFER_MS = 260;
 
 export default function SmartHomeDemo() {
   const [garageOpen, setGarageOpen] = useState(false);
@@ -227,9 +234,9 @@ export default function SmartHomeDemo() {
 
       if (feedEnabled) {
         setSceneStatus({
-          title: "Kid's Arriving Home",
+          title: "Kids Arriving Home",
           actions: [
-            "Running scenario: Kid's Arriving Home",
+            "Running scenario: Kids Arriving Home",
             "Doorbell camera detected a person",
             "Sending Alert 360 notification",
           ],
@@ -259,9 +266,106 @@ export default function SmartHomeDemo() {
           pushA360Feed(
             "Tap the notification to view the doorbell camera",
             A360_FEED_STEP_MS,
-            "Kid's Arriving Home"
+            "Kids Arriving Home"
           );
         }, KIDS_SCENARIO_NOTIFICATION_MS)
+      );
+
+      return;
+    }
+
+    if (scenarioId === "package-delivered") {
+      setActiveCamera(null);
+      setLiveCamera(null);
+      setScenarioPhoneMode(true);
+      setA360Open(false);
+
+      const approachDelayMs = PACKAGE_SCENARIO_FEED_STEP_MS;
+      const dropoffDelayMs =
+        approachDelayMs + PACKAGE_SCENARIO_APPROACH_ANIMATION_MS;
+      const boxDelayMs = dropoffDelayMs + PACKAGE_SCENARIO_DROPOFF_ANIMATION_MS;
+      const leaveDelayMs = boxDelayMs + PACKAGE_SCENARIO_POST_DROPOFF_BUFFER_MS;
+      const completeDelayMs =
+        leaveDelayMs +
+        PACKAGE_SCENARIO_LEAVE_ANIMATION_MS +
+        PACKAGE_SCENARIO_COMPLETE_BUFFER_MS;
+
+      if (feedEnabled) {
+        setSceneStatus({
+          title: "Package Delivered",
+          actions: [
+            "Running scenario: Package Delivered",
+            "Doorbell camera detected a delivery",
+            "Sending Alert 360 notification",
+          ],
+          stepMs: PACKAGE_SCENARIO_FEED_STEP_MS,
+          persist: false,
+          key: `scenario-package-${Date.now()}`,
+        });
+      }
+
+      scenarioTimeoutsRef.current.push(
+        window.setTimeout(() => {
+          setActiveScenario("package-delivered");
+          setScenarioAction({
+            type: "package-delivered",
+            phase: "approach",
+            key: `package-delivered-${Date.now()}`,
+          });
+        }, approachDelayMs),
+        window.setTimeout(() => {
+          setPhoneNotification({
+            key: `package-alert-${Date.now()}`,
+            app: "ALERT 360",
+            message: `Home: Doorbell Camera detected a package delivery at ${getNotificationTime()}.`,
+            actionLabel: "Tap to View Doorbell",
+            type: "package-delivered",
+          });
+          pushA360Feed(
+            "Tap the notification to view the delivery",
+            A360_FEED_STEP_MS,
+            "Package Delivered"
+          );
+        }, PACKAGE_SCENARIO_NOTIFICATION_MS),
+        window.setTimeout(() => {
+          setScenarioAction({
+            type: "package-delivered",
+            phase: "dropoff",
+            key: `package-delivered-dropoff-${Date.now()}`,
+          });
+          pushA360Feed(
+            "Package delivered at the front door",
+            A360_FEED_STEP_MS,
+            "Package Delivered"
+          );
+        }, dropoffDelayMs),
+        window.setTimeout(() => {
+          setScenarioAction({
+            type: "package-delivered",
+            phase: "box",
+            key: `package-delivered-box-${Date.now()}`,
+          });
+        }, boxDelayMs),
+        window.setTimeout(() => {
+          setScenarioAction({
+            type: "package-delivered",
+            phase: "leaving",
+            key: `package-delivered-leaving-${Date.now()}`,
+          });
+          pushA360Feed("Delivery clip saved", A360_FEED_STEP_MS, "Package Delivered");
+        }, leaveDelayMs),
+        window.setTimeout(() => {
+          setScenarioAction({
+            type: "package-delivered",
+            phase: "complete",
+            key: `package-delivered-complete-${Date.now()}`,
+          });
+          pushA360Feed("Scenario complete", A360_FEED_STEP_MS, "Package Delivered");
+        }, completeDelayMs),
+        window.setTimeout(() => {
+          setActiveScenario(null);
+          setScenarioAction(null);
+        }, completeDelayMs + A360_FEED_STEP_MS)
       );
     }
   };
@@ -286,7 +390,7 @@ export default function SmartHomeDemo() {
           "Kids approaching front door",
         ],
         A360_FEED_STEP_MS,
-        "Kid's Arriving Home"
+        "Kids Arriving Home"
       );
       scenarioTimeoutsRef.current.push(
         window.setTimeout(() => {
@@ -298,10 +402,10 @@ export default function SmartHomeDemo() {
           pushA360Feed(
             [
               "Unlocking front door by user code",
-              "Kid's arriving home",
+              "Kids arriving home",
             ],
             A360_FEED_STEP_MS,
-            "Kid's Arriving Home"
+            "Kids Arriving Home"
           );
           doorActionKeyRef.current += 1;
           setFrontDoorUnlocked(true);
@@ -313,12 +417,29 @@ export default function SmartHomeDemo() {
           });
         }, KIDS_SCENARIO_UNLOCK_DELAY_MS),
         window.setTimeout(() => {
-          pushA360Feed("Scenario complete", A360_FEED_STEP_MS, "Kid's Arriving Home");
+          pushA360Feed("Scenario complete", A360_FEED_STEP_MS, "Kids Arriving Home");
         }, KIDS_SCENARIO_COMPLETE_DELAY_MS),
         window.setTimeout(() => {
           setActiveScenario(null);
           setScenarioAction(null);
         }, KIDS_SCENARIO_CLEANUP_DELAY_MS)
+      );
+
+      return;
+    }
+
+    if (phoneNotification?.type === "package-delivered") {
+      setPhoneNotification(null);
+      setScenarioPhoneMode(false);
+      setActiveCamera("doorbell-package-delivery");
+      setLiveCamera("doorbell");
+      pushA360Feed(
+        [
+          "Opening doorbell camera feed",
+          "Viewing package delivery clip",
+        ],
+        A360_FEED_STEP_MS,
+        "Package Delivered"
       );
     }
   };
