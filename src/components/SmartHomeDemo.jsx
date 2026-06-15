@@ -227,9 +227,9 @@ export default function SmartHomeDemo() {
 
       if (feedEnabled) {
         setSceneStatus({
-          title: "Kids Arrived Home",
+          title: "Kid's Arriving Home",
           actions: [
-            "Running scenario: Kids Arrived Home",
+            "Running scenario: Kid's Arriving Home",
             "Doorbell camera detected a person",
             "Sending Alert 360 notification",
           ],
@@ -259,7 +259,7 @@ export default function SmartHomeDemo() {
           pushA360Feed(
             "Tap the notification to view the doorbell camera",
             A360_FEED_STEP_MS,
-            "Kids Arrived Home"
+            "Kid's Arriving Home"
           );
         }, KIDS_SCENARIO_NOTIFICATION_MS)
       );
@@ -286,7 +286,7 @@ export default function SmartHomeDemo() {
           "Kids approaching front door",
         ],
         A360_FEED_STEP_MS,
-        "Kids Arrived Home"
+        "Kid's Arriving Home"
       );
       scenarioTimeoutsRef.current.push(
         window.setTimeout(() => {
@@ -298,10 +298,10 @@ export default function SmartHomeDemo() {
           pushA360Feed(
             [
               "Unlocking front door by user code",
-              "Kids arrived home",
+              "Kid's arriving home",
             ],
             A360_FEED_STEP_MS,
-            "Kids Arrived Home"
+            "Kid's Arriving Home"
           );
           doorActionKeyRef.current += 1;
           setFrontDoorUnlocked(true);
@@ -313,7 +313,7 @@ export default function SmartHomeDemo() {
           });
         }, KIDS_SCENARIO_UNLOCK_DELAY_MS),
         window.setTimeout(() => {
-          pushA360Feed("Scenario complete", A360_FEED_STEP_MS, "Kids Arrived Home");
+          pushA360Feed("Scenario complete", A360_FEED_STEP_MS, "Kid's Arriving Home");
         }, KIDS_SCENARIO_COMPLETE_DELAY_MS),
         window.setTimeout(() => {
           setActiveScenario(null);

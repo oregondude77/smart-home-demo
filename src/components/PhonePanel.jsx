@@ -61,7 +61,7 @@ const SCENE_BUTTONS = [
 ];
 const SCENARIO_MENU_ITEMS = [
   { id: "garage-left-open", label: "Garage Left Open", accent: "#23AB3F" },
-  { id: "kids-arrived-home", label: "Kids Arrived Home", accent: "#22A1C1" },
+  { id: "kids-arrived-home", label: "Kid's Arriving Home", accent: "#22A1C1" },
   { id: "package-delivered", label: "Package Delivered", accent: "#FFBB34" },
   { id: "water-leak-alert", label: "Water Leak Alert", accent: "#2071DD" },
 ];

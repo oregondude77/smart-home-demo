@@ -815,7 +815,7 @@
   position: absolute;
   z-index: 8;
   pointer-events: none;
-  width: clamp(42px, 5.2%, 104px);
+  width: clamp(50px, 6.1%, 122px);
   height: auto;
   left: 64.8%;
   top: 61.2%;
@@ -847,24 +847,24 @@
 
   100% {
     opacity: 1;
-    transform: translate3d(-18%, -82%, 0) scale(0.66);
+    transform: translate3d(-18%, -86%, 0) scale(0.66);
   }
 }
 
 @keyframes kids-arrival-enter {
   0% {
     opacity: 1;
-    transform: translate3d(-18%, -82%, 0) scale(0.66);
+    transform: translate3d(-18%, -86%, 0) scale(0.66);
   }
 
   68% {
     opacity: 1;
-    transform: translate3d(-30%, -94%, 0) scale(0.6);
+    transform: translate3d(-30%, -98%, 0) scale(0.6);
   }
 
   100% {
     opacity: 0;
-    transform: translate3d(-40%, -104%, 0) scale(0.54);
+    transform: translate3d(-40%, -108%, 0) scale(0.54);
   }
 }
 
