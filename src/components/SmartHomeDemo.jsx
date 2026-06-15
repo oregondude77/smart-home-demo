@@ -29,7 +29,13 @@ const A360_AWAY_DURATION_MS =
 const GARAGE_SCENARIO_DOOR_OPEN_MS = 1500;
 const GARAGE_SCENARIO_FEED_STEP_MS = 1900;
 const GARAGE_SCENARIO_CAR_START_MS = 4800;
-const GARAGE_SCENARIO_NOTIFICATION_MS = 8800;
+const GARAGE_SCENARIO_LEFT_OPEN_MS = 9400;
+const GARAGE_SCENARIO_NOTIFICATION_MS = 11800;
+const KIDS_SCENARIO_FEED_STEP_MS = 1900;
+const KIDS_SCENARIO_NOTIFICATION_MS = 3600;
+const KIDS_SCENARIO_UNLOCK_DELAY_MS = 7600;
+const KIDS_SCENARIO_COMPLETE_DELAY_MS = 11200;
+const KIDS_SCENARIO_CLEANUP_DELAY_MS = 13000;
 
 export default function SmartHomeDemo() {
   const [garageOpen, setGarageOpen] = useState(false);
@@ -156,64 +162,165 @@ export default function SmartHomeDemo() {
     setScenarioPhoneMode(false);
     setPhoneNotification(null);
 
-    if (scenarioId !== "garage-left-open") return;
+    if (scenarioId === "garage-left-open") {
+      setActiveCamera(null);
+      setLiveCamera(null);
+      setGarageOpen(false);
+      setScenarioPhoneMode(true);
+      setA360Open(false);
 
-    setActiveCamera(null);
-    setLiveCamera(null);
-    setGarageOpen(false);
-    setScenarioPhoneMode(true);
-    setA360Open(false);
+      if (feedEnabled) {
+        setSceneStatus({
+          title: "Garage Door Alert",
+          actions: [
+            "Running scenario: Garage Left Open",
+            "Opening garage door",
+            "Vehicle leaving driveway",
+          ],
+          stepMs: GARAGE_SCENARIO_FEED_STEP_MS,
+          persist: false,
+          key: `scenario-garage-${Date.now()}`,
+        });
+      }
 
-    if (feedEnabled) {
-      setSceneStatus({
-        title: "Garage Door Alert",
-        actions: [
-          "Running scenario: Garage Left Open",
-          "Opening garage door",
-          "Vehicle leaving driveway",
-          "Garage door left open",
-          "Sending Alert 360 notification",
-        ],
-        stepMs: GARAGE_SCENARIO_FEED_STEP_MS,
-        persist: false,
-        key: `scenario-garage-${Date.now()}`,
-      });
+      scenarioTimeoutsRef.current.push(
+        window.setTimeout(() => {
+          setGarageOpen(true);
+        }, GARAGE_SCENARIO_DOOR_OPEN_MS),
+        window.setTimeout(() => {
+          setActiveScenario("garage-left-open");
+          setScenarioAction({
+            type: "garage-left-open",
+            key: `garage-left-open-${Date.now()}`,
+          });
+        }, GARAGE_SCENARIO_CAR_START_MS),
+        window.setTimeout(() => {
+          pushA360Feed(
+            ["Garage door left open", "Sending Alert 360 notification"],
+            GARAGE_SCENARIO_FEED_STEP_MS,
+            "Garage Door Alert"
+          );
+        }, GARAGE_SCENARIO_LEFT_OPEN_MS),
+        window.setTimeout(() => {
+          setPhoneNotification({
+            key: `garage-alert-${Date.now()}`,
+            app: "ALERT 360",
+            message: `Home: The Garage Door was left open at ${getNotificationTime()}.`,
+            type: "garage-left-open",
+          });
+          pushA360Feed(
+            "Tap the notification to open the app",
+            A360_FEED_STEP_MS,
+            "Garage Door Alert"
+          );
+        }, GARAGE_SCENARIO_NOTIFICATION_MS)
+      );
+
+      return;
     }
 
-    scenarioTimeoutsRef.current.push(
-      window.setTimeout(() => {
-        setGarageOpen(true);
-      }, GARAGE_SCENARIO_DOOR_OPEN_MS),
-      window.setTimeout(() => {
-        setActiveScenario("garage-left-open");
-        setScenarioAction({
-          type: "garage-left-open",
-          key: `garage-left-open-${Date.now()}`,
+    if (scenarioId === "kids-arrived-home") {
+      setActiveCamera(null);
+      setLiveCamera(null);
+      setScenarioPhoneMode(true);
+      setA360Open(false);
+
+      if (feedEnabled) {
+        setSceneStatus({
+          title: "Kids Arrived Home",
+          actions: [
+            "Running scenario: Kids Arrived Home",
+            "Doorbell camera detected a person",
+            "Sending Alert 360 notification",
+          ],
+          stepMs: KIDS_SCENARIO_FEED_STEP_MS,
+          persist: false,
+          key: `scenario-kids-${Date.now()}`,
         });
-      }, GARAGE_SCENARIO_CAR_START_MS),
-      window.setTimeout(() => {
-        setPhoneNotification({
-          key: `garage-alert-${Date.now()}`,
-          app: "ALERT 360",
-          message: `Home: The Garage Door was left open at ${getNotificationTime()}.`,
-          type: "garage-left-open",
-        });
-        pushA360Feed(
-          "Tap the notification to open the app",
-          A360_FEED_STEP_MS,
-          "Garage Door Alert"
-        );
-      }, GARAGE_SCENARIO_NOTIFICATION_MS)
-    );
+      }
+
+      scenarioTimeoutsRef.current.push(
+        window.setTimeout(() => {
+          setActiveScenario("kids-arrived-home");
+          setScenarioAction({
+            type: "kids-arrived-home",
+            phase: "approach",
+            key: `kids-arrived-home-${Date.now()}`,
+          });
+        }, KIDS_SCENARIO_FEED_STEP_MS),
+        window.setTimeout(() => {
+          setPhoneNotification({
+            key: `kids-alert-${Date.now()}`,
+            app: "ALERT 360",
+            message: `Home: Doorbell Camera detected a person at ${getNotificationTime()}.`,
+            actionLabel: "Tap to View Doorbell",
+            type: "kids-arrived-home",
+          });
+          pushA360Feed(
+            "Tap the notification to view the doorbell camera",
+            A360_FEED_STEP_MS,
+            "Kids Arrived Home"
+          );
+        }, KIDS_SCENARIO_NOTIFICATION_MS)
+      );
+    }
   };
 
   const handlePhoneNotificationAction = () => {
-    if (phoneNotification?.type !== "garage-left-open") return;
+    if (phoneNotification?.type === "garage-left-open") {
+      setPhoneNotification(null);
+      setScenarioPhoneMode(false);
+      setPhoneTourFocus({ section: "garage", key: Date.now() });
+      pushA360Feed("Close the garage door", A360_FEED_STEP_MS, "Garage Door Alert");
+      return;
+    }
 
-    setPhoneNotification(null);
-    setScenarioPhoneMode(false);
-    setPhoneTourFocus({ section: "garage", key: Date.now() });
-    pushA360Feed("Close the garage door", A360_FEED_STEP_MS, "Garage Door Alert");
+    if (phoneNotification?.type === "kids-arrived-home") {
+      setPhoneNotification(null);
+      setScenarioPhoneMode(false);
+      setActiveCamera("doorbell-kids-arrival");
+      setLiveCamera("doorbell");
+      pushA360Feed(
+        [
+          "Opening doorbell camera feed",
+          "Kids approaching front door",
+        ],
+        A360_FEED_STEP_MS,
+        "Kids Arrived Home"
+      );
+      scenarioTimeoutsRef.current.push(
+        window.setTimeout(() => {
+          setScenarioAction({
+            type: "kids-arrived-home",
+            phase: "entering",
+            key: `kids-entering-${Date.now()}`,
+          });
+          pushA360Feed(
+            [
+              "Unlocking front door by user code",
+              "Kids arrived home",
+            ],
+            A360_FEED_STEP_MS,
+            "Kids Arrived Home"
+          );
+          doorActionKeyRef.current += 1;
+          setFrontDoorUnlocked(true);
+          setDoorAction({
+            door: "front",
+            unlocked: true,
+            suppressStateFeedback: true,
+            key: `kids-door-${Date.now()}-${doorActionKeyRef.current}`,
+          });
+        }, KIDS_SCENARIO_UNLOCK_DELAY_MS),
+        window.setTimeout(() => {
+          pushA360Feed("Scenario complete", A360_FEED_STEP_MS, "Kids Arrived Home");
+        }, KIDS_SCENARIO_COMPLETE_DELAY_MS),
+        window.setTimeout(() => {
+          setActiveScenario(null);
+          setScenarioAction(null);
+        }, KIDS_SCENARIO_CLEANUP_DELAY_MS)
+      );
+    }
   };
 
   const handleGarageScenarioResolved = () => {

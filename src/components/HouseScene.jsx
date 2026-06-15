@@ -5,10 +5,10 @@ import { useCallback, useEffect, useRef, useState } from "react";
 const GARAGE_MAX_FRAME = 14;
 const GARAGE_FRAME_MS = 110;
 const GARAGE_CAR_MAX_FRAME = 83;
-const GARAGE_CAR_FRAME_MS = 42;
+const GARAGE_CAR_FRAME_MS = 36;
 const DEADBOLT_MAX_FRAME = 15;
 const DEADBOLT_FRAME_MS = 55;
-const GARAGE_CAR_EXIT_MS = 1500;
+const GARAGE_CAR_EXIT_MS = 1200;
 const DOOR_PULSE_MS = 700;
 const DOOR_CALLOUT_MS = 3400;
 const SYSTEM_MESSAGE_MS = 2000;
@@ -348,6 +348,7 @@ export default function HouseScene({
       "/panel-armed.svg",
       "/panel-disarmed.svg",
       "/door-lock-no-deadbolt.svg",
+      "/kids-running.svg",
     ];
 
     for (let i = 0; i <= DEADBOLT_MAX_FRAME; i += 1) {
@@ -852,6 +853,20 @@ export default function HouseScene({
 
           {porchLightOn && (
             <img src="/porch-light-outside.svg" alt="" className="light-layer light-layer--porch-light" />
+          )}
+
+          {activeScenario === "kids-arrived-home" && (
+            <img
+              key={scenarioAction?.key ?? "kids-arrival"}
+              src="/kids-running.svg"
+              alt=""
+              className={`kids-arrival-runner ${
+                scenarioAction?.phase === "entering"
+                  ? "kids-arrival-runner--entering"
+                  : "kids-arrival-runner--approaching"
+              }`}
+              aria-hidden="true"
+            />
           )}
 
           {activeCamera === "doorbell" && (

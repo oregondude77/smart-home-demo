@@ -779,7 +779,7 @@
 }
 
 .garage-scenario-car.is-exiting {
-  animation: garage-scenario-car-exit 1500ms cubic-bezier(0.22, 0.72, 0.24, 1) forwards;
+  animation: garage-scenario-car-exit 1200ms cubic-bezier(0.22, 0.72, 0.24, 1) forwards;
 }
 
 @keyframes garage-scenario-car-exit {
@@ -809,6 +809,63 @@
     73.3% 71.8%,
     64.2% 62.7%
   );
+}
+
+.kids-arrival-runner {
+  position: absolute;
+  z-index: 8;
+  pointer-events: none;
+  width: clamp(42px, 5.2%, 104px);
+  height: auto;
+  left: 64.8%;
+  top: 61.2%;
+  opacity: 0;
+  transform-origin: 50% 85%;
+  filter:
+    drop-shadow(0 7px 10px rgba(8, 27, 18, 0.15))
+    drop-shadow(0 1px 4px rgba(8, 27, 18, 0.12));
+  will-change: transform, opacity;
+}
+
+.kids-arrival-runner--approaching {
+  animation: kids-arrival-approach 4.2s cubic-bezier(0.2, 0.78, 0.24, 1) forwards;
+}
+
+.kids-arrival-runner--entering {
+  animation: kids-arrival-enter 1.5s cubic-bezier(0.22, 0.72, 0.22, 1) forwards;
+}
+
+@keyframes kids-arrival-approach {
+  0% {
+    opacity: 0;
+    transform: translate3d(126%, 80%, 0) scale(0.58);
+  }
+
+  12% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 1;
+    transform: translate3d(-18%, -82%, 0) scale(0.66);
+  }
+}
+
+@keyframes kids-arrival-enter {
+  0% {
+    opacity: 1;
+    transform: translate3d(-18%, -82%, 0) scale(0.66);
+  }
+
+  68% {
+    opacity: 1;
+    transform: translate3d(-30%, -94%, 0) scale(0.6);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate3d(-40%, -104%, 0) scale(0.54);
+  }
 }
 
 /* =========================

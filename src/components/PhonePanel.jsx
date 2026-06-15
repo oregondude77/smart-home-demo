@@ -260,6 +260,14 @@ export default function PhonePanel({
       alt: "Video doorbell camera view",
     },
     {
+      id: "doorbell-kids-arrival",
+      label: "Doorbell Camera",
+      liveLabel: "Doorbell Camera",
+      src: "/doorbell-camera-scene.svg",
+      videoSrc: "/kids-home.mp4",
+      alt: "Kids arriving through doorbell camera view",
+    },
+    {
       id: "outdoor",
       label: "Outdoor Camera",
       liveLabel: "Outdoor Camera",
@@ -1436,13 +1444,6 @@ export default function PhonePanel({
                   </p>
                 </div>
 
-                {phoneNotification.actionLabel && (
-                  <span
-                    className="ios-alert360-notification__action"
-                  >
-                    {phoneNotification.actionLabel}
-                  </span>
-                )}
               </button>
             )}
 
