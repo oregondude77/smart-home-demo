@@ -2750,7 +2750,7 @@ body:has(.demo.is-night)::before {
 .scenario-menu {
   position: fixed;
   left: 84px;
-  bottom: 134px;
+  bottom: 112px;
   z-index: 1000;
   width: 258px;
   padding: 13px;
@@ -2969,7 +2969,7 @@ body:has(.demo.is-night)::before {
 
   .scenario-menu {
     left: 72px;
-    bottom: 118px;
+    bottom: 96px;
     width: min(258px, calc(100vw - 92px));
     border-radius: 22px;
   }

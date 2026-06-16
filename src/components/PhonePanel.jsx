@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 
 const OUTDOOR_NIGHT_VIDEO_SRC = "/outdoor-camera-night.mp4";
+const MAIN_CAMERA_FEED_IDS = ["doorbell", "outdoor", "floodlight"];
 const THERMOSTAT_MIN_TEMP = 60;
 const THERMOSTAT_MAX_TEMP = 82;
 const SCENE_ACTION_STEP_MS = 1550;
@@ -63,7 +64,6 @@ const SCENARIO_MENU_ITEMS = [
   { id: "garage-left-open", label: "Garage Left Open", accent: "#23AB3F" },
   { id: "kids-arrived-home", label: "Kids Arriving Home", accent: "#22A1C1" },
   { id: "package-delivered", label: "Package Delivered", accent: "#FFBB34" },
-  { id: "water-leak-alert", label: "Water Leak Alert", accent: "#2071DD" },
 ];
 const MOCK_HOME_APPS = [
   { label: "FaceTime", glyph: "▰", color: "linear-gradient(180deg, #65f879, #12bc45)" },
@@ -296,6 +296,9 @@ export default function PhonePanel({
       alt: "Floodlight camera view",
     },
   ];
+  const mainCameraFeeds = cameraFeeds.filter((feed) =>
+    MAIN_CAMERA_FEED_IDS.includes(feed.id)
+  );
 
   const activeFeed = cameraFeeds.find((feed) => feed.id === activeCamera);
 
@@ -472,7 +475,6 @@ export default function PhonePanel({
       ],
       "wake-up": [
         { label: "Disarming security system", run: () => setArmed(false) },
-        { label: "Unlocking front door", run: () => setSceneDoorState("front", true) },
         {
           label: "Turning on downstairs lights",
           run: () => {
@@ -489,6 +491,12 @@ export default function PhonePanel({
 
     if (!sceneStatus || !sceneSteps) {
       return;
+    }
+
+    if (sceneId === "sleep" && !nightMode) {
+      setNightMode(true);
+    } else if (sceneId === "wake-up" && nightMode) {
+      setNightMode(false);
     }
 
     const sceneStepMs = SCENE_ACTION_STEP_MS;
@@ -1298,7 +1306,7 @@ export default function PhonePanel({
                       setActiveVideoSlide(slide);
                     }}
                   >
-                    {cameraFeeds.map((feed) => (
+                    {mainCameraFeeds.map((feed) => (
                       <div
                         key={feed.id}
                         className={`video-slide video-slide--${feed.id}`}
@@ -1311,7 +1319,7 @@ export default function PhonePanel({
                           }}
                         >
                           <div className="video-slide__bars">
-                            {cameraFeeds.map((bar, barIndex) => (
+                            {mainCameraFeeds.map((bar, barIndex) => (
                               <span
                                 key={bar.id}
                                 className={activeVideoSlide === barIndex ? "is-active" : ""}
