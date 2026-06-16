@@ -28,7 +28,7 @@ const SCENE_STATUS_COPY = {
     title: "Away scene",
     actions: [
       "Arming security system",
-      "Locking front door",
+      "Locking doors",
       "Turning on porch, side, and garage lights",
       "Turning off interior lights",
       "Setting thermostat to 72°",
@@ -400,8 +400,10 @@ export default function PhonePanel({
     doorActionKeyRef.current += 1;
 
     if (door === "both") {
+      // Let each door update produce its own callout so scene feed timing stays intact.
       setFrontDoorUnlocked(unlocked);
       setSideDoorUnlocked(unlocked);
+      return;
     } else if (door === "front") {
       setFrontDoorUnlocked(unlocked);
     } else {
@@ -418,6 +420,25 @@ export default function PhonePanel({
     }
   };
 
+  const setDoorStateWithCallout = (door, unlocked) => {
+    doorActionKeyRef.current += 1;
+
+    if (door === "front") {
+      setFrontDoorUnlocked(unlocked);
+    } else {
+      setSideDoorUnlocked(unlocked);
+    }
+
+    if (setDoorAction) {
+      setDoorAction({
+        door,
+        unlocked,
+        suppressStateFeedback: true,
+        key: `phone-door-${Date.now()}-${doorActionKeyRef.current}`,
+      });
+    }
+  };
+
   const handleScene = (sceneId) => {
     const sceneStatus = SCENE_STATUS_COPY[sceneId];
     const sceneStepsById = {
@@ -430,7 +451,7 @@ export default function PhonePanel({
       ],
       away: [
         { label: "Arming security system", run: () => setArmed(true) },
-        { label: "Locking front door", run: () => setSceneDoorState("front", false) },
+        { label: "Locking doors", run: () => setSceneDoorState("both", false) },
         {
           label: "Turning on porch, side, and garage lights",
           run: () => {
@@ -1146,7 +1167,7 @@ export default function PhonePanel({
                           "Door locks",
                           `${nextUnlocked ? "Unlocking" : "Locking"} front door`
                         );
-                        setFrontDoorUnlocked(nextUnlocked);
+                        setDoorStateWithCallout("front", nextUnlocked);
                       }}
                     />
 
@@ -1161,7 +1182,7 @@ export default function PhonePanel({
                           "Door locks",
                           `${nextUnlocked ? "Unlocking" : "Locking"} side door`
                         );
-                        setSideDoorUnlocked(nextUnlocked);
+                        setDoorStateWithCallout("side", nextUnlocked);
                       }}
                     />
                   </div>
