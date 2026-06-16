@@ -1230,12 +1230,12 @@ body {
   background: #fff !important;
   border-radius: 28px;
   container-type: inline-size;
-  aspect-ratio: 381 / 191;
+  aspect-ratio: 381 / 176;
 }
 
 .weather-card__header {
-  height: clamp(44px, 14cqw, 55px);
-  padding: clamp(13px, 4.5cqw, 18px) clamp(14px, 4.8cqw, 19px) 0;
+  height: clamp(38px, 12.6cqw, 48px);
+  padding: clamp(12px, 4cqw, 16px) clamp(14px, 4.8cqw, 19px) 0;
   display: flex;
   align-items: flex-start;
 }
@@ -1251,16 +1251,16 @@ body {
 }
 
 .weather-card__body {
-  height: calc(100% - clamp(44px, 14cqw, 55px));
+  height: calc(100% - clamp(38px, 12.6cqw, 48px));
   padding:
-    clamp(2px, 0.8cqw, 4px)
-    clamp(16px, 5.3cqw, 24px)
-    clamp(20px, 6.4cqw, 25px)
-    clamp(31px, 9.8cqw, 42px);
+    0
+    clamp(16px, 5.3cqw, 23px)
+    clamp(14px, 4.8cqw, 20px)
+    clamp(29px, 9.4cqw, 39px);
   display: grid;
-  grid-template-columns: clamp(82px, 27.5cqw, 106px) minmax(0, 1fr);
+  grid-template-columns: clamp(78px, 25.8cqw, 98px) minmax(0, 1fr);
   align-items: center;
-  gap: clamp(19px, 6.3cqw, 27px);
+  gap: clamp(18px, 5.8cqw, 24px);
 }
 
 .weather-card__icon {
@@ -1283,7 +1283,7 @@ body {
   font-size: clamp(12px, 4.1cqw, 16px);
   font-weight: 500;
   line-height: 1.1;
-  margin-bottom: clamp(6px, 2cqw, 8px);
+  margin-bottom: clamp(4px, 1.5cqw, 6px);
 }
 
 .weather-card__temp {
@@ -1292,7 +1292,7 @@ body {
   gap: clamp(5px, 1.6cqw, 7px);
   font-weight: 500;
   line-height: 0.88;
-  margin-bottom: clamp(8px, 2.9cqw, 12px);
+  margin-bottom: clamp(6px, 2cqw, 9px);
 }
 
 .weather-card__temp span {
