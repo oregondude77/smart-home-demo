@@ -2040,8 +2040,15 @@ body {
   display: block;
   width: clamp(68px, 5vw, 92px);
   height: auto;
-  margin: 0 auto 10px;
+  margin: 0 auto 12px;
   opacity: 0.96;
+}
+
+.demo-hero-kicker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 14px;
 }
 
 .demo-hero-pill {
@@ -2050,7 +2057,6 @@ body {
   gap: 8px;
   height: 26px;
   padding: 0 12px;
-  margin-bottom: 13px;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.72);
   border: 1px solid rgba(0, 150, 75, 0.12);
@@ -2094,32 +2100,33 @@ body {
 
 .demo-experience-toggle {
   display: inline-grid;
-  grid-template-columns: repeat(2, minmax(128px, 1fr));
-  gap: 4px;
-  margin-top: 14px;
-  padding: 4px;
+  grid-template-columns: repeat(2, minmax(68px, 1fr));
+  gap: 2px;
+  padding: 3px;
+  margin: 0 auto 10px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.62);
-  border: 1px solid rgba(0, 150, 75, 0.14);
+  background: rgba(255, 255, 255, 0.42);
+  border: 1px solid rgba(8, 27, 18, 0.08);
   box-shadow:
-    0 16px 34px rgba(8, 22, 15, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.82);
-  backdrop-filter: blur(16px) saturate(1.12);
-  -webkit-backdrop-filter: blur(16px) saturate(1.12);
+    0 10px 22px rgba(8, 22, 15, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.70);
+  backdrop-filter: blur(14px) saturate(1.08);
+  -webkit-backdrop-filter: blur(14px) saturate(1.08);
 }
 
 .demo-experience-toggle button {
   appearance: none;
   min-width: 0;
-  height: 32px;
-  padding: 0 15px;
+  height: 22px;
+  padding: 0 10px;
   border: 0;
   border-radius: 999px;
   background: transparent;
-  color: rgba(8, 27, 18, 0.62);
-  font-size: 12px;
+  color: rgba(8, 27, 18, 0.54);
+  font-size: 10px;
   font-weight: 800;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
   cursor: pointer;
   transition:
     color 0.18s ease,
@@ -2133,18 +2140,11 @@ body {
 }
 
 .demo-experience-toggle button.is-active {
-  color: #fff;
-  background: linear-gradient(135deg, #00964b, #08ad62);
+  color: #0a2418;
+  background: rgba(255, 255, 255, 0.78);
   box-shadow:
-    0 10px 20px rgba(0, 150, 75, 0.22),
-    inset 0 1px 0 rgba(255, 255, 255, 0.22);
-}
-
-.demo--business .demo-hero-actions a {
-  background: #087f5b;
-  box-shadow:
-    0 12px 24px rgba(8, 127, 91, 0.18),
-    inset 0 1px 0 rgba(255, 255, 255, 0.18);
+    0 8px 16px rgba(8, 22, 15, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
 }
 
 .demo-hero-actions {
@@ -2160,19 +2160,19 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  height: 38px;
-  padding: 0 18px;
+  height: 42px;
+  padding: 0 24px;
   border-radius: 999px;
   border: 0;
-  background: #00964b;
-  color: #fff;
+  background: linear-gradient(105deg, #20e58a 0%, #7cff19 100%);
+  color: #07120b;
   font-size: 13px;
   font-weight: 800;
   text-decoration: none;
   cursor: pointer;
   box-shadow:
-    0 12px 24px rgba(0, 150, 75, 0.18),
-    inset 0 1px 0 rgba(255, 255, 255, 0.18);
+    0 14px 28px rgba(38, 229, 113, 0.20),
+    inset 0 1px 0 rgba(255, 255, 255, 0.28);
   transition:
     transform 0.18s ease,
     box-shadow 0.18s ease;
@@ -2181,8 +2181,8 @@ body {
 .demo-hero-actions a:hover {
   transform: translateY(-1px);
   box-shadow:
-    0 16px 30px rgba(0, 150, 75, 0.22),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    0 18px 34px rgba(38, 229, 113, 0.26),
+    inset 0 1px 0 rgba(255, 255, 255, 0.34);
 }
 
 .demo-hero-actions span {
@@ -2222,6 +2222,16 @@ body {
 
   .demo-hero-copy p {
     font-size: 14px;
+  }
+
+  .demo-hero-kicker {
+    flex-direction: column;
+    gap: 7px;
+    margin-bottom: 12px;
+  }
+
+  .demo-experience-toggle {
+    grid-template-columns: repeat(2, minmax(62px, 1fr));
   }
 
   .demo-hero-actions {
@@ -2354,12 +2364,16 @@ body:has(.demo.is-night)::before {
 }
 
 .demo.is-night .demo-experience-toggle button.is-active {
-  color: #fff;
+  color: #081b12;
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow:
+    0 8px 16px rgba(0, 0, 0, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
 }
 
 .demo.is-night .demo-hero-actions a {
-  background: #00964b !important;
-  color: #ffffff !important;
+  background: linear-gradient(105deg, #20e58a 0%, #7cff19 100%) !important;
+  color: #07120b !important;
 }
 
 /* =========================

@@ -671,47 +671,49 @@ export default function SmartHomeDemo() {
   return (
   <div className={`demo demo--${demoExperience} ${nightMode ? "is-night" : ""}`}>
     <div className="demo-hero-copy">
-  <img
-    className="demo-hero-logo"
-    src="/alert-360-logo.svg"
-    alt="Alert 360"
-  />
+      <img
+        className="demo-hero-logo"
+        src="/alert-360-logo.svg"
+        alt="Alert 360"
+      />
 
-  <div className="demo-hero-pill">
-    <span></span>
-    {activeExperience.pill}
-  </div>
+      <div className="demo-experience-toggle" role="group" aria-label="Demo experience">
+        <button
+          type="button"
+          className={demoExperience === "home" ? "is-active" : ""}
+          aria-pressed={demoExperience === "home"}
+          onClick={() => setDemoExperience("home")}
+        >
+          Home
+        </button>
+        <button
+          type="button"
+          className={demoExperience === "business" ? "is-active" : ""}
+          aria-pressed={demoExperience === "business"}
+          onClick={() => setDemoExperience("business")}
+        >
+          Business
+        </button>
+      </div>
 
-  <h1>{activeExperience.title}</h1>
+      <div className="demo-hero-kicker">
+        <div className="demo-hero-pill">
+          <span></span>
+          {activeExperience.pill}
+        </div>
+      </div>
 
-  <p>{activeExperience.description}</p>
+      <h1>{activeExperience.title}</h1>
 
-  <div className="demo-experience-toggle" role="group" aria-label="Demo experience">
-    <button
-      type="button"
-      className={demoExperience === "home" ? "is-active" : ""}
-      aria-pressed={demoExperience === "home"}
-      onClick={() => setDemoExperience("home")}
-    >
-      Smart Home
-    </button>
-    <button
-      type="button"
-      className={demoExperience === "business" ? "is-active" : ""}
-      aria-pressed={demoExperience === "business"}
-      onClick={() => setDemoExperience("business")}
-    >
-      Smart Business
-    </button>
-  </div>
+      <p>{activeExperience.description}</p>
 
-  <div className="demo-hero-actions">
-    <a href="https://www.alert360.com/home-security-package-specials">
-      Explore Protection
-    </a>
-    <span>{activeExperience.meta}</span>
-  </div>
-</div>
+      <div className="demo-hero-actions">
+        <a href="https://www.alert360.com/home-security-package-specials">
+          Explore Protection
+        </a>
+        <span>{activeExperience.meta}</span>
+      </div>
+    </div>
       <div className="demo-grid">
         <PhonePanel
           garageOpen={garageOpen}

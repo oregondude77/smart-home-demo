@@ -2390,7 +2390,6 @@
 
 .house-scene--business .security-perimeter,
 .house-scene--business .system-status,
-.house-scene--business .security-panel-group,
 .house-scene--business .garage-door-frame-image,
 .house-scene--business .garage-scenario-car-underlay,
 .house-scene--business .garage-scenario-car,
@@ -2403,8 +2402,7 @@
 .house-scene--business .camera-live-label,
 .house-scene--business .door-lock-source,
 .house-scene--business .ios-door-badge-anchor,
-.house-scene--business .smart-lock-callout,
-.house-scene--business .thermostat-scene-device {
+.house-scene--business .smart-lock-callout {
   display: none !important;
 }
 
