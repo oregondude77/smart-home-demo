@@ -2387,3 +2387,32 @@
   transform: none !important;
   transform-origin: top right !important;
 }
+
+.house-scene--business .security-perimeter,
+.house-scene--business .system-status,
+.house-scene--business .security-panel-group,
+.house-scene--business .garage-door-frame-image,
+.house-scene--business .garage-scenario-car-underlay,
+.house-scene--business .garage-scenario-car,
+.house-scene--business .garage-scenario-car-mask,
+.house-scene--business .light-layer,
+.house-scene--business .kids-arrival-runner,
+.house-scene--business .package-delivery-box,
+.house-scene--business .package-delivery-runner,
+.house-scene--business .camera-live-marker,
+.house-scene--business .camera-live-label,
+.house-scene--business .door-lock-source,
+.house-scene--business .ios-door-badge-anchor,
+.house-scene--business .smart-lock-callout,
+.house-scene--business .thermostat-scene-device {
+  display: none !important;
+}
+
+.house-scene--business .house-container::before,
+.house-scene--business .house-container::after {
+  opacity: 0;
+}
+
+.house-scene--business .house-base {
+  filter: drop-shadow(0 28px 44px rgba(6, 24, 17, 0.16));
+}

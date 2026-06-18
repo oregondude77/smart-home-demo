@@ -198,6 +198,7 @@ function CameraLiveMarker({ type, label }) {
 
 
 export default function HouseScene({
+  demoExperience = "home",
   garageOpen = false,
   nightMode = false,
   armed = false,
@@ -733,6 +734,7 @@ export default function HouseScene({
 
   const packageDeliveryPhase =
     activeScenario === "package-delivered" ? scenarioAction?.phase ?? "approach" : null;
+  const isBusinessDemo = demoExperience === "business";
   const packageDeliveryRunnerSrc =
     packageDeliveryPhase === "dropoff"
       ? "/delivery-box-down.svg"
@@ -752,6 +754,7 @@ export default function HouseScene({
     <div
       className={[
         "house-scene",
+        isBusinessDemo && "house-scene--business",
         nightMode && "house-scene--night",
         armed ? "house-scene--armed" : "house-scene--disarmed",
       ].filter(Boolean).join(" ")}
@@ -777,7 +780,11 @@ export default function HouseScene({
 
           <div className="security-perimeter" />
 
-          <img src="/house-base.svg" alt="House" className="house-base" />
+          <img
+            src={isBusinessDemo ? "/smb-base.svg" : "/house-base.svg"}
+            alt={isBusinessDemo ? "Small business security scene" : "House"}
+            className="house-base"
+          />
 
           <div className="security-panel-group">
             <img src="/panel-base.svg" alt="" className="security-panel-base" />

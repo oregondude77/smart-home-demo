@@ -44,7 +44,25 @@ const PACKAGE_SCENARIO_LEAVE_ANIMATION_MS = 3350;
 const PACKAGE_SCENARIO_POST_DROPOFF_BUFFER_MS = 120;
 const PACKAGE_SCENARIO_COMPLETE_BUFFER_MS = 260;
 
+const DEMO_EXPERIENCES = {
+  home: {
+    pill: "Interactive Smart Home Demo",
+    title: "Smarter Security. Real-Time Control.",
+    description:
+      "See how Alert 360 connects security, cameras, lights, locks, garage doors, and monitoring into one seamless smart home experience.",
+    meta: "24/7 Monitoring • Smart Automation • Live Video",
+  },
+  business: {
+    pill: "Interactive Smart Business Demo",
+    title: "Smarter Business. Real-Time Control.",
+    description:
+      "See how Alert 360 connects intrusion, video, access, automation, and monitoring into one streamlined small business security experience.",
+    meta: "Business Security • Video Verification • Access Control",
+  },
+};
+
 export default function SmartHomeDemo() {
+  const [demoExperience, setDemoExperience] = useState("home");
   const [garageOpen, setGarageOpen] = useState(false);
   const [armed, setArmed] = useState(false);
 
@@ -648,9 +666,10 @@ export default function SmartHomeDemo() {
   const currentA360Step = a360TourSteps[a360StepIndex];
   const currentA360StepDuration =
     (currentA360Step?.durationMs ?? A360_AUTO_STEP_MS) + A360_STEP_PAUSE_MS;
+  const activeExperience = DEMO_EXPERIENCES[demoExperience];
 
   return (
-  <div className={`demo ${nightMode ? "is-night" : ""}`}>
+  <div className={`demo demo--${demoExperience} ${nightMode ? "is-night" : ""}`}>
     <div className="demo-hero-copy">
   <img
     className="demo-hero-logo"
@@ -660,21 +679,37 @@ export default function SmartHomeDemo() {
 
   <div className="demo-hero-pill">
     <span></span>
-    Interactive Smart Home Demo
+    {activeExperience.pill}
   </div>
 
-  <h1>Smarter Security. Real-Time Control.</h1>
+  <h1>{activeExperience.title}</h1>
 
-  <p>
-    See how Alert 360 connects security, cameras, lights, locks, garage doors,
-    and monitoring into one seamless smart home experience.
-  </p>
+  <p>{activeExperience.description}</p>
+
+  <div className="demo-experience-toggle" role="group" aria-label="Demo experience">
+    <button
+      type="button"
+      className={demoExperience === "home" ? "is-active" : ""}
+      aria-pressed={demoExperience === "home"}
+      onClick={() => setDemoExperience("home")}
+    >
+      Smart Home
+    </button>
+    <button
+      type="button"
+      className={demoExperience === "business" ? "is-active" : ""}
+      aria-pressed={demoExperience === "business"}
+      onClick={() => setDemoExperience("business")}
+    >
+      Smart Business
+    </button>
+  </div>
 
   <div className="demo-hero-actions">
     <a href="https://www.alert360.com/home-security-package-specials">
       Explore Protection
     </a>
-    <span>24/7 Monitoring • Smart Automation • Live Video</span>
+    <span>{activeExperience.meta}</span>
   </div>
 </div>
       <div className="demo-grid">
@@ -725,6 +760,7 @@ export default function SmartHomeDemo() {
         />
 
         <HouseScene
+          demoExperience={demoExperience}
           garageOpen={garageOpen}
           armed={armed}
           upstairsBedroomOn={upstairsBedroomOn}
