@@ -1859,6 +1859,7 @@ body {
 ========================= */
 
 .house-scene__frame {
+  position: relative;
   background:
     radial-gradient(circle at 40% 42%, rgba(0, 150, 75, 0.12), transparent 44%),
     linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(236, 246, 240, 0.96)) !important;
@@ -2098,55 +2099,6 @@ body {
   font-weight: 500;
 }
 
-.demo-experience-toggle {
-  display: inline-grid;
-  grid-template-columns: repeat(2, minmax(68px, 1fr));
-  gap: 2px;
-  padding: 3px;
-  margin: 0 auto 10px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.42);
-  border: 1px solid rgba(8, 27, 18, 0.08);
-  box-shadow:
-    0 10px 22px rgba(8, 22, 15, 0.05),
-    inset 0 1px 0 rgba(255, 255, 255, 0.70);
-  backdrop-filter: blur(14px) saturate(1.08);
-  -webkit-backdrop-filter: blur(14px) saturate(1.08);
-}
-
-.demo-experience-toggle button {
-  appearance: none;
-  min-width: 0;
-  height: 22px;
-  padding: 0 10px;
-  border: 0;
-  border-radius: 999px;
-  background: transparent;
-  color: rgba(8, 27, 18, 0.54);
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition:
-    color 0.18s ease,
-    background 0.18s ease,
-    box-shadow 0.18s ease,
-    transform 0.18s ease;
-}
-
-.demo-experience-toggle button:hover {
-  color: rgba(8, 27, 18, 0.88);
-}
-
-.demo-experience-toggle button.is-active {
-  color: #0a2418;
-  background: rgba(255, 255, 255, 0.78);
-  box-shadow:
-    0 8px 16px rgba(8, 22, 15, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.9);
-}
-
 .demo-hero-actions {
   margin-top: 12px;
   display: flex;
@@ -2228,10 +2180,6 @@ body {
     flex-direction: column;
     gap: 7px;
     margin-bottom: 12px;
-  }
-
-  .demo-experience-toggle {
-    grid-template-columns: repeat(2, minmax(62px, 1fr));
   }
 
   .demo-hero-actions {
@@ -2345,30 +2293,6 @@ body:has(.demo.is-night)::before {
 /* Keep pill + button styling */
 .demo.is-night .demo-hero-pill {
   color: #0d3a27 !important;
-}
-
-.demo.is-night .demo-experience-toggle {
-  background: rgba(8, 18, 16, 0.48);
-  border-color: rgba(128, 255, 198, 0.12);
-  box-shadow:
-    0 18px 38px rgba(0, 0, 0, 0.22),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08);
-}
-
-.demo.is-night .demo-experience-toggle button {
-  color: rgba(255, 255, 255, 0.62);
-}
-
-.demo.is-night .demo-experience-toggle button:hover {
-  color: rgba(255, 255, 255, 0.88);
-}
-
-.demo.is-night .demo-experience-toggle button.is-active {
-  color: #081b12;
-  background: rgba(255, 255, 255, 0.82);
-  box-shadow:
-    0 8px 16px rgba(0, 0, 0, 0.18),
-    inset 0 1px 0 rgba(255, 255, 255, 0.9);
 }
 
 .demo.is-night .demo-hero-actions a {
@@ -2670,7 +2594,7 @@ body:has(.demo.is-night)::before {
   justify-content: center;
 
   cursor: pointer;
-  overflow: hidden;
+  overflow: visible;
 
   background:
     radial-gradient(circle at 30% 25%, rgba(255, 255, 255, 0.28), transparent 34%),
@@ -2693,6 +2617,7 @@ body:has(.demo.is-night)::before {
 }
 
 .feed-toggle,
+.experience-toggle,
 .scenario-toggle {
   position: fixed;
   left: 18px;
@@ -2710,7 +2635,7 @@ body:has(.demo.is-night)::before {
   justify-content: center;
 
   cursor: pointer;
-  overflow: hidden;
+  overflow: visible;
 
   background:
     linear-gradient(180deg, #35d866 0%, #20a83e 100%);
@@ -2736,6 +2661,24 @@ body:has(.demo.is-night)::before {
 
 .feed-toggle {
   bottom: 84px;
+}
+
+.experience-toggle {
+  bottom: 216px;
+  background:
+    radial-gradient(circle at 34% 24%, rgba(255, 255, 255, 0.34), transparent 36%),
+    linear-gradient(180deg, #32d66c 0%, #15964d 100%);
+}
+
+.experience-toggle--business {
+  background:
+    radial-gradient(circle at 34% 24%, rgba(255, 255, 255, 0.30), transparent 36%),
+    linear-gradient(180deg, #3b8dff 0%, #1763d1 100%);
+  box-shadow:
+    0 18px 38px rgba(16, 82, 180, 0.26),
+    inset 0 0 0 2px rgba(255, 255, 255, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.34),
+    inset 0 -10px 18px rgba(8, 52, 132, 0.26);
 }
 
 .scenario-toggle {
@@ -2765,6 +2708,7 @@ body:has(.demo.is-night)::before {
 
 .mode-toggle:hover,
 .feed-toggle:hover,
+.experience-toggle:hover,
 .scenario-toggle:hover {
   transform: translateY(-2px) scale(1.03);
   box-shadow:
@@ -2775,12 +2719,14 @@ body:has(.demo.is-night)::before {
 
 .mode-toggle:active,
 .feed-toggle:active,
+.experience-toggle:active,
 .scenario-toggle:active {
   transform: scale(0.96);
 }
 
 .mode-toggle__icon,
 .feed-toggle__icon,
+.experience-toggle__icon,
 .scenario-toggle__icon {
   width: 42px;
   height: 42px;
@@ -2815,6 +2761,7 @@ body:has(.demo.is-night)::before {
 }
 
 .feed-toggle__icon svg,
+.experience-toggle__icon svg,
 .scenario-toggle__icon svg {
   width: 28px;
   height: 28px;
@@ -2822,8 +2769,47 @@ body:has(.demo.is-night)::before {
 
 .mode-toggle__label,
 .feed-toggle__label,
+.experience-toggle__label,
 .scenario-toggle__label {
-  display: none;
+  position: absolute;
+  left: calc(100% + 12px);
+  top: 50%;
+  transform: translate(-6px, -50%) scale(0.98);
+  min-width: max-content;
+  max-width: 160px;
+  padding: 7px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.46);
+  background: rgba(255, 255, 255, 0.72);
+  color: rgba(12, 32, 24, 0.78);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  line-height: 1;
+  text-transform: uppercase;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  box-shadow:
+    0 14px 28px rgba(8, 30, 18, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  transition:
+    opacity 0.18s ease,
+    transform 0.18s ease;
+}
+
+.mode-toggle:hover .mode-toggle__label,
+.mode-toggle:focus-visible .mode-toggle__label,
+.feed-toggle:hover .feed-toggle__label,
+.feed-toggle:focus-visible .feed-toggle__label,
+.experience-toggle:hover .experience-toggle__label,
+.experience-toggle:focus-visible .experience-toggle__label,
+.scenario-toggle:hover .scenario-toggle__label,
+.scenario-toggle:focus-visible .scenario-toggle__label {
+  opacity: 1;
+  transform: translate(0, -50%) scale(1);
 }
 
 .scenario-toggle__icon {
@@ -3024,6 +3010,7 @@ body:has(.demo.is-night)::before {
 @media (max-width: 600px) {
   .mode-toggle,
   .feed-toggle,
+  .experience-toggle,
   .scenario-toggle {
     left: 14px;
     width: 48px;
@@ -3038,12 +3025,24 @@ body:has(.demo.is-night)::before {
     bottom: 74px;
   }
 
+  .experience-toggle {
+    bottom: 194px;
+  }
+
   .scenario-toggle {
     bottom: 134px;
   }
 
+  .mode-toggle__label,
+  .feed-toggle__label,
+  .experience-toggle__label,
+  .scenario-toggle__label {
+    display: none;
+  }
+
   .mode-toggle__icon,
   .feed-toggle__icon,
+  .experience-toggle__icon,
   .scenario-toggle__icon {
     width: 38px;
     height: 38px;
@@ -3051,6 +3050,7 @@ body:has(.demo.is-night)::before {
   }
 
   .feed-toggle__icon svg,
+  .experience-toggle__icon svg,
   .scenario-toggle__icon svg {
     width: 25px;
     height: 25px;

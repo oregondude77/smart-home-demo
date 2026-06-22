@@ -677,25 +677,6 @@ export default function SmartHomeDemo() {
         alt="Alert 360"
       />
 
-      <div className="demo-experience-toggle" role="group" aria-label="Demo experience">
-        <button
-          type="button"
-          className={demoExperience === "home" ? "is-active" : ""}
-          aria-pressed={demoExperience === "home"}
-          onClick={() => setDemoExperience("home")}
-        >
-          Home
-        </button>
-        <button
-          type="button"
-          className={demoExperience === "business" ? "is-active" : ""}
-          aria-pressed={demoExperience === "business"}
-          onClick={() => setDemoExperience("business")}
-        >
-          Business
-        </button>
-      </div>
-
       <div className="demo-hero-kicker">
         <div className="demo-hero-pill">
           <span></span>
@@ -759,6 +740,10 @@ export default function SmartHomeDemo() {
           scenarioPhoneMode={scenarioPhoneMode}
           onPhoneNotificationAction={handlePhoneNotificationAction}
           onGarageScenarioResolved={handleGarageScenarioResolved}
+          demoExperience={demoExperience}
+          onDemoExperienceToggle={() => {
+            setDemoExperience((current) => current === "home" ? "business" : "home");
+          }}
         />
 
         <HouseScene
@@ -806,7 +791,7 @@ export default function SmartHomeDemo() {
                 <p>
                   {a360TourActive
                     ? currentA360Step.message
-                    : "Hi, I'm A-360, your smart home security virtual assistant. Want a quick tour?"}
+                    : `Hi, I'm A-360, your smart ${demoExperience === "business" ? "business" : "home"} security virtual assistant. Want a quick tour?`}
                 </p>
                 {a360TourActive && (
                   <div

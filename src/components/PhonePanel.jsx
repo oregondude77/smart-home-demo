@@ -117,6 +117,62 @@ const getSceneActionRunDelay = (action, stepMs) => (
   )
 );
 
+function HomeExperienceIcon() {
+  return (
+    <svg viewBox="0 0 42 42" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path
+        d="M10 21.5L21 12L32 21.5"
+        stroke="currentColor"
+        strokeWidth="3"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M14 20.5V31H28V20.5"
+        stroke="currentColor"
+        strokeWidth="3"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M18.5 31V24.5H23.5V31"
+        stroke="currentColor"
+        strokeWidth="3"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function BusinessExperienceIcon() {
+  return (
+    <svg viewBox="0 0 42 42" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path
+        d="M12 32V13.5C12 12.1 13.1 11 14.5 11H27.5C28.9 11 30 12.1 30 13.5V32"
+        stroke="currentColor"
+        strokeWidth="3"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path d="M9 32H33" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+      <path
+        d="M17 17H19M23 17H25M17 22H19M23 22H25"
+        stroke="currentColor"
+        strokeWidth="3"
+        strokeLinecap="round"
+      />
+      <path
+        d="M18.5 32V26H23.5V32"
+        stroke="currentColor"
+        strokeWidth="3"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
 export default function PhonePanel({
   garageOpen,
   setGarageOpen,
@@ -153,6 +209,8 @@ export default function PhonePanel({
   setNightMode,
   feedEnabled,
   setFeedEnabled,
+  demoExperience = "home",
+  onDemoExperienceToggle,
   setSceneStatus,
   setDoorAction,
   tourFocus,
@@ -1213,102 +1271,103 @@ export default function PhonePanel({
                   </div>
                 </section>
 
-                {/* GARAGE */}
-                <section ref={garageCardRef} className="phone-section phone-section--garage-card">
-                  <button
-                    type="button"
-                    className="garage-card-button"
-                    onClick={() => {
-                      const nextOpen = !garageOpen;
+                {demoExperience !== "business" && (
+                  <section ref={garageCardRef} className="phone-section phone-section--garage-card">
+                    <button
+                      type="button"
+                      className="garage-card-button"
+                      onClick={() => {
+                        const nextOpen = !garageOpen;
 
-                      pushActionFeed(
-                        "Garage door",
-                        `${nextOpen ? "Opening" : "Closing"} garage door`
-                      );
-                      setGarageOpen(nextOpen);
+                        pushActionFeed(
+                          "Garage door",
+                          `${nextOpen ? "Opening" : "Closing"} garage door`
+                        );
+                        setGarageOpen(nextOpen);
 
-                      if (!nextOpen && typeof onGarageScenarioResolved === "function") {
-                        onGarageScenarioResolved();
-                      }
-                    }}
-                  >
-                    <svg
-                      className="garage-card-svg"
-                      width="381"
-                      height="140"
-                      viewBox="0 0 381 140"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
+                        if (!nextOpen && typeof onGarageScenarioResolved === "function") {
+                          onGarageScenarioResolved();
+                        }
+                      }}
                     >
-                      <rect x="2" y="1" width="377" height="136" rx="4" fill="white" />
-
-                      <text
-                        x="19"
-                        y="30"
-                        fill="#767676"
-                        fontSize="15"
-                        fontWeight="800"
-                        letterSpacing="0.08em"
-                        fontFamily="-apple-system, BlinkMacSystemFont, 'SF Pro Text', Arial, sans-serif"
+                      <svg
+                        className="garage-card-svg"
+                        width="381"
+                        height="140"
+                        viewBox="0 0 381 140"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
                       >
-                        GARAGE DOORS
-                      </text>
+                        <rect x="2" y="1" width="377" height="136" rx="4" fill="white" />
 
-                      <text
-                        x="352"
-                        y="30"
-                        fill="#767676"
-                        fontSize="34"
-                        fontWeight="400"
-                        fontFamily="-apple-system, BlinkMacSystemFont, 'SF Pro Text', Arial, sans-serif"
-                      >
-                        ›
-                      </text>
+                        <text
+                          x="19"
+                          y="30"
+                          fill="#767676"
+                          fontSize="15"
+                          fontWeight="800"
+                          letterSpacing="0.08em"
+                          fontFamily="-apple-system, BlinkMacSystemFont, 'SF Pro Text', Arial, sans-serif"
+                        >
+                          GARAGE DOORS
+                        </text>
 
-                      <path
-                        fillRule="evenodd"
-                        clipRule="evenodd"
-                        d="M157.968 78.9999V107C157.968 109.209 156.177 111 153.968 111H105.968C103.759 111 102 109.209 102 107V78.9999H99.2281C97.3891 78.9999 96.5251 76.7269 97.9001 75.5049L128.639 46.9999C129.397 46.3259 130.539 46.3259 131.297 46.9999L162.036 75.5049C163.411 76.7269 162.547 78.9999 160.708 78.9999H157.968Z"
-                        fill={garageOpen ? "#23AB3F" : "#D92C29"}
-                      />
+                        <text
+                          x="352"
+                          y="30"
+                          fill="#767676"
+                          fontSize="34"
+                          fontWeight="400"
+                          fontFamily="-apple-system, BlinkMacSystemFont, 'SF Pro Text', Arial, sans-serif"
+                        >
+                          ›
+                        </text>
 
-                      <path
-                        fillRule="evenodd"
-                        clipRule="evenodd"
-                        d="M153.968 111H105.968V83C105.968 80.791 107.759 79 109.968 79H149.968C152.177 79 153.968 80.791 153.968 83V111Z"
-                        fill="black"
-                        fillOpacity="0.13"
-                      />
+                        <path
+                          fillRule="evenodd"
+                          clipRule="evenodd"
+                          d="M157.968 78.9999V107C157.968 109.209 156.177 111 153.968 111H105.968C103.759 111 102 109.209 102 107V78.9999H99.2281C97.3891 78.9999 96.5251 76.7269 97.9001 75.5049L128.639 46.9999C129.397 46.3259 130.539 46.3259 131.297 46.9999L162.036 75.5049C163.411 76.7269 162.547 78.9999 160.708 78.9999H157.968Z"
+                          fill={garageOpen ? "#23AB3F" : "#D92C29"}
+                        />
 
-                      <path fillRule="evenodd" clipRule="evenodd" d="M111 97H148.968V93H111V97Z" fill="white" />
-                      <path fillRule="evenodd" clipRule="evenodd" d="M111 89H148.968V85H111V89Z" fill="white" />
-                      <path fillRule="evenodd" clipRule="evenodd" d="M111 105H148.968V101H111V105Z" fill="white" />
+                        <path
+                          fillRule="evenodd"
+                          clipRule="evenodd"
+                          d="M153.968 111H105.968V83C105.968 80.791 107.759 79 109.968 79H149.968C152.177 79 153.968 80.791 153.968 83V111Z"
+                          fill="black"
+                          fillOpacity="0.13"
+                        />
 
-                      <text
-                        x="187"
-                        y="76"
-                        fill="#333333"
-                        fontSize="20"
-                        fontWeight="500"
-                        fontFamily="-apple-system, BlinkMacSystemFont, 'SF Pro Text', Arial, sans-serif"
-                      >
-                        Garage
-                      </text>
+                        <path fillRule="evenodd" clipRule="evenodd" d="M111 97H148.968V93H111V97Z" fill="white" />
+                        <path fillRule="evenodd" clipRule="evenodd" d="M111 89H148.968V85H111V89Z" fill="white" />
+                        <path fillRule="evenodd" clipRule="evenodd" d="M111 105H148.968V101H111V105Z" fill="white" />
 
-                      <text
-                        x="187"
-                        y="101"
-                        fill={garageOpen ? "#23AB3F" : "#D92C29"}
-                        fontSize="15"
-                        fontWeight="900"
-                        letterSpacing="0.04em"
-                        fontFamily="-apple-system, BlinkMacSystemFont, 'SF Pro Text', Arial, sans-serif"
-                      >
-                        {garageOpen ? "OPEN" : "CLOSED"}
-                      </text>
-                    </svg>
-                  </button>
-                </section>
+                        <text
+                          x="187"
+                          y="76"
+                          fill="#333333"
+                          fontSize="20"
+                          fontWeight="500"
+                          fontFamily="-apple-system, BlinkMacSystemFont, 'SF Pro Text', Arial, sans-serif"
+                        >
+                          Garage
+                        </text>
+
+                        <text
+                          x="187"
+                          y="101"
+                          fill={garageOpen ? "#23AB3F" : "#D92C29"}
+                          fontSize="15"
+                          fontWeight="900"
+                          letterSpacing="0.04em"
+                          fontFamily="-apple-system, BlinkMacSystemFont, 'SF Pro Text', Arial, sans-serif"
+                        >
+                          {garageOpen ? "OPEN" : "CLOSED"}
+                        </text>
+                      </svg>
+                    </button>
+                  </section>
+                )}
 
                 {/* VIDEO */}
                 <section className="phone-section phone-section--video-card">
@@ -1569,6 +1628,21 @@ export default function PhonePanel({
 
       <button
         type="button"
+        className={`experience-toggle experience-toggle--${demoExperience}`}
+        onClick={onDemoExperienceToggle}
+        aria-label={`Switch to ${demoExperience === "home" ? "business" : "residential"} demo`}
+        aria-pressed={demoExperience === "business"}
+      >
+        <span className="experience-toggle__icon" aria-hidden="true">
+          {demoExperience === "home" ? <HomeExperienceIcon /> : <BusinessExperienceIcon />}
+        </span>
+        <span className="experience-toggle__label">
+          {demoExperience === "home" ? "Residential" : "Business"}
+        </span>
+      </button>
+
+      <button
+        type="button"
         className={`scenario-toggle ${scenarioMenuOpen ? "is-open" : ""}`}
         onClick={() => setScenarioMenuOpen((isOpen) => !isOpen)}
         aria-label="Open scenario menu"
@@ -1646,7 +1720,7 @@ export default function PhonePanel({
             )}
           </svg>
         </span>
-        <span className="feed-toggle__label">Action Feed</span>
+        <span className="feed-toggle__label">{feedEnabled ? "Feed On" : "Feed Off"}</span>
       </button>
 
       <button

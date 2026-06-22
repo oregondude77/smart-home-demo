@@ -786,6 +786,14 @@ export default function HouseScene({
             className="house-base"
           />
 
+          {isBusinessDemo && !nightMode && (
+            <img
+              src="/smb-open.svg"
+              alt=""
+              className="smb-sign-state smb-sign-state--open"
+            />
+          )}
+
           <div className="security-panel-group">
             <img src="/panel-base.svg" alt="" className="security-panel-base" />
 
