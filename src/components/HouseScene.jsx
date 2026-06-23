@@ -16,6 +16,7 @@ const SCENE_STATUS_STEP_MS = 1550;
 const SCENE_STATUS_HOLD_MS = 2400;
 const SCENE_STATUS_TYPE_MIN_MS = 18;
 const SCENE_STATUS_TYPE_MAX_MS = 34;
+const CAFE_LIGHTS_DIM_MS = 1500;
 
 function LockIcon() {
   return (
@@ -211,6 +212,8 @@ export default function HouseScene({
   floodlightOn = false,
   exteriorSideLightOn = false,
   porchLightOn = false,
+  storefrontLightsOn = false,
+  cafeLightsOn = false,
 
   frontDoorUnlocked = false,
   sideDoorUnlocked = false,
@@ -235,6 +238,8 @@ export default function HouseScene({
   const [sceneStatusIndex, setSceneStatusIndex] = useState(0);
   const [sceneStatusTextLength, setSceneStatusTextLength] = useState(0);
   const [sceneStatusVisible, setSceneStatusVisible] = useState(false);
+  const [cafeLightsVisible, setCafeLightsVisible] = useState(cafeLightsOn);
+  const [cafeLightsDimming, setCafeLightsDimming] = useState(false);
   const [garageScenarioCar, setGarageScenarioCar] = useState({
     active: false,
     key: 0,
@@ -735,6 +740,33 @@ export default function HouseScene({
   const packageDeliveryPhase =
     activeScenario === "package-delivered" ? scenarioAction?.phase ?? "approach" : null;
   const isBusinessDemo = demoExperience === "business";
+
+  useEffect(() => {
+    if (!isBusinessDemo) {
+      setCafeLightsVisible(false);
+      setCafeLightsDimming(false);
+      return undefined;
+    }
+
+    if (cafeLightsOn) {
+      setCafeLightsVisible(true);
+      setCafeLightsDimming(false);
+      return undefined;
+    }
+
+    if (!cafeLightsVisible) {
+      return undefined;
+    }
+
+    setCafeLightsDimming(true);
+    const timer = window.setTimeout(() => {
+      setCafeLightsVisible(false);
+      setCafeLightsDimming(false);
+    }, CAFE_LIGHTS_DIM_MS);
+
+    return () => window.clearTimeout(timer);
+  }, [cafeLightsOn, cafeLightsVisible, isBusinessDemo]);
+
   const packageDeliveryRunnerSrc =
     packageDeliveryPhase === "dropoff"
       ? "/delivery-box-down.svg"
@@ -787,11 +819,18 @@ export default function HouseScene({
           />
 
           {isBusinessDemo && !nightMode && (
-            <img
-              src="/smb-open.svg"
-              alt=""
-              className="smb-sign-state smb-sign-state--open"
-            />
+            <>
+              <img
+                src="/smb-open-sign-base.svg"
+                alt=""
+                className="smb-sign-base"
+              />
+              <img
+                src="/smb-open.svg"
+                alt=""
+                className="smb-sign-state smb-sign-state--open"
+              />
+            </>
           )}
 
           <div className="security-panel-group">
@@ -889,6 +928,26 @@ export default function HouseScene({
 
           {porchLightOn && (
             <img src="/porch-light-outside.svg" alt="" className="light-layer light-layer--porch-light" />
+          )}
+
+          {isBusinessDemo && storefrontLightsOn && (
+            <img
+              src="/smb-outdoor-lights.svg"
+              alt=""
+              className="business-lights-layer business-lights-layer--storefront"
+            />
+          )}
+
+          {isBusinessDemo && cafeLightsVisible && (
+            <img
+              src="/cafe-lights.svg"
+              alt=""
+              className={[
+                "business-lights-layer",
+                "business-lights-layer--cafe",
+                cafeLightsDimming ? "is-dimming" : "",
+              ].filter(Boolean).join(" ")}
+            />
           )}
 
           {activeScenario === "kids-arrived-home" && (

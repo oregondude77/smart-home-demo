@@ -194,6 +194,10 @@ export default function PhonePanel({
   setExteriorSideLightOn,
   porchLightOn,
   setPorchLightOn,
+  storefrontLightsOn,
+  setStorefrontLightsOn,
+  cafeLightsOn,
+  setCafeLightsOn,
   frontDoorUnlocked,
   setFrontDoorUnlocked,
   sideDoorUnlocked,
@@ -498,35 +502,71 @@ export default function PhonePanel({
   };
 
   const handleScene = (sceneId) => {
-    const sceneStatus = SCENE_STATUS_COPY[sceneId];
+    const isBusinessHomeScene = demoExperience === "business" && sceneId === "home";
+    const isBusinessAwayScene = demoExperience === "business" && sceneId === "away";
+    const sceneStatus = isBusinessHomeScene
+      ? {
+          title: "Home scene",
+          actions: [
+            "Disarming security system",
+            "Setting thermostat to 68°",
+            "Turning off storefront lights",
+            "Turning on cafe lights",
+          ],
+        }
+      : isBusinessAwayScene
+      ? {
+          title: "Away scene",
+          actions: [
+            "Arming security system",
+            "Setting thermostat to 72°",
+            "Turning off cafe lights",
+            "Turning on storefront lights",
+          ],
+        }
+      : SCENE_STATUS_COPY[sceneId];
     const sceneStepsById = {
-      home: [
-        { label: "Disarming security system", run: () => setArmed(false) },
-        { label: "Unlocking front door", run: () => setSceneDoorState("front", true) },
-        { label: "Turning on porch light", run: () => setPorchLightOn(true) },
-        { label: "Turning on living room lights", run: () => setLivingRoomOn(true) },
-        { label: "Setting thermostat to 68°", run: () => setThermostatTemp(68) },
-      ],
-      away: [
-        { label: "Arming security system", run: () => setArmed(true) },
-        { label: "Locking doors", run: () => setSceneDoorState("both", false) },
-        {
-          label: "Turning on porch, side, and garage lights",
-          run: () => {
-            setPorchLightOn(true);
-            setExteriorSideLightOn(true);
-            setGarageLightsOn(true);
-          },
-        },
-        {
-          label: "Turning off interior lights",
-          run: () => {
-            setLivingRoomOn(false);
-            setDiningRoomOn(false);
-          },
-        },
-        { label: "Setting thermostat to 72°", run: () => setThermostatTemp(72) },
-      ],
+      home: isBusinessHomeScene
+        ? [
+            { label: "Disarming security system", run: () => setArmed(false) },
+            { label: "Setting thermostat to 68°", run: () => setThermostatTemp(68) },
+            { label: "Turning off storefront lights", run: () => setStorefrontLightsOn(false) },
+            { label: "Turning on cafe lights", run: () => setCafeLightsOn(true) },
+          ]
+        : [
+            { label: "Disarming security system", run: () => setArmed(false) },
+            { label: "Unlocking front door", run: () => setSceneDoorState("front", true) },
+            { label: "Turning on porch light", run: () => setPorchLightOn(true) },
+            { label: "Turning on living room lights", run: () => setLivingRoomOn(true) },
+            { label: "Setting thermostat to 68°", run: () => setThermostatTemp(68) },
+          ],
+      away: isBusinessAwayScene
+        ? [
+            { label: "Arming security system", run: () => setArmed(true) },
+            { label: "Setting thermostat to 72°", run: () => setThermostatTemp(72) },
+            { label: "Turning off cafe lights", run: () => setCafeLightsOn(false) },
+            { label: "Turning on storefront lights", run: () => setStorefrontLightsOn(true) },
+          ]
+        : [
+            { label: "Arming security system", run: () => setArmed(true) },
+            { label: "Locking doors", run: () => setSceneDoorState("both", false) },
+            {
+              label: "Turning on porch, side, and garage lights",
+              run: () => {
+                setPorchLightOn(true);
+                setExteriorSideLightOn(true);
+                setGarageLightsOn(true);
+              },
+            },
+            {
+              label: "Turning off interior lights",
+              run: () => {
+                setLivingRoomOn(false);
+                setDiningRoomOn(false);
+              },
+            },
+            { label: "Setting thermostat to 72°", run: () => setThermostatTemp(72) },
+          ],
       sleep: [
         { label: "Arming security system", run: () => setArmed(true) },
         {
@@ -1466,16 +1506,21 @@ export default function PhonePanel({
                   <h3 className="phone-section__title">Lights</h3>
 
                   <div className="light-list">
-                    {[
-                      ["Master Bedroom", upstairsBedroomOn, setUpstairsBedroomOn],
-                      ["Bedroom", bedroomOn, setBedroomOn],
-                      ["Living Room", livingRoomOn, setLivingRoomOn],
-                      ["Dining Room", diningRoomOn, setDiningRoomOn],
-                      ["Garage Lights", garageLightsOn, setGarageLightsOn],
-                      ["Floodlight", floodlightOn, setFloodlightOn],
-                      ["Side Light", exteriorSideLightOn, setExteriorSideLightOn],
-                      ["Porch Light", porchLightOn, setPorchLightOn],
-                    ].map(([label, isOn, setter]) => (
+                    {(demoExperience === "business"
+                      ? [
+                          ["Storefront Lights", storefrontLightsOn, setStorefrontLightsOn],
+                          ["Cafe Lights", cafeLightsOn, setCafeLightsOn],
+                        ]
+                      : [
+                          ["Master Bedroom", upstairsBedroomOn, setUpstairsBedroomOn],
+                          ["Bedroom", bedroomOn, setBedroomOn],
+                          ["Living Room", livingRoomOn, setLivingRoomOn],
+                          ["Dining Room", diningRoomOn, setDiningRoomOn],
+                          ["Garage Lights", garageLightsOn, setGarageLightsOn],
+                          ["Floodlight", floodlightOn, setFloodlightOn],
+                          ["Side Light", exteriorSideLightOn, setExteriorSideLightOn],
+                          ["Porch Light", porchLightOn, setPorchLightOn],
+                        ]).map(([label, isOn, setter]) => (
                       <button
                         key={label}
                         type="button"

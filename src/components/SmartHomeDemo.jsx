@@ -75,6 +75,8 @@ export default function SmartHomeDemo() {
   const [floodlightOn, setFloodlightOn] = useState(false);
   const [exteriorSideLightOn, setExteriorSideLightOn] = useState(false);
   const [porchLightOn, setPorchLightOn] = useState(false);
+  const [storefrontLightsOn, setStorefrontLightsOn] = useState(false);
+  const [cafeLightsOn, setCafeLightsOn] = useState(false);
 
   const [frontDoorUnlocked, setFrontDoorUnlocked] = useState(true);
   const [sideDoorUnlocked, setSideDoorUnlocked] = useState(true);
@@ -164,6 +166,8 @@ export default function SmartHomeDemo() {
     setFloodlightOn(false);
     setExteriorSideLightOn(false);
     setPorchLightOn(false);
+    setStorefrontLightsOn(false);
+    setCafeLightsOn(false);
     setFrontDoorUnlocked(true);
     setSideDoorUnlocked(true);
     setThermostatTemp(70);
@@ -717,6 +721,10 @@ export default function SmartHomeDemo() {
           setExteriorSideLightOn={setExteriorSideLightOn}
           porchLightOn={porchLightOn}
           setPorchLightOn={setPorchLightOn}
+          storefrontLightsOn={storefrontLightsOn}
+          setStorefrontLightsOn={setStorefrontLightsOn}
+          cafeLightsOn={cafeLightsOn}
+          setCafeLightsOn={setCafeLightsOn}
           frontDoorUnlocked={frontDoorUnlocked}
           setFrontDoorUnlocked={setFrontDoorUnlocked}
           sideDoorUnlocked={sideDoorUnlocked}
@@ -758,6 +766,8 @@ export default function SmartHomeDemo() {
           floodlightOn={floodlightOn}
           exteriorSideLightOn={exteriorSideLightOn}
           porchLightOn={porchLightOn}
+          storefrontLightsOn={storefrontLightsOn}
+          cafeLightsOn={cafeLightsOn}
           frontDoorUnlocked={frontDoorUnlocked}
           sideDoorUnlocked={sideDoorUnlocked}
           thermostatTemp={thermostatTemp}
