@@ -11,12 +11,21 @@ const DEADBOLT_FRAME_MS = 55;
 const GARAGE_CAR_EXIT_MS = 1200;
 const DOOR_PULSE_MS = 700;
 const DOOR_CALLOUT_MS = 3400;
+const ACCESS_CONTROL_GREEN_DELAY_MS = 650;
+const ACCESS_CONTROL_FLASH_MS = 500;
+const ACCESS_CONTROL_GRANTED_MS = 6500;
+const ACCESS_CONTROL_CALLOUT_MS = 6200;
 const SYSTEM_MESSAGE_MS = 2000;
 const SCENE_STATUS_STEP_MS = 1550;
 const SCENE_STATUS_HOLD_MS = 2400;
 const SCENE_STATUS_TYPE_MIN_MS = 18;
 const SCENE_STATUS_TYPE_MAX_MS = 34;
 const CAFE_LIGHTS_DIM_MS = 1500;
+const ACCESS_CONTROL_READERS = ["main", "side"];
+const INITIAL_ACCESS_CONTROL_SCENE_STATES = {
+  main: "red",
+  side: "red",
+};
 
 function LockIcon() {
   return (
@@ -137,6 +146,46 @@ function SmartLockCallout({ door, unlocked, active, actionKey, noAnimation = fal
   );
 }
 
+function AccessControlCallout({
+  active,
+  actionKey,
+  reader = "main",
+  readerState = "red",
+}) {
+  const readerSrc =
+    readerState === "green"
+      ? "/smb-access-control-reader-green.svg"
+      : readerState === "off"
+        ? "/smb-access-control-reader-off.svg"
+        : "/smb-access-control-reader-red.svg";
+
+  return (
+    <div
+      className={[
+        "scene-action-callout",
+        "access-control-callout",
+        `access-control-callout--${reader}`,
+        active ? "is-active" : "",
+        `is-${readerState}`,
+      ].filter(Boolean).join(" ")}
+      aria-hidden="true"
+    >
+      <div
+        key={actionKey}
+        className="scene-action-callout__inner access-control-callout__inner"
+      >
+        <div className="access-control-callout__device">
+          <img
+            src={readerSrc}
+            alt=""
+            className="access-control-callout__reader"
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function ThermostatSceneDevice({
   roomTemperature,
   setTemperature,
@@ -224,6 +273,7 @@ export default function HouseScene({
 
   activeCamera = null,
   doorAction = null,
+  accessControlAction = null,
   systemAction = null,
   scenarioAction = null,
   activeScenario = null,
@@ -235,6 +285,15 @@ export default function HouseScene({
   const [sidePulse, setSidePulse] = useState(false);
   const [frontCallout, setFrontCallout] = useState({ active: false, key: 0 });
   const [sideCallout, setSideCallout] = useState({ active: false, key: 0 });
+  const [accessControlCallout, setAccessControlCallout] = useState({
+    active: false,
+    key: "access-control-initial",
+    reader: "main",
+    readerState: "red",
+  });
+  const [accessControlSceneStates, setAccessControlSceneStates] = useState(
+    INITIAL_ACCESS_CONTROL_SCENE_STATES
+  );
   const [systemMessage, setSystemMessage] = useState("");
   const [systemMessageKey, setSystemMessageKey] = useState(0);
   const [sceneStatusIndex, setSceneStatusIndex] = useState(0);
@@ -267,6 +326,12 @@ export default function HouseScene({
   const frontCalloutRaf2Ref = useRef(null);
   const sideCalloutRaf1Ref = useRef(null);
   const sideCalloutRaf2Ref = useRef(null);
+  const accessControlCalloutTimeoutRef = useRef(null);
+  const accessControlReaderGrantTimeoutRef = useRef(null);
+  const accessControlReaderResetTimeoutRef = useRef(null);
+  const accessControlReaderFlashIntervalRef = useRef(null);
+  const accessControlCalloutRaf1Ref = useRef(null);
+  const accessControlCalloutRaf2Ref = useRef(null);
   const systemTimeoutRef = useRef(null);
   const sceneStatusIntervalRef = useRef(null);
   const sceneStatusTimeoutRef = useRef(null);
@@ -287,6 +352,9 @@ export default function HouseScene({
       sideTimeoutRef,
       frontCalloutTimeoutRef,
       sideCalloutTimeoutRef,
+      accessControlCalloutTimeoutRef,
+      accessControlReaderGrantTimeoutRef,
+      accessControlReaderResetTimeoutRef,
       systemTimeoutRef,
       sceneStatusTimeoutRef,
       garageScenarioCarExitTimeoutRef,
@@ -302,6 +370,8 @@ export default function HouseScene({
       frontCalloutRaf2Ref,
       sideCalloutRaf1Ref,
       sideCalloutRaf2Ref,
+      accessControlCalloutRaf1Ref,
+      accessControlCalloutRaf2Ref,
       frontRaf1Ref,
       frontRaf2Ref,
       sideRaf1Ref,
@@ -328,6 +398,11 @@ export default function HouseScene({
       garageScenarioCarFrameIntervalRef.current = null;
     }
 
+    if (accessControlReaderFlashIntervalRef.current) {
+      clearInterval(accessControlReaderFlashIntervalRef.current);
+      accessControlReaderFlashIntervalRef.current = null;
+    }
+
     previousFrontDoorUnlockedRef.current = frontDoorUnlocked;
     previousSideDoorUnlockedRef.current = sideDoorUnlocked;
     suppressSystemFeedbackRef.current = true;
@@ -336,6 +411,13 @@ export default function HouseScene({
     setSidePulse(false);
     setFrontCallout({ active: false, key: 0 });
     setSideCallout({ active: false, key: 0 });
+    setAccessControlCallout({
+      active: false,
+      key: "access-control-initial",
+      reader: "main",
+      readerState: "red",
+    });
+    setAccessControlSceneStates(INITIAL_ACCESS_CONTROL_SCENE_STATES);
     setSystemMessage("");
     setSceneStatusVisible(false);
     setSceneStatusIndex(0);
@@ -616,6 +698,114 @@ export default function HouseScene({
   }, [doorAction, triggerDoorFeedback]);
 
   useEffect(() => {
+    if (!accessControlAction) return;
+
+    if (accessControlCalloutTimeoutRef.current) {
+      clearTimeout(accessControlCalloutTimeoutRef.current);
+      accessControlCalloutTimeoutRef.current = null;
+    }
+
+    if (accessControlReaderGrantTimeoutRef.current) {
+      clearTimeout(accessControlReaderGrantTimeoutRef.current);
+      accessControlReaderGrantTimeoutRef.current = null;
+    }
+
+    if (accessControlReaderResetTimeoutRef.current) {
+      clearTimeout(accessControlReaderResetTimeoutRef.current);
+      accessControlReaderResetTimeoutRef.current = null;
+    }
+
+    if (accessControlReaderFlashIntervalRef.current) {
+      clearInterval(accessControlReaderFlashIntervalRef.current);
+      accessControlReaderFlashIntervalRef.current = null;
+    }
+
+    if (accessControlCalloutRaf1Ref.current) {
+      cancelAnimationFrame(accessControlCalloutRaf1Ref.current);
+      accessControlCalloutRaf1Ref.current = null;
+    }
+
+    if (accessControlCalloutRaf2Ref.current) {
+      cancelAnimationFrame(accessControlCalloutRaf2Ref.current);
+      accessControlCalloutRaf2Ref.current = null;
+    }
+
+    setAccessControlCallout((prev) => ({
+      ...prev,
+      active: false,
+      reader: accessControlAction.reader ?? "main",
+      readerState: "red",
+    }));
+
+    accessControlCalloutRaf1Ref.current = requestAnimationFrame(() => {
+      accessControlCalloutRaf2Ref.current = requestAnimationFrame(() => {
+        const isEntry = accessControlAction.status === "entry";
+        const reader = ACCESS_CONTROL_READERS.includes(accessControlAction.reader)
+          ? accessControlAction.reader
+          : "main";
+
+        setAccessControlSceneStates(INITIAL_ACCESS_CONTROL_SCENE_STATES);
+
+        setAccessControlCallout({
+          active: true,
+          key: accessControlAction.key,
+          reader,
+          readerState: "red",
+        });
+
+        if (isEntry) {
+          accessControlReaderGrantTimeoutRef.current = setTimeout(() => {
+            setAccessControlSceneStates((prev) => ({
+              ...prev,
+              [reader]: "green",
+            }));
+            setAccessControlCallout((prev) => ({
+              ...prev,
+              readerState: "green",
+            }));
+            accessControlReaderFlashIntervalRef.current = setInterval(() => {
+              setAccessControlCallout((prev) => ({
+                ...prev,
+                readerState: prev.readerState === "green" ? "off" : "green",
+              }));
+              setAccessControlSceneStates((prev) => ({
+                ...prev,
+                [reader]: prev[reader] === "green" ? "off" : "green",
+              }));
+            }, ACCESS_CONTROL_FLASH_MS);
+            accessControlReaderGrantTimeoutRef.current = null;
+          }, ACCESS_CONTROL_GREEN_DELAY_MS);
+
+          accessControlReaderResetTimeoutRef.current = setTimeout(() => {
+            setAccessControlSceneStates(INITIAL_ACCESS_CONTROL_SCENE_STATES);
+            accessControlReaderResetTimeoutRef.current = null;
+          }, ACCESS_CONTROL_GRANTED_MS);
+        }
+
+        accessControlCalloutTimeoutRef.current = setTimeout(() => {
+          if (accessControlReaderFlashIntervalRef.current) {
+            clearInterval(accessControlReaderFlashIntervalRef.current);
+            accessControlReaderFlashIntervalRef.current = null;
+          }
+
+          if (isEntry) {
+            setAccessControlSceneStates((prev) => ({
+              ...prev,
+              [reader]: "green",
+            }));
+          }
+
+          setAccessControlCallout((prev) => ({
+            ...prev,
+            active: false,
+          }));
+          accessControlCalloutTimeoutRef.current = null;
+        }, isEntry ? ACCESS_CONTROL_CALLOUT_MS : DOOR_CALLOUT_MS);
+      });
+    });
+  }, [accessControlAction]);
+
+  useEffect(() => {
     if (!sceneStatus?.actions?.length) return;
 
     if (sceneStatusIntervalRef.current) {
@@ -714,6 +904,9 @@ export default function HouseScene({
         sideTimeoutRef,
         frontCalloutTimeoutRef,
         sideCalloutTimeoutRef,
+        accessControlCalloutTimeoutRef,
+        accessControlReaderGrantTimeoutRef,
+        accessControlReaderResetTimeoutRef,
         systemTimeoutRef,
         sceneStatusTimeoutRef,
       ].forEach((timeoutRef) => {
@@ -728,6 +921,10 @@ export default function HouseScene({
         clearInterval(sceneStatusTypingIntervalRef.current);
       }
 
+      if (accessControlReaderFlashIntervalRef.current) {
+        clearInterval(accessControlReaderFlashIntervalRef.current);
+      }
+
       [
         frontRaf1Ref,
         frontRaf2Ref,
@@ -737,6 +934,8 @@ export default function HouseScene({
         frontCalloutRaf2Ref,
         sideCalloutRaf1Ref,
         sideCalloutRaf2Ref,
+        accessControlCalloutRaf1Ref,
+        accessControlCalloutRaf2Ref,
       ].forEach((rafRef) => {
         if (rafRef.current) cancelAnimationFrame(rafRef.current);
       });
@@ -875,6 +1074,23 @@ export default function HouseScene({
             alt={isBusinessDemo ? "Small business security scene" : "House"}
             className="house-base"
           />
+
+          {isBusinessDemo && ACCESS_CONTROL_READERS.map((reader) => {
+            const state = accessControlSceneStates[reader] ?? "red";
+
+            return (
+              <img
+                key={reader}
+                src={`/smb-base-access-${reader}-${state}.svg`}
+                alt=""
+                className={[
+                  "business-access-layer",
+                  `business-access-layer--${reader}`,
+                  `business-access-layer--${state}`,
+                ].join(" ")}
+              />
+            );
+          })}
 
           <div className="security-panel-group">
             <img src="/panel-base.svg" alt="" className="security-panel-base" />
@@ -1128,6 +1344,15 @@ export default function HouseScene({
             noAnimation={sideCallout.noAnimation}
             unlockedOverride={sideCallout.unlockedOverride}
           />
+
+          {isBusinessDemo && (
+            <AccessControlCallout
+              active={accessControlCallout.active}
+              actionKey={accessControlCallout.key}
+              reader={accessControlCallout.reader}
+              readerState={accessControlCallout.readerState}
+            />
+          )}
 
           <ThermostatSceneDevice
             roomTemperature={thermostatRoomTemp}

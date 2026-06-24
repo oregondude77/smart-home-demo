@@ -85,6 +85,7 @@ export default function SmartHomeDemo() {
   const [thermostatTemp, setThermostatTemp] = useState(70);
   const [sceneStatus, setSceneStatus] = useState(null);
   const [doorAction, setDoorAction] = useState(null);
+  const [accessControlAction, setAccessControlAction] = useState(null);
   const [systemAction, setSystemAction] = useState(null);
   const [scenarioAction, setScenarioAction] = useState(null);
   const [activeScenario, setActiveScenario] = useState(null);
@@ -180,6 +181,7 @@ export default function SmartHomeDemo() {
     setPhoneTourFocus(null);
     setSceneStatus(null);
     setDoorAction(null);
+    setAccessControlAction(null);
     setSystemAction(null);
     setScenarioAction(null);
     setActiveScenario(null);
@@ -750,6 +752,7 @@ export default function SmartHomeDemo() {
           setLiveCamera={setLiveCamera}
           setSceneStatus={setSceneStatus}
           setDoorAction={setDoorAction}
+          setAccessControlAction={setAccessControlAction}
           tourFocus={phoneTourFocus}
           onRunScenario={runScenario}
           phoneNotification={phoneNotification}
@@ -787,6 +790,7 @@ export default function SmartHomeDemo() {
           /* IMPORTANT */
           activeCamera={liveCamera}
           doorAction={doorAction}
+          accessControlAction={accessControlAction}
           systemAction={systemAction}
           scenarioAction={scenarioAction}
           activeScenario={activeScenario}

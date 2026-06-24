@@ -65,6 +65,10 @@ const SCENARIO_MENU_ITEMS = [
   { id: "kids-arrived-home", label: "Kids Arriving Home", accent: "#22A1C1" },
   { id: "package-delivered", label: "Package Delivered", accent: "#FFBB34" },
 ];
+const ACCESS_CONTROL_READERS = [
+  { id: "main", label: "Main Entrance" },
+  { id: "side", label: "Side Entrance" },
+];
 const MOCK_HOME_APPS = [
   { label: "FaceTime", glyph: "▰", color: "linear-gradient(180deg, #65f879, #12bc45)" },
   { label: "Calendar", glyph: "1", color: "linear-gradient(180deg, #ffffff, #f3f4f6)" },
@@ -221,6 +225,7 @@ export default function PhonePanel({
   onDemoExperienceToggle,
   setSceneStatus,
   setDoorAction,
+  setAccessControlAction,
   tourFocus,
   onRunScenario,
   phoneNotification,
@@ -243,6 +248,7 @@ export default function PhonePanel({
   const sceneActionTimeoutsRef = useRef([]);
   const feedKeyRef = useRef(0);
   const doorActionKeyRef = useRef(0);
+  const accessControlActionKeyRef = useRef(0);
 
   const clearSceneActionTimeouts = () => {
     sceneActionTimeoutsRef.current.forEach((timeoutId) => clearTimeout(timeoutId));
@@ -505,6 +511,26 @@ export default function PhonePanel({
     }
   };
 
+  const triggerAccessControl = (status, reader = "main") => {
+    const granted = status === "entry";
+    const readerLabel =
+      ACCESS_CONTROL_READERS.find((item) => item.id === reader)?.label ?? "Main Entrance";
+    accessControlActionKeyRef.current += 1;
+
+    pushActionFeed(
+      "Access control",
+      `${readerLabel}: ${granted ? "Entry granted" : "Entry not authorized"}`
+    );
+
+    if (setAccessControlAction) {
+      setAccessControlAction({
+        status,
+        reader,
+        key: `access-control-${Date.now()}-${accessControlActionKeyRef.current}`,
+      });
+    }
+  };
+
   const handleScene = (sceneId) => {
     const isBusinessHomeScene = demoExperience === "business" && sceneId === "home";
     const isBusinessAwayScene = demoExperience === "business" && sceneId === "away";
@@ -654,12 +680,20 @@ export default function PhonePanel({
     );
   };
 
-  const DoorLockCard = ({ label, unlocked, onToggle }) => (
+  const DoorLockCard = ({
+    label,
+    unlocked,
+    onToggle,
+    title = "LOCKS",
+    status = unlocked ? "UNLOCKED" : "LOCKED",
+    statusColor = unlocked ? "#23AB3F" : "#D92C29",
+    ariaLabel,
+  }) => (
     <button
       type="button"
       className="door-lock-card-button"
       onClick={onToggle}
-      aria-label={`${unlocked ? "Lock" : "Unlock"} ${label}`}
+      aria-label={ariaLabel ?? `${unlocked ? "Lock" : "Unlock"} ${label}`}
     >
       <svg
         className="door-lock-card-svg"
@@ -680,7 +714,7 @@ export default function PhonePanel({
           letterSpacing="0.08em"
           fontFamily="-apple-system, BlinkMacSystemFont, 'SF Pro Text', Arial, sans-serif"
         >
-          LOCKS
+          {title}
         </text>
 
         <text
@@ -749,13 +783,13 @@ export default function PhonePanel({
         <text
           x="187"
           y="101"
-          fill={unlocked ? "#23AB3F" : "#D92C29"}
+          fill={statusColor}
           fontSize="15"
           fontWeight="900"
           letterSpacing="0.04em"
           fontFamily="-apple-system, BlinkMacSystemFont, 'SF Pro Text', Arial, sans-serif"
         >
-          {unlocked ? "UNLOCKED" : "LOCKED"}
+          {status}
         </text>
       </svg>
     </button>
@@ -1267,10 +1301,24 @@ export default function PhonePanel({
                     }}
                   >
                     <DoorLockCard
-                      label="Front Door"
-                      unlocked={frontDoorUnlocked}
+                      label={demoExperience === "business" ? "Main Entrance" : "Front Door"}
+                      unlocked={demoExperience === "business" ? true : frontDoorUnlocked}
+                      title={demoExperience === "business" ? "ACCESS CONTROL" : "LOCKS"}
+                      status={demoExperience === "business" ? "ONLINE" : undefined}
+                      statusColor={demoExperience === "business" ? "#23AB3F" : undefined}
+                      ariaLabel={
+                        demoExperience === "business"
+                          ? "Grant access at Main Entrance"
+                          : undefined
+                      }
                       onToggle={() => {
                         restoreDoorSlide(0);
+
+                        if (demoExperience === "business") {
+                          triggerAccessControl("entry", "main");
+                          return;
+                        }
+
                         const nextUnlocked = !frontDoorUnlocked;
 
                         pushActionFeed(
@@ -1282,10 +1330,24 @@ export default function PhonePanel({
                     />
 
                     <DoorLockCard
-                      label="Side Door"
-                      unlocked={sideDoorUnlocked}
+                      label={demoExperience === "business" ? "Side Entrance" : "Side Door"}
+                      unlocked={demoExperience === "business" ? true : sideDoorUnlocked}
+                      title={demoExperience === "business" ? "ACCESS CONTROL" : "LOCKS"}
+                      status={demoExperience === "business" ? "ONLINE" : undefined}
+                      statusColor={demoExperience === "business" ? "#23AB3F" : undefined}
+                      ariaLabel={
+                        demoExperience === "business"
+                          ? "Grant access at Side Entrance"
+                          : undefined
+                      }
                       onToggle={() => {
                         restoreDoorSlide(1);
+
+                        if (demoExperience === "business") {
+                          triggerAccessControl("entry", "side");
+                          return;
+                        }
+
                         const nextUnlocked = !sideDoorUnlocked;
 
                         pushActionFeed(
