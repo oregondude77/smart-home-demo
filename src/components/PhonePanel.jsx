@@ -198,6 +198,10 @@ export default function PhonePanel({
   setStorefrontLightsOn,
   cafeLightsOn,
   setCafeLightsOn,
+  shopLightsOn,
+  setShopLightsOn,
+  entranceLightsOn,
+  setEntranceLightsOn,
   frontDoorUnlocked,
   setFrontDoorUnlocked,
   sideDoorUnlocked,
@@ -512,6 +516,8 @@ export default function PhonePanel({
             "Setting thermostat to 68°",
             "Turning off storefront lights",
             "Turning on cafe lights",
+            "Turning on shop lights",
+            "Turning on entrance lights",
           ],
         }
       : isBusinessAwayScene
@@ -521,6 +527,8 @@ export default function PhonePanel({
             "Arming security system",
             "Setting thermostat to 72°",
             "Turning off cafe lights",
+            "Turning off shop lights",
+            "Turning off entrance lights",
             "Turning on storefront lights",
           ],
         }
@@ -532,6 +540,8 @@ export default function PhonePanel({
             { label: "Setting thermostat to 68°", run: () => setThermostatTemp(68) },
             { label: "Turning off storefront lights", run: () => setStorefrontLightsOn(false) },
             { label: "Turning on cafe lights", run: () => setCafeLightsOn(true) },
+            { label: "Turning on shop lights", run: () => setShopLightsOn(true) },
+            { label: "Turning on entrance lights", run: () => setEntranceLightsOn(true) },
           ]
         : [
             { label: "Disarming security system", run: () => setArmed(false) },
@@ -545,6 +555,8 @@ export default function PhonePanel({
             { label: "Arming security system", run: () => setArmed(true) },
             { label: "Setting thermostat to 72°", run: () => setThermostatTemp(72) },
             { label: "Turning off cafe lights", run: () => setCafeLightsOn(false) },
+            { label: "Turning off shop lights", run: () => setShopLightsOn(false) },
+            { label: "Turning off entrance lights", run: () => setEntranceLightsOn(false) },
             { label: "Turning on storefront lights", run: () => setStorefrontLightsOn(true) },
           ]
         : [
@@ -1510,6 +1522,8 @@ export default function PhonePanel({
                       ? [
                           ["Storefront Lights", storefrontLightsOn, setStorefrontLightsOn],
                           ["Cafe Lights", cafeLightsOn, setCafeLightsOn],
+                          ["Shop Lights", shopLightsOn, setShopLightsOn],
+                          ["Entrance Lights", entranceLightsOn, setEntranceLightsOn],
                         ]
                       : [
                           ["Master Bedroom", upstairsBedroomOn, setUpstairsBedroomOn],

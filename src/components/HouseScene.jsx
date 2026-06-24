@@ -214,6 +214,8 @@ export default function HouseScene({
   porchLightOn = false,
   storefrontLightsOn = false,
   cafeLightsOn = false,
+  shopLightsOn = false,
+  entranceLightsOn = false,
 
   frontDoorUnlocked = false,
   sideDoorUnlocked = false,
@@ -240,6 +242,10 @@ export default function HouseScene({
   const [sceneStatusVisible, setSceneStatusVisible] = useState(false);
   const [cafeLightsVisible, setCafeLightsVisible] = useState(cafeLightsOn);
   const [cafeLightsDimming, setCafeLightsDimming] = useState(false);
+  const [shopLightsVisible, setShopLightsVisible] = useState(shopLightsOn);
+  const [shopLightsDimming, setShopLightsDimming] = useState(false);
+  const [entranceLightsVisible, setEntranceLightsVisible] = useState(entranceLightsOn);
+  const [entranceLightsDimming, setEntranceLightsDimming] = useState(false);
   const [garageScenarioCar, setGarageScenarioCar] = useState({
     active: false,
     key: 0,
@@ -767,6 +773,58 @@ export default function HouseScene({
     return () => window.clearTimeout(timer);
   }, [cafeLightsOn, cafeLightsVisible, isBusinessDemo]);
 
+  useEffect(() => {
+    if (!isBusinessDemo) {
+      setShopLightsVisible(false);
+      setShopLightsDimming(false);
+      return undefined;
+    }
+
+    if (shopLightsOn) {
+      setShopLightsVisible(true);
+      setShopLightsDimming(false);
+      return undefined;
+    }
+
+    if (!shopLightsVisible) {
+      return undefined;
+    }
+
+    setShopLightsDimming(true);
+    const timer = window.setTimeout(() => {
+      setShopLightsVisible(false);
+      setShopLightsDimming(false);
+    }, CAFE_LIGHTS_DIM_MS);
+
+    return () => window.clearTimeout(timer);
+  }, [isBusinessDemo, shopLightsOn, shopLightsVisible]);
+
+  useEffect(() => {
+    if (!isBusinessDemo) {
+      setEntranceLightsVisible(false);
+      setEntranceLightsDimming(false);
+      return undefined;
+    }
+
+    if (entranceLightsOn) {
+      setEntranceLightsVisible(true);
+      setEntranceLightsDimming(false);
+      return undefined;
+    }
+
+    if (!entranceLightsVisible) {
+      return undefined;
+    }
+
+    setEntranceLightsDimming(true);
+    const timer = window.setTimeout(() => {
+      setEntranceLightsVisible(false);
+      setEntranceLightsDimming(false);
+    }, CAFE_LIGHTS_DIM_MS);
+
+    return () => window.clearTimeout(timer);
+  }, [entranceLightsOn, entranceLightsVisible, isBusinessDemo]);
+
   const packageDeliveryRunnerSrc =
     packageDeliveryPhase === "dropoff"
       ? "/delivery-box-down.svg"
@@ -817,21 +875,6 @@ export default function HouseScene({
             alt={isBusinessDemo ? "Small business security scene" : "House"}
             className="house-base"
           />
-
-          {isBusinessDemo && !nightMode && (
-            <>
-              <img
-                src="/smb-open-sign-base.svg"
-                alt=""
-                className="smb-sign-base"
-              />
-              <img
-                src="/smb-open.svg"
-                alt=""
-                className="smb-sign-state smb-sign-state--open"
-              />
-            </>
-          )}
 
           <div className="security-panel-group">
             <img src="/panel-base.svg" alt="" className="security-panel-base" />
@@ -940,7 +983,7 @@ export default function HouseScene({
 
           {isBusinessDemo && cafeLightsVisible && (
             <img
-              src="/cafe-lights.svg"
+              src="/smb-cafe-lights.svg"
               alt=""
               className={[
                 "business-lights-layer",
@@ -948,6 +991,48 @@ export default function HouseScene({
                 cafeLightsDimming ? "is-dimming" : "",
               ].filter(Boolean).join(" ")}
             />
+          )}
+
+          {isBusinessDemo && shopLightsVisible && (
+            <img
+              src="/smb-shop-lights.svg"
+              alt=""
+              className={[
+                "business-lights-layer",
+                "business-lights-layer--shop",
+                shopLightsDimming ? "is-dimming" : "",
+              ].filter(Boolean).join(" ")}
+            />
+          )}
+
+          {isBusinessDemo && entranceLightsVisible && (
+            <img
+              src="/smb-entrance-lights.svg"
+              alt=""
+              className={[
+                "business-lights-layer",
+                "business-lights-layer--entrance",
+                entranceLightsDimming ? "is-dimming" : "",
+              ].filter(Boolean).join(" ")}
+            />
+          )}
+
+          {isBusinessDemo && (
+            <img
+              src="/smb-open-sign-base.svg"
+              alt=""
+              className="smb-sign-base"
+            />
+          )}
+
+          {isBusinessDemo && !nightMode && (
+            <>
+              <img
+                src="/smb-open.svg"
+                alt=""
+                className="smb-sign-state smb-sign-state--open"
+              />
+            </>
           )}
 
           {activeScenario === "kids-arrived-home" && (
