@@ -3,7 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 
 const OUTDOOR_NIGHT_VIDEO_SRC = "/outdoor-camera-night.mp4";
-const MAIN_CAMERA_FEED_IDS = ["doorbell", "outdoor", "floodlight"];
+const RESIDENTIAL_CAMERA_FEED_IDS = ["doorbell", "outdoor", "floodlight"];
+const BUSINESS_CAMERA_FEED_IDS = ["outdoor", "floodlight"];
 const THERMOSTAT_MIN_TEMP = 60;
 const THERMOSTAT_MAX_TEMP = 82;
 const SCENE_ACTION_STEP_MS = 1550;
@@ -54,11 +55,15 @@ const SCENE_STATUS_COPY = {
     ],
   },
 };
-const SCENE_BUTTONS = [
+const RESIDENTIAL_SCENE_BUTTONS = [
   { id: "home", label: "Home", accent: "#23AB3F" },
   { id: "away", label: "Away", accent: "#D92C29" },
   { id: "sleep", label: "Sleep", accent: "#2071DD" },
   { id: "wake-up", label: "Wake Up", accent: "#FFBB34" },
+];
+const BUSINESS_SCENE_BUTTONS = [
+  { id: "home", label: "Open", position: "open" },
+  { id: "away", label: "Close", position: "close" },
 ];
 const SCENARIO_MENU_ITEMS = [
   { id: "garage-left-open", label: "Garage Left Open", accent: "#23AB3F" },
@@ -349,27 +354,66 @@ export default function PhonePanel({
     },
     {
       id: "outdoor",
-      label: "Outdoor Camera",
-      liveLabel: "Outdoor Camera",
-      src: "/outdoor-camera-scene.svg",
-      videoSrc: nightMode
-        ? OUTDOOR_NIGHT_VIDEO_SRC
-        : "/outdoor-camera-day.mp4",
-      alt: "Outdoor camera view",
+      label: demoExperience === "business" ? "Building Side" : "Outdoor Camera",
+      liveLabel: demoExperience === "business" ? "Building Side" : "Outdoor Camera",
+      src: demoExperience === "business"
+        ? "/smb-camera-side-day-thumbnail.png"
+        : "/outdoor-camera-scene.svg",
+      posterSrc: demoExperience === "business"
+        ? nightMode
+          ? "/smb-camera-side-night-thumbnail.png"
+          : "/smb-camera-side-day-thumbnail.png"
+        : undefined,
+      fullscreenPosterSrc: demoExperience === "business"
+        ? nightMode
+          ? "/building-side-camera-night.png"
+          : "/building-side-camera-day.png"
+        : undefined,
+      videoSrc: demoExperience === "business"
+        ? nightMode
+          ? "/smb-camera-side-night.mp4"
+          : "/smb-camera-side-day.mp4"
+        : nightMode
+          ? OUTDOOR_NIGHT_VIDEO_SRC
+          : "/outdoor-camera-day.mp4",
+      alt: demoExperience === "business"
+        ? "Building side camera view"
+        : "Outdoor camera view",
     },
     {
       id: "floodlight",
-      label: "Floodlight Camera",
-      liveLabel: "Floodlight Camera",
-      src: "/floodlight-camera-scene.svg",
-      videoSrc: nightMode
-        ? "/floodlight-camera-night.mp4"
-        : "/floodlight-camera-day.mp4",
-      alt: "Floodlight camera view",
+      label: demoExperience === "business" ? "Building Entrance" : "Floodlight Camera",
+      liveLabel: demoExperience === "business" ? "Building Entrance" : "Floodlight Camera",
+      src: demoExperience === "business"
+        ? "/smb-camera-entrance-day-thumbnail.png"
+        : "/floodlight-camera-scene.svg",
+      posterSrc: demoExperience === "business"
+        ? nightMode
+          ? "/smb-camera-entrance-night-thumbnail.png"
+          : "/smb-camera-entrance-day-thumbnail.png"
+        : undefined,
+      fullscreenPosterSrc: demoExperience === "business"
+        ? nightMode
+          ? "/building-entrance-camera-night.png"
+          : "/building-entrance-camera-day.png"
+        : undefined,
+      videoSrc: demoExperience === "business"
+        ? nightMode
+          ? "/smb-camera-entrance-night.mp4"
+          : "/smb-camera-entrance-day.mp4"
+        : nightMode
+          ? "/floodlight-camera-night.mp4"
+          : "/floodlight-camera-day.mp4",
+      alt: demoExperience === "business"
+        ? "Building entrance camera view"
+        : "Floodlight camera view",
     },
   ];
+  const mainCameraFeedIds = demoExperience === "business"
+    ? BUSINESS_CAMERA_FEED_IDS
+    : RESIDENTIAL_CAMERA_FEED_IDS;
   const mainCameraFeeds = cameraFeeds.filter((feed) =>
-    MAIN_CAMERA_FEED_IDS.includes(feed.id)
+    mainCameraFeedIds.includes(feed.id)
   );
 
   const activeFeed = cameraFeeds.find((feed) => feed.id === activeCamera);
@@ -416,6 +460,22 @@ export default function PhonePanel({
       });
     }
   };
+
+  useEffect(() => {
+    setActiveVideoSlide(0);
+    setScenarioMenuOpen(false);
+
+    const frameId = requestAnimationFrame(() => {
+      if (videoCarouselRef.current) {
+        videoCarouselRef.current.scrollTo({
+          left: 0,
+          behavior: "auto",
+        });
+      }
+    });
+
+    return () => cancelAnimationFrame(frameId);
+  }, [demoExperience]);
 
   const handleExpandCamera = (cameraId) => {
     const feed = cameraFeeds.find((cameraFeed) => cameraFeed.id === cameraId);
@@ -536,7 +596,7 @@ export default function PhonePanel({
     const isBusinessAwayScene = demoExperience === "business" && sceneId === "away";
     const sceneStatus = isBusinessHomeScene
       ? {
-          title: "Home scene",
+          title: "Open scene",
           actions: [
             "Disarming security system",
             "Setting thermostat to 68°",
@@ -548,7 +608,7 @@ export default function PhonePanel({
         }
       : isBusinessAwayScene
       ? {
-          title: "Away scene",
+          title: "Close scene",
           actions: [
             "Arming security system",
             "Setting thermostat to 72°",
@@ -650,9 +710,9 @@ export default function PhonePanel({
       return;
     }
 
-    if (sceneId === "sleep" && !nightMode) {
+    if ((sceneId === "sleep" || isBusinessAwayScene) && !nightMode) {
       setNightMode(true);
-    } else if (sceneId === "wake-up" && nightMode) {
+    } else if ((sceneId === "wake-up" || isBusinessHomeScene) && nightMode) {
       setNightMode(false);
     }
 
@@ -796,6 +856,10 @@ export default function PhonePanel({
   );
 
   const ScenesCard = () => {
+    const sceneButtons = demoExperience === "business"
+      ? BUSINESS_SCENE_BUTTONS
+      : RESIDENTIAL_SCENE_BUTTONS;
+
     return (
       <section className="phone-section phone-section--scenes-card" aria-label="Scenes">
         <div className="scenes-card-shell">
@@ -841,11 +905,26 @@ export default function PhonePanel({
             <text x="330" y="135" fill="#333333" fontSize="13" fontWeight="500" textAnchor="middle" fontFamily="-apple-system, BlinkMacSystemFont, 'SF Pro Text', Arial, sans-serif">Wake Up</text>
           </svg>
 
-          {SCENE_BUTTONS.map((scene) => (
+          {demoExperience === "business" && (
+            <svg
+              className="scenes-card-svg scenes-card-svg--business"
+              viewBox="8 166 377 160"
+              xmlns="http://www.w3.org/2000/svg"
+              aria-hidden="true"
+            >
+              <image
+                href="/Security Dashboard Card.svg"
+                width="393"
+                height="852"
+              />
+            </svg>
+          )}
+
+          {sceneButtons.map((scene) => (
             <button
               key={scene.id}
               type="button"
-              className={`scenes-card-hit scenes-card-hit--${scene.id}`}
+              className={`scenes-card-hit scenes-card-hit--${scene.position ?? scene.id}`}
               aria-label={`Run ${scene.label} scene`}
               onClick={() => handleScene(scene.id)}
             />
@@ -1059,7 +1138,9 @@ export default function PhonePanel({
   );
 
   return (
-    <div className={`phone-panel-wrap ${nightMode ? "is-night" : ""}`}>
+    <div
+      className={`phone-panel-wrap ${nightMode ? "is-night" : ""} ${demoExperience === "business" ? "is-business" : ""}`}
+    >
       <div className="phone-panel">
         <div className="phone-shell">
           <div className="phone-shell__hardware">
@@ -1528,9 +1609,10 @@ export default function PhonePanel({
 
                         {feed.videoSrc ? (
                           <video
-                            key={`${feed.id}-${nightMode ? "night" : "day"}`}
+                            key={`${demoExperience}-${feed.id}-${nightMode ? "night" : "day"}`}
                             className="video-slide__thumbnail"
                             src={feed.videoSrc}
+                            poster={feed.posterSrc}
                             muted
                             playsInline
                             preload="metadata"
@@ -1671,9 +1753,10 @@ export default function PhonePanel({
               >
                 {activeFeed.videoSrc ? (
                   <video
-                    key={`${activeFeed.id}-${nightMode ? "night" : "day"}`}
+                    key={`${demoExperience}-${activeFeed.id}-${nightMode ? "night" : "day"}`}
                     className="doorbell-view__image"
                     src={activeFeed.videoSrc}
+                    poster={activeFeed.fullscreenPosterSrc ?? activeFeed.posterSrc}
                     autoPlay
                     muted
                     playsInline
@@ -1713,7 +1796,7 @@ export default function PhonePanel({
         </div>
       </div>
 
-      {scenarioMenuOpen && (
+      {demoExperience !== "business" && scenarioMenuOpen && (
         <div className="scenario-menu" id="scenario-menu" role="menu" aria-label="Scenario menu">
           <div className="scenario-menu__header">
             <span>Scenarios</span>
@@ -1762,31 +1845,33 @@ export default function PhonePanel({
         </span>
       </button>
 
-      <button
-        type="button"
-        className={`scenario-toggle ${scenarioMenuOpen ? "is-open" : ""}`}
-        onClick={() => setScenarioMenuOpen((isOpen) => !isOpen)}
-        aria-label="Open scenario menu"
-        aria-controls="scenario-menu"
-        aria-expanded={scenarioMenuOpen}
-      >
-        <span className="scenario-toggle__icon" aria-hidden="true">
-          <svg viewBox="0 0 42 42" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect x="10" y="10" width="8" height="8" rx="2" fill="currentColor" />
-            <rect x="24" y="10" width="8" height="8" rx="2" fill="currentColor" opacity="0.7" />
-            <rect x="10" y="24" width="8" height="8" rx="2" fill="currentColor" opacity="0.7" />
-            <rect x="24" y="24" width="8" height="8" rx="2" fill="currentColor" />
-            <path
-              d="M18 14H24M14 18V24M28 18V24M18 28H24"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              opacity="0.55"
-            />
-          </svg>
-        </span>
-        <span className="scenario-toggle__label">Scenarios</span>
-      </button>
+      {demoExperience !== "business" && (
+        <button
+          type="button"
+          className={`scenario-toggle ${scenarioMenuOpen ? "is-open" : ""}`}
+          onClick={() => setScenarioMenuOpen((isOpen) => !isOpen)}
+          aria-label="Open scenario menu"
+          aria-controls="scenario-menu"
+          aria-expanded={scenarioMenuOpen}
+        >
+          <span className="scenario-toggle__icon" aria-hidden="true">
+            <svg viewBox="0 0 42 42" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="10" y="10" width="8" height="8" rx="2" fill="currentColor" />
+              <rect x="24" y="10" width="8" height="8" rx="2" fill="currentColor" opacity="0.7" />
+              <rect x="10" y="24" width="8" height="8" rx="2" fill="currentColor" opacity="0.7" />
+              <rect x="24" y="24" width="8" height="8" rx="2" fill="currentColor" />
+              <path
+                d="M18 14H24M14 18V24M28 18V24M18 28H24"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                opacity="0.55"
+              />
+            </svg>
+          </span>
+          <span className="scenario-toggle__label">Scenarios</span>
+        </button>
+      )}
 
       <button
         type="button"

@@ -12,7 +12,6 @@ const GARAGE_CAR_EXIT_MS = 1200;
 const DOOR_PULSE_MS = 700;
 const DOOR_CALLOUT_MS = 3400;
 const ACCESS_CONTROL_GREEN_DELAY_MS = 650;
-const ACCESS_CONTROL_FLASH_MS = 500;
 const ACCESS_CONTROL_GRANTED_MS = 6500;
 const ACCESS_CONTROL_CALLOUT_MS = 6200;
 const SYSTEM_MESSAGE_MS = 2000;
@@ -329,7 +328,6 @@ export default function HouseScene({
   const accessControlCalloutTimeoutRef = useRef(null);
   const accessControlReaderGrantTimeoutRef = useRef(null);
   const accessControlReaderResetTimeoutRef = useRef(null);
-  const accessControlReaderFlashIntervalRef = useRef(null);
   const accessControlCalloutRaf1Ref = useRef(null);
   const accessControlCalloutRaf2Ref = useRef(null);
   const systemTimeoutRef = useRef(null);
@@ -396,11 +394,6 @@ export default function HouseScene({
     if (garageScenarioCarFrameIntervalRef.current) {
       clearInterval(garageScenarioCarFrameIntervalRef.current);
       garageScenarioCarFrameIntervalRef.current = null;
-    }
-
-    if (accessControlReaderFlashIntervalRef.current) {
-      clearInterval(accessControlReaderFlashIntervalRef.current);
-      accessControlReaderFlashIntervalRef.current = null;
     }
 
     previousFrontDoorUnlockedRef.current = frontDoorUnlocked;
@@ -715,11 +708,6 @@ export default function HouseScene({
       accessControlReaderResetTimeoutRef.current = null;
     }
 
-    if (accessControlReaderFlashIntervalRef.current) {
-      clearInterval(accessControlReaderFlashIntervalRef.current);
-      accessControlReaderFlashIntervalRef.current = null;
-    }
-
     if (accessControlCalloutRaf1Ref.current) {
       cancelAnimationFrame(accessControlCalloutRaf1Ref.current);
       accessControlCalloutRaf1Ref.current = null;
@@ -763,16 +751,6 @@ export default function HouseScene({
               ...prev,
               readerState: "green",
             }));
-            accessControlReaderFlashIntervalRef.current = setInterval(() => {
-              setAccessControlCallout((prev) => ({
-                ...prev,
-                readerState: prev.readerState === "green" ? "off" : "green",
-              }));
-              setAccessControlSceneStates((prev) => ({
-                ...prev,
-                [reader]: prev[reader] === "green" ? "off" : "green",
-              }));
-            }, ACCESS_CONTROL_FLASH_MS);
             accessControlReaderGrantTimeoutRef.current = null;
           }, ACCESS_CONTROL_GREEN_DELAY_MS);
 
@@ -783,11 +761,6 @@ export default function HouseScene({
         }
 
         accessControlCalloutTimeoutRef.current = setTimeout(() => {
-          if (accessControlReaderFlashIntervalRef.current) {
-            clearInterval(accessControlReaderFlashIntervalRef.current);
-            accessControlReaderFlashIntervalRef.current = null;
-          }
-
           if (isEntry) {
             setAccessControlSceneStates((prev) => ({
               ...prev,
@@ -919,10 +892,6 @@ export default function HouseScene({
 
       if (sceneStatusTypingIntervalRef.current) {
         clearInterval(sceneStatusTypingIntervalRef.current);
-      }
-
-      if (accessControlReaderFlashIntervalRef.current) {
-        clearInterval(accessControlReaderFlashIntervalRef.current);
       }
 
       [
@@ -1198,39 +1167,72 @@ export default function HouseScene({
           )}
 
           {isBusinessDemo && cafeLightsVisible && (
-            <img
-              src="/smb-cafe-lights.svg"
-              alt=""
-              className={[
-                "business-lights-layer",
-                "business-lights-layer--cafe",
-                cafeLightsDimming ? "is-dimming" : "",
-              ].filter(Boolean).join(" ")}
-            />
+            <>
+              <span
+                aria-hidden="true"
+                className={[
+                  "business-light-base-restore",
+                  "business-light-base-restore--cafe",
+                  "business-lights-layer--cafe",
+                  cafeLightsDimming ? "is-dimming" : "",
+                ].filter(Boolean).join(" ")}
+              />
+              <img
+                src="/smb-cafe-lights.svg"
+                alt=""
+                className={[
+                  "business-lights-layer",
+                  "business-lights-layer--cafe",
+                  cafeLightsDimming ? "is-dimming" : "",
+                ].filter(Boolean).join(" ")}
+              />
+            </>
           )}
 
           {isBusinessDemo && shopLightsVisible && (
-            <img
-              src="/smb-shop-lights.svg"
-              alt=""
-              className={[
-                "business-lights-layer",
-                "business-lights-layer--shop",
-                shopLightsDimming ? "is-dimming" : "",
-              ].filter(Boolean).join(" ")}
-            />
+            <>
+              <span
+                aria-hidden="true"
+                className={[
+                  "business-light-base-restore",
+                  "business-light-base-restore--shop",
+                  "business-lights-layer--shop",
+                  shopLightsDimming ? "is-dimming" : "",
+                ].filter(Boolean).join(" ")}
+              />
+              <img
+                src="/smb-shop-lights.svg"
+                alt=""
+                className={[
+                  "business-lights-layer",
+                  "business-lights-layer--shop",
+                  shopLightsDimming ? "is-dimming" : "",
+                ].filter(Boolean).join(" ")}
+              />
+            </>
           )}
 
           {isBusinessDemo && entranceLightsVisible && (
-            <img
-              src="/smb-entrance-lights.svg"
-              alt=""
-              className={[
-                "business-lights-layer",
-                "business-lights-layer--entrance",
-                entranceLightsDimming ? "is-dimming" : "",
-              ].filter(Boolean).join(" ")}
-            />
+            <>
+              <span
+                aria-hidden="true"
+                className={[
+                  "business-light-base-restore",
+                  "business-light-base-restore--entrance",
+                  "business-lights-layer--entrance",
+                  entranceLightsDimming ? "is-dimming" : "",
+                ].filter(Boolean).join(" ")}
+              />
+              <img
+                src="/smb-entrance-lights.svg"
+                alt=""
+                className={[
+                  "business-lights-layer",
+                  "business-lights-layer--entrance",
+                  entranceLightsDimming ? "is-dimming" : "",
+                ].filter(Boolean).join(" ")}
+              />
+            </>
           )}
 
           {isBusinessDemo && (
@@ -1296,11 +1298,17 @@ export default function HouseScene({
           )}
 
           {activeCamera === "outdoor" && (
-            <CameraLiveMarker type="outdoor" label="Outdoor Live" />
+            <CameraLiveMarker
+              type="outdoor"
+              label={isBusinessDemo ? "Building Side Live" : "Outdoor Live"}
+            />
           )}
 
           {activeCamera === "floodlight" && (
-            <CameraLiveMarker type="floodlight" label="Floodlight Live" />
+            <CameraLiveMarker
+              type="floodlight"
+              label={isBusinessDemo ? "Building Entrance Live" : "Floodlight Live"}
+            />
           )}
 
           <DoorLockSource

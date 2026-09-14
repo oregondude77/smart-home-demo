@@ -51,6 +51,7 @@ const DEMO_EXPERIENCES = {
     description:
       "See how Alert 360 connects security, cameras, lights, locks, garage doors, and monitoring into one seamless smart home experience.",
     meta: "24/7 Monitoring • Smart Automation • Live Video",
+    ctaHref: "https://www.alert360.com/home-security-package-specials",
   },
   business: {
     pill: "Interactive Smart Business Demo",
@@ -58,6 +59,7 @@ const DEMO_EXPERIENCES = {
     description:
       "See how Alert 360 connects intrusion, video, access, automation, and monitoring into one streamlined small business security experience.",
     meta: "Business Security • Video Verification • Access Control",
+    ctaHref: "https://alert360.com/business-security-pricing/",
   },
 };
 
@@ -677,6 +679,18 @@ export default function SmartHomeDemo() {
   const currentA360StepDuration =
     (currentA360Step?.durationMs ?? A360_AUTO_STEP_MS) + A360_STEP_PAUSE_MS;
   const activeExperience = DEMO_EXPERIENCES[demoExperience];
+  const handleDemoExperienceToggle = () => {
+    const nextExperience = demoExperience === "home" ? "business" : "home";
+
+    if (nextExperience === "business") {
+      setStorefrontLightsOn(false);
+      setCafeLightsOn(true);
+      setShopLightsOn(true);
+      setEntranceLightsOn(true);
+    }
+
+    setDemoExperience(nextExperience);
+  };
 
   return (
   <div className={`demo demo--${demoExperience} ${nightMode ? "is-night" : ""}`}>
@@ -699,7 +713,7 @@ export default function SmartHomeDemo() {
       <p>{activeExperience.description}</p>
 
       <div className="demo-hero-actions">
-        <a href="https://www.alert360.com/home-security-package-specials">
+        <a href={activeExperience.ctaHref}>
           Explore Protection
         </a>
         <span>{activeExperience.meta}</span>
@@ -760,9 +774,7 @@ export default function SmartHomeDemo() {
           onPhoneNotificationAction={handlePhoneNotificationAction}
           onGarageScenarioResolved={handleGarageScenarioResolved}
           demoExperience={demoExperience}
-          onDemoExperienceToggle={() => {
-            setDemoExperience((current) => current === "home" ? "business" : "home");
-          }}
+          onDemoExperienceToggle={handleDemoExperienceToggle}
         />
 
         <HouseScene

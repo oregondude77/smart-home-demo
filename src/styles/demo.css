@@ -1156,6 +1156,12 @@ body {
   display: block;
 }
 
+.scenes-card-svg--business {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
 .scenes-card-hit {
   position: absolute;
   top: 30%;
@@ -1168,6 +1174,7 @@ body {
   cursor: pointer;
   appearance: none;
   -webkit-appearance: none;
+  z-index: 2;
 }
 
 .scenes-card-hit--home {
@@ -1184,6 +1191,14 @@ body {
 
 .scenes-card-hit--wake-up {
   left: 78.4%;
+}
+
+.scenes-card-hit--open {
+  left: 29.5%;
+}
+
+.scenes-card-hit--close {
+  left: 54.2%;
 }
 
 .scenes-card-hit:active {
@@ -2518,6 +2533,15 @@ body:has(.demo.is-night)::before {
   object-position: center;
   transform: none;
   background: #000;
+}
+
+.phone-panel-wrap.is-business .doorbell-view--outdoor .doorbell-view__image,
+.phone-panel-wrap.is-business .doorbell-view--floodlight .doorbell-view__image {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: auto;
+  object-fit: cover;
+  object-position: center;
 }
 
 .video-slide__nav-zone {
