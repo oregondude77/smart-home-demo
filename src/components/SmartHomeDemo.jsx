@@ -683,6 +683,15 @@ export default function SmartHomeDemo() {
     const nextExperience = demoExperience === "home" ? "business" : "home";
 
     if (nextExperience === "business") {
+      if (a360TourActive) {
+        clearA360ActionTimeouts();
+        setA360TourActive(false);
+        setA360StepIndex(0);
+        setPhoneTourFocus(null);
+        setActiveCamera(null);
+        setLiveCamera(null);
+      }
+
       setStorefrontLightsOn(false);
       setCafeLightsOn(true);
       setShopLightsOn(true);
@@ -810,9 +819,10 @@ export default function SmartHomeDemo() {
           quietResetKey={quietResetKey}
         />
       </div>
-      <div className={["a360-guide", a360Open ? "is-open" : "is-collapsed"].join(" ")}>
-        {a360Open ? (
-          <div className="a360-guide__panel" role="dialog" aria-label="A-360 guided tour">
+      {demoExperience !== "business" && (
+        <div className={["a360-guide", a360Open ? "is-open" : "is-collapsed"].join(" ")}>
+          {a360Open ? (
+            <div className="a360-guide__panel" role="dialog" aria-label="A-360 guided tour">
             <div className="a360-guide__bubble">
               <button
                 type="button"
@@ -876,21 +886,22 @@ export default function SmartHomeDemo() {
             <div className="a360-guide__avatar-wrap" aria-hidden="true">
               <img className="a360-guide__avatar" src="/a360-avatar.png" alt="" />
             </div>
-          </div>
-        ) : (
-          <button
-            type="button"
-            className="a360-guide__launcher"
-            onClick={() => setA360Open(true)}
-            aria-label="Open A-360 concierge"
-          >
-            <span className="a360-guide__launcher-orb" aria-hidden="true">
-              <img src="/a360-avatar.png" alt="" />
-            </span>
-            <span>Start Tour</span>
-          </button>
-        )}
-      </div>
+            </div>
+          ) : (
+            <button
+              type="button"
+              className="a360-guide__launcher"
+              onClick={() => setA360Open(true)}
+              aria-label="Open A-360 concierge"
+            >
+              <span className="a360-guide__launcher-orb" aria-hidden="true">
+                <img src="/a360-avatar.png" alt="" />
+              </span>
+              <span>Start Tour</span>
+            </button>
+          )}
+        </div>
+      )}
     </div>
   );
 }
