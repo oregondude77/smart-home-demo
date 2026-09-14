@@ -3,7 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 
 const OUTDOOR_NIGHT_VIDEO_SRC = "/outdoor-camera-night.mp4";
-const MAIN_CAMERA_FEED_IDS = ["doorbell", "outdoor", "floodlight"];
+const RESIDENTIAL_CAMERA_FEED_IDS = ["doorbell", "outdoor", "floodlight"];
+const BUSINESS_CAMERA_FEED_IDS = ["outdoor", "floodlight"];
 const THERMOSTAT_MIN_TEMP = 60;
 const THERMOSTAT_MAX_TEMP = 82;
 const SCENE_ACTION_STEP_MS = 1550;
@@ -54,16 +55,24 @@ const SCENE_STATUS_COPY = {
     ],
   },
 };
-const SCENE_BUTTONS = [
+const RESIDENTIAL_SCENE_BUTTONS = [
   { id: "home", label: "Home", accent: "#23AB3F" },
   { id: "away", label: "Away", accent: "#D92C29" },
   { id: "sleep", label: "Sleep", accent: "#2071DD" },
   { id: "wake-up", label: "Wake Up", accent: "#FFBB34" },
 ];
+const BUSINESS_SCENE_BUTTONS = [
+  { id: "home", label: "Open", position: "open" },
+  { id: "away", label: "Close", position: "close" },
+];
 const SCENARIO_MENU_ITEMS = [
   { id: "garage-left-open", label: "Garage Left Open", accent: "#23AB3F" },
   { id: "kids-arrived-home", label: "Kids Arriving Home", accent: "#22A1C1" },
   { id: "package-delivered", label: "Package Delivered", accent: "#FFBB34" },
+];
+const ACCESS_CONTROL_READERS = [
+  { id: "main", label: "Main Entrance" },
+  { id: "side", label: "Side Entrance" },
 ];
 const MOCK_HOME_APPS = [
   { label: "FaceTime", glyph: "▰", color: "linear-gradient(180deg, #65f879, #12bc45)" },
@@ -117,6 +126,62 @@ const getSceneActionRunDelay = (action, stepMs) => (
   )
 );
 
+function HomeExperienceIcon() {
+  return (
+    <svg viewBox="0 0 42 42" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path
+        d="M10 21.5L21 12L32 21.5"
+        stroke="currentColor"
+        strokeWidth="3"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M14 20.5V31H28V20.5"
+        stroke="currentColor"
+        strokeWidth="3"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M18.5 31V24.5H23.5V31"
+        stroke="currentColor"
+        strokeWidth="3"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function BusinessExperienceIcon() {
+  return (
+    <svg viewBox="0 0 42 42" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path
+        d="M12 32V13.5C12 12.1 13.1 11 14.5 11H27.5C28.9 11 30 12.1 30 13.5V32"
+        stroke="currentColor"
+        strokeWidth="3"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path d="M9 32H33" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+      <path
+        d="M17 17H19M23 17H25M17 22H19M23 22H25"
+        stroke="currentColor"
+        strokeWidth="3"
+        strokeLinecap="round"
+      />
+      <path
+        d="M18.5 32V26H23.5V32"
+        stroke="currentColor"
+        strokeWidth="3"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
 export default function PhonePanel({
   garageOpen,
   setGarageOpen,
@@ -138,6 +203,14 @@ export default function PhonePanel({
   setExteriorSideLightOn,
   porchLightOn,
   setPorchLightOn,
+  storefrontLightsOn,
+  setStorefrontLightsOn,
+  cafeLightsOn,
+  setCafeLightsOn,
+  shopLightsOn,
+  setShopLightsOn,
+  entranceLightsOn,
+  setEntranceLightsOn,
   frontDoorUnlocked,
   setFrontDoorUnlocked,
   sideDoorUnlocked,
@@ -153,8 +226,11 @@ export default function PhonePanel({
   setNightMode,
   feedEnabled,
   setFeedEnabled,
+  demoExperience = "home",
+  onDemoExperienceToggle,
   setSceneStatus,
   setDoorAction,
+  setAccessControlAction,
   tourFocus,
   onRunScenario,
   phoneNotification,
@@ -177,6 +253,7 @@ export default function PhonePanel({
   const sceneActionTimeoutsRef = useRef([]);
   const feedKeyRef = useRef(0);
   const doorActionKeyRef = useRef(0);
+  const accessControlActionKeyRef = useRef(0);
 
   const clearSceneActionTimeouts = () => {
     sceneActionTimeoutsRef.current.forEach((timeoutId) => clearTimeout(timeoutId));
@@ -277,27 +354,66 @@ export default function PhonePanel({
     },
     {
       id: "outdoor",
-      label: "Outdoor Camera",
-      liveLabel: "Outdoor Camera",
-      src: "/outdoor-camera-scene.svg",
-      videoSrc: nightMode
-        ? OUTDOOR_NIGHT_VIDEO_SRC
-        : "/outdoor-camera-day.mp4",
-      alt: "Outdoor camera view",
+      label: demoExperience === "business" ? "Building Side" : "Outdoor Camera",
+      liveLabel: demoExperience === "business" ? "Building Side" : "Outdoor Camera",
+      src: demoExperience === "business"
+        ? "/smb-camera-side-day-thumbnail.png"
+        : "/outdoor-camera-scene.svg",
+      posterSrc: demoExperience === "business"
+        ? nightMode
+          ? "/smb-camera-side-night-thumbnail.png"
+          : "/smb-camera-side-day-thumbnail.png"
+        : undefined,
+      fullscreenPosterSrc: demoExperience === "business"
+        ? nightMode
+          ? "/building-side-camera-night.png"
+          : "/building-side-camera-day.png"
+        : undefined,
+      videoSrc: demoExperience === "business"
+        ? nightMode
+          ? "/smb-camera-side-night.mp4"
+          : "/smb-camera-side-day.mp4"
+        : nightMode
+          ? OUTDOOR_NIGHT_VIDEO_SRC
+          : "/outdoor-camera-day.mp4",
+      alt: demoExperience === "business"
+        ? "Building side camera view"
+        : "Outdoor camera view",
     },
     {
       id: "floodlight",
-      label: "Floodlight Camera",
-      liveLabel: "Floodlight Camera",
-      src: "/floodlight-camera-scene.svg",
-      videoSrc: nightMode
-        ? "/floodlight-camera-night.mp4"
-        : "/floodlight-camera-day.mp4",
-      alt: "Floodlight camera view",
+      label: demoExperience === "business" ? "Building Entrance" : "Floodlight Camera",
+      liveLabel: demoExperience === "business" ? "Building Entrance" : "Floodlight Camera",
+      src: demoExperience === "business"
+        ? "/smb-camera-entrance-day-thumbnail.png"
+        : "/floodlight-camera-scene.svg",
+      posterSrc: demoExperience === "business"
+        ? nightMode
+          ? "/smb-camera-entrance-night-thumbnail.png"
+          : "/smb-camera-entrance-day-thumbnail.png"
+        : undefined,
+      fullscreenPosterSrc: demoExperience === "business"
+        ? nightMode
+          ? "/building-entrance-camera-night.png"
+          : "/building-entrance-camera-day.png"
+        : undefined,
+      videoSrc: demoExperience === "business"
+        ? nightMode
+          ? "/smb-camera-entrance-night.mp4"
+          : "/smb-camera-entrance-day.mp4"
+        : nightMode
+          ? "/floodlight-camera-night.mp4"
+          : "/floodlight-camera-day.mp4",
+      alt: demoExperience === "business"
+        ? "Building entrance camera view"
+        : "Floodlight camera view",
     },
   ];
+  const mainCameraFeedIds = demoExperience === "business"
+    ? BUSINESS_CAMERA_FEED_IDS
+    : RESIDENTIAL_CAMERA_FEED_IDS;
   const mainCameraFeeds = cameraFeeds.filter((feed) =>
-    MAIN_CAMERA_FEED_IDS.includes(feed.id)
+    mainCameraFeedIds.includes(feed.id)
   );
 
   const activeFeed = cameraFeeds.find((feed) => feed.id === activeCamera);
@@ -344,6 +460,22 @@ export default function PhonePanel({
       });
     }
   };
+
+  useEffect(() => {
+    setActiveVideoSlide(0);
+    setScenarioMenuOpen(false);
+
+    const frameId = requestAnimationFrame(() => {
+      if (videoCarouselRef.current) {
+        videoCarouselRef.current.scrollTo({
+          left: 0,
+          behavior: "auto",
+        });
+      }
+    });
+
+    return () => cancelAnimationFrame(frameId);
+  }, [demoExperience]);
 
   const handleExpandCamera = (cameraId) => {
     const feed = cameraFeeds.find((cameraFeed) => cameraFeed.id === cameraId);
@@ -439,36 +571,100 @@ export default function PhonePanel({
     }
   };
 
+  const triggerAccessControl = (status, reader = "main") => {
+    const granted = status === "entry";
+    const readerLabel =
+      ACCESS_CONTROL_READERS.find((item) => item.id === reader)?.label ?? "Main Entrance";
+    accessControlActionKeyRef.current += 1;
+
+    pushActionFeed(
+      "Access control",
+      `${readerLabel}: ${granted ? "Entry granted" : "Entry not authorized"}`
+    );
+
+    if (setAccessControlAction) {
+      setAccessControlAction({
+        status,
+        reader,
+        key: `access-control-${Date.now()}-${accessControlActionKeyRef.current}`,
+      });
+    }
+  };
+
   const handleScene = (sceneId) => {
-    const sceneStatus = SCENE_STATUS_COPY[sceneId];
+    const isBusinessHomeScene = demoExperience === "business" && sceneId === "home";
+    const isBusinessAwayScene = demoExperience === "business" && sceneId === "away";
+    const sceneStatus = isBusinessHomeScene
+      ? {
+          title: "Open scene",
+          actions: [
+            "Disarming security system",
+            "Setting thermostat to 68°",
+            "Turning off storefront lights",
+            "Turning on cafe lights",
+            "Turning on shop lights",
+            "Turning on entrance lights",
+          ],
+        }
+      : isBusinessAwayScene
+      ? {
+          title: "Close scene",
+          actions: [
+            "Arming security system",
+            "Setting thermostat to 72°",
+            "Turning off cafe lights",
+            "Turning off shop lights",
+            "Turning off entrance lights",
+            "Turning on storefront lights",
+          ],
+        }
+      : SCENE_STATUS_COPY[sceneId];
     const sceneStepsById = {
-      home: [
-        { label: "Disarming security system", run: () => setArmed(false) },
-        { label: "Unlocking front door", run: () => setSceneDoorState("front", true) },
-        { label: "Turning on porch light", run: () => setPorchLightOn(true) },
-        { label: "Turning on living room lights", run: () => setLivingRoomOn(true) },
-        { label: "Setting thermostat to 68°", run: () => setThermostatTemp(68) },
-      ],
-      away: [
-        { label: "Arming security system", run: () => setArmed(true) },
-        { label: "Locking doors", run: () => setSceneDoorState("both", false) },
-        {
-          label: "Turning on porch, side, and garage lights",
-          run: () => {
-            setPorchLightOn(true);
-            setExteriorSideLightOn(true);
-            setGarageLightsOn(true);
-          },
-        },
-        {
-          label: "Turning off interior lights",
-          run: () => {
-            setLivingRoomOn(false);
-            setDiningRoomOn(false);
-          },
-        },
-        { label: "Setting thermostat to 72°", run: () => setThermostatTemp(72) },
-      ],
+      home: isBusinessHomeScene
+        ? [
+            { label: "Disarming security system", run: () => setArmed(false) },
+            { label: "Setting thermostat to 68°", run: () => setThermostatTemp(68) },
+            { label: "Turning off storefront lights", run: () => setStorefrontLightsOn(false) },
+            { label: "Turning on cafe lights", run: () => setCafeLightsOn(true) },
+            { label: "Turning on shop lights", run: () => setShopLightsOn(true) },
+            { label: "Turning on entrance lights", run: () => setEntranceLightsOn(true) },
+          ]
+        : [
+            { label: "Disarming security system", run: () => setArmed(false) },
+            { label: "Unlocking front door", run: () => setSceneDoorState("front", true) },
+            { label: "Turning on porch light", run: () => setPorchLightOn(true) },
+            { label: "Turning on living room lights", run: () => setLivingRoomOn(true) },
+            { label: "Setting thermostat to 68°", run: () => setThermostatTemp(68) },
+          ],
+      away: isBusinessAwayScene
+        ? [
+            { label: "Arming security system", run: () => setArmed(true) },
+            { label: "Setting thermostat to 72°", run: () => setThermostatTemp(72) },
+            { label: "Turning off cafe lights", run: () => setCafeLightsOn(false) },
+            { label: "Turning off shop lights", run: () => setShopLightsOn(false) },
+            { label: "Turning off entrance lights", run: () => setEntranceLightsOn(false) },
+            { label: "Turning on storefront lights", run: () => setStorefrontLightsOn(true) },
+          ]
+        : [
+            { label: "Arming security system", run: () => setArmed(true) },
+            { label: "Locking doors", run: () => setSceneDoorState("both", false) },
+            {
+              label: "Turning on porch, side, and garage lights",
+              run: () => {
+                setPorchLightOn(true);
+                setExteriorSideLightOn(true);
+                setGarageLightsOn(true);
+              },
+            },
+            {
+              label: "Turning off interior lights",
+              run: () => {
+                setLivingRoomOn(false);
+                setDiningRoomOn(false);
+              },
+            },
+            { label: "Setting thermostat to 72°", run: () => setThermostatTemp(72) },
+          ],
       sleep: [
         { label: "Arming security system", run: () => setArmed(true) },
         {
@@ -514,9 +710,9 @@ export default function PhonePanel({
       return;
     }
 
-    if (sceneId === "sleep" && !nightMode) {
+    if ((sceneId === "sleep" || isBusinessAwayScene) && !nightMode) {
       setNightMode(true);
-    } else if (sceneId === "wake-up" && nightMode) {
+    } else if ((sceneId === "wake-up" || isBusinessHomeScene) && nightMode) {
       setNightMode(false);
     }
 
@@ -544,12 +740,20 @@ export default function PhonePanel({
     );
   };
 
-  const DoorLockCard = ({ label, unlocked, onToggle }) => (
+  const DoorLockCard = ({
+    label,
+    unlocked,
+    onToggle,
+    title = "LOCKS",
+    status = unlocked ? "UNLOCKED" : "LOCKED",
+    statusColor = unlocked ? "#23AB3F" : "#D92C29",
+    ariaLabel,
+  }) => (
     <button
       type="button"
       className="door-lock-card-button"
       onClick={onToggle}
-      aria-label={`${unlocked ? "Lock" : "Unlock"} ${label}`}
+      aria-label={ariaLabel ?? `${unlocked ? "Lock" : "Unlock"} ${label}`}
     >
       <svg
         className="door-lock-card-svg"
@@ -570,7 +774,7 @@ export default function PhonePanel({
           letterSpacing="0.08em"
           fontFamily="-apple-system, BlinkMacSystemFont, 'SF Pro Text', Arial, sans-serif"
         >
-          LOCKS
+          {title}
         </text>
 
         <text
@@ -639,19 +843,23 @@ export default function PhonePanel({
         <text
           x="187"
           y="101"
-          fill={unlocked ? "#23AB3F" : "#D92C29"}
+          fill={statusColor}
           fontSize="15"
           fontWeight="900"
           letterSpacing="0.04em"
           fontFamily="-apple-system, BlinkMacSystemFont, 'SF Pro Text', Arial, sans-serif"
         >
-          {unlocked ? "UNLOCKED" : "LOCKED"}
+          {status}
         </text>
       </svg>
     </button>
   );
 
   const ScenesCard = () => {
+    const sceneButtons = demoExperience === "business"
+      ? BUSINESS_SCENE_BUTTONS
+      : RESIDENTIAL_SCENE_BUTTONS;
+
     return (
       <section className="phone-section phone-section--scenes-card" aria-label="Scenes">
         <div className="scenes-card-shell">
@@ -697,11 +905,26 @@ export default function PhonePanel({
             <text x="330" y="135" fill="#333333" fontSize="13" fontWeight="500" textAnchor="middle" fontFamily="-apple-system, BlinkMacSystemFont, 'SF Pro Text', Arial, sans-serif">Wake Up</text>
           </svg>
 
-          {SCENE_BUTTONS.map((scene) => (
+          {demoExperience === "business" && (
+            <svg
+              className="scenes-card-svg scenes-card-svg--business"
+              viewBox="8 166 377 160"
+              xmlns="http://www.w3.org/2000/svg"
+              aria-hidden="true"
+            >
+              <image
+                href="/Security Dashboard Card.svg"
+                width="393"
+                height="852"
+              />
+            </svg>
+          )}
+
+          {sceneButtons.map((scene) => (
             <button
               key={scene.id}
               type="button"
-              className={`scenes-card-hit scenes-card-hit--${scene.id}`}
+              className={`scenes-card-hit scenes-card-hit--${scene.position ?? scene.id}`}
               aria-label={`Run ${scene.label} scene`}
               onClick={() => handleScene(scene.id)}
             />
@@ -915,7 +1138,9 @@ export default function PhonePanel({
   );
 
   return (
-    <div className={`phone-panel-wrap ${nightMode ? "is-night" : ""}`}>
+    <div
+      className={`phone-panel-wrap ${nightMode ? "is-night" : ""} ${demoExperience === "business" ? "is-business" : ""}`}
+    >
       <div className="phone-panel">
         <div className="phone-shell">
           <div className="phone-shell__hardware">
@@ -1157,10 +1382,24 @@ export default function PhonePanel({
                     }}
                   >
                     <DoorLockCard
-                      label="Front Door"
-                      unlocked={frontDoorUnlocked}
+                      label={demoExperience === "business" ? "Main Entrance" : "Front Door"}
+                      unlocked={demoExperience === "business" ? true : frontDoorUnlocked}
+                      title={demoExperience === "business" ? "ACCESS CONTROL" : "LOCKS"}
+                      status={demoExperience === "business" ? "ONLINE" : undefined}
+                      statusColor={demoExperience === "business" ? "#23AB3F" : undefined}
+                      ariaLabel={
+                        demoExperience === "business"
+                          ? "Grant access at Main Entrance"
+                          : undefined
+                      }
                       onToggle={() => {
                         restoreDoorSlide(0);
+
+                        if (demoExperience === "business") {
+                          triggerAccessControl("entry", "main");
+                          return;
+                        }
+
                         const nextUnlocked = !frontDoorUnlocked;
 
                         pushActionFeed(
@@ -1172,10 +1411,24 @@ export default function PhonePanel({
                     />
 
                     <DoorLockCard
-                      label="Side Door"
-                      unlocked={sideDoorUnlocked}
+                      label={demoExperience === "business" ? "Side Entrance" : "Side Door"}
+                      unlocked={demoExperience === "business" ? true : sideDoorUnlocked}
+                      title={demoExperience === "business" ? "ACCESS CONTROL" : "LOCKS"}
+                      status={demoExperience === "business" ? "ONLINE" : undefined}
+                      statusColor={demoExperience === "business" ? "#23AB3F" : undefined}
+                      ariaLabel={
+                        demoExperience === "business"
+                          ? "Grant access at Side Entrance"
+                          : undefined
+                      }
                       onToggle={() => {
                         restoreDoorSlide(1);
+
+                        if (demoExperience === "business") {
+                          triggerAccessControl("entry", "side");
+                          return;
+                        }
+
                         const nextUnlocked = !sideDoorUnlocked;
 
                         pushActionFeed(
@@ -1213,102 +1466,103 @@ export default function PhonePanel({
                   </div>
                 </section>
 
-                {/* GARAGE */}
-                <section ref={garageCardRef} className="phone-section phone-section--garage-card">
-                  <button
-                    type="button"
-                    className="garage-card-button"
-                    onClick={() => {
-                      const nextOpen = !garageOpen;
+                {demoExperience !== "business" && (
+                  <section ref={garageCardRef} className="phone-section phone-section--garage-card">
+                    <button
+                      type="button"
+                      className="garage-card-button"
+                      onClick={() => {
+                        const nextOpen = !garageOpen;
 
-                      pushActionFeed(
-                        "Garage door",
-                        `${nextOpen ? "Opening" : "Closing"} garage door`
-                      );
-                      setGarageOpen(nextOpen);
+                        pushActionFeed(
+                          "Garage door",
+                          `${nextOpen ? "Opening" : "Closing"} garage door`
+                        );
+                        setGarageOpen(nextOpen);
 
-                      if (!nextOpen && typeof onGarageScenarioResolved === "function") {
-                        onGarageScenarioResolved();
-                      }
-                    }}
-                  >
-                    <svg
-                      className="garage-card-svg"
-                      width="381"
-                      height="140"
-                      viewBox="0 0 381 140"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
+                        if (!nextOpen && typeof onGarageScenarioResolved === "function") {
+                          onGarageScenarioResolved();
+                        }
+                      }}
                     >
-                      <rect x="2" y="1" width="377" height="136" rx="4" fill="white" />
-
-                      <text
-                        x="19"
-                        y="30"
-                        fill="#767676"
-                        fontSize="15"
-                        fontWeight="800"
-                        letterSpacing="0.08em"
-                        fontFamily="-apple-system, BlinkMacSystemFont, 'SF Pro Text', Arial, sans-serif"
+                      <svg
+                        className="garage-card-svg"
+                        width="381"
+                        height="140"
+                        viewBox="0 0 381 140"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
                       >
-                        GARAGE DOORS
-                      </text>
+                        <rect x="2" y="1" width="377" height="136" rx="4" fill="white" />
 
-                      <text
-                        x="352"
-                        y="30"
-                        fill="#767676"
-                        fontSize="34"
-                        fontWeight="400"
-                        fontFamily="-apple-system, BlinkMacSystemFont, 'SF Pro Text', Arial, sans-serif"
-                      >
-                        ›
-                      </text>
+                        <text
+                          x="19"
+                          y="30"
+                          fill="#767676"
+                          fontSize="15"
+                          fontWeight="800"
+                          letterSpacing="0.08em"
+                          fontFamily="-apple-system, BlinkMacSystemFont, 'SF Pro Text', Arial, sans-serif"
+                        >
+                          GARAGE DOORS
+                        </text>
 
-                      <path
-                        fillRule="evenodd"
-                        clipRule="evenodd"
-                        d="M157.968 78.9999V107C157.968 109.209 156.177 111 153.968 111H105.968C103.759 111 102 109.209 102 107V78.9999H99.2281C97.3891 78.9999 96.5251 76.7269 97.9001 75.5049L128.639 46.9999C129.397 46.3259 130.539 46.3259 131.297 46.9999L162.036 75.5049C163.411 76.7269 162.547 78.9999 160.708 78.9999H157.968Z"
-                        fill={garageOpen ? "#23AB3F" : "#D92C29"}
-                      />
+                        <text
+                          x="352"
+                          y="30"
+                          fill="#767676"
+                          fontSize="34"
+                          fontWeight="400"
+                          fontFamily="-apple-system, BlinkMacSystemFont, 'SF Pro Text', Arial, sans-serif"
+                        >
+                          ›
+                        </text>
 
-                      <path
-                        fillRule="evenodd"
-                        clipRule="evenodd"
-                        d="M153.968 111H105.968V83C105.968 80.791 107.759 79 109.968 79H149.968C152.177 79 153.968 80.791 153.968 83V111Z"
-                        fill="black"
-                        fillOpacity="0.13"
-                      />
+                        <path
+                          fillRule="evenodd"
+                          clipRule="evenodd"
+                          d="M157.968 78.9999V107C157.968 109.209 156.177 111 153.968 111H105.968C103.759 111 102 109.209 102 107V78.9999H99.2281C97.3891 78.9999 96.5251 76.7269 97.9001 75.5049L128.639 46.9999C129.397 46.3259 130.539 46.3259 131.297 46.9999L162.036 75.5049C163.411 76.7269 162.547 78.9999 160.708 78.9999H157.968Z"
+                          fill={garageOpen ? "#23AB3F" : "#D92C29"}
+                        />
 
-                      <path fillRule="evenodd" clipRule="evenodd" d="M111 97H148.968V93H111V97Z" fill="white" />
-                      <path fillRule="evenodd" clipRule="evenodd" d="M111 89H148.968V85H111V89Z" fill="white" />
-                      <path fillRule="evenodd" clipRule="evenodd" d="M111 105H148.968V101H111V105Z" fill="white" />
+                        <path
+                          fillRule="evenodd"
+                          clipRule="evenodd"
+                          d="M153.968 111H105.968V83C105.968 80.791 107.759 79 109.968 79H149.968C152.177 79 153.968 80.791 153.968 83V111Z"
+                          fill="black"
+                          fillOpacity="0.13"
+                        />
 
-                      <text
-                        x="187"
-                        y="76"
-                        fill="#333333"
-                        fontSize="20"
-                        fontWeight="500"
-                        fontFamily="-apple-system, BlinkMacSystemFont, 'SF Pro Text', Arial, sans-serif"
-                      >
-                        Garage
-                      </text>
+                        <path fillRule="evenodd" clipRule="evenodd" d="M111 97H148.968V93H111V97Z" fill="white" />
+                        <path fillRule="evenodd" clipRule="evenodd" d="M111 89H148.968V85H111V89Z" fill="white" />
+                        <path fillRule="evenodd" clipRule="evenodd" d="M111 105H148.968V101H111V105Z" fill="white" />
 
-                      <text
-                        x="187"
-                        y="101"
-                        fill={garageOpen ? "#23AB3F" : "#D92C29"}
-                        fontSize="15"
-                        fontWeight="900"
-                        letterSpacing="0.04em"
-                        fontFamily="-apple-system, BlinkMacSystemFont, 'SF Pro Text', Arial, sans-serif"
-                      >
-                        {garageOpen ? "OPEN" : "CLOSED"}
-                      </text>
-                    </svg>
-                  </button>
-                </section>
+                        <text
+                          x="187"
+                          y="76"
+                          fill="#333333"
+                          fontSize="20"
+                          fontWeight="500"
+                          fontFamily="-apple-system, BlinkMacSystemFont, 'SF Pro Text', Arial, sans-serif"
+                        >
+                          Garage
+                        </text>
+
+                        <text
+                          x="187"
+                          y="101"
+                          fill={garageOpen ? "#23AB3F" : "#D92C29"}
+                          fontSize="15"
+                          fontWeight="900"
+                          letterSpacing="0.04em"
+                          fontFamily="-apple-system, BlinkMacSystemFont, 'SF Pro Text', Arial, sans-serif"
+                        >
+                          {garageOpen ? "OPEN" : "CLOSED"}
+                        </text>
+                      </svg>
+                    </button>
+                  </section>
+                )}
 
                 {/* VIDEO */}
                 <section className="phone-section phone-section--video-card">
@@ -1355,9 +1609,10 @@ export default function PhonePanel({
 
                         {feed.videoSrc ? (
                           <video
-                            key={`${feed.id}-${nightMode ? "night" : "day"}`}
+                            key={`${demoExperience}-${feed.id}-${nightMode ? "night" : "day"}`}
                             className="video-slide__thumbnail"
                             src={feed.videoSrc}
+                            poster={feed.posterSrc}
                             muted
                             playsInline
                             preload="metadata"
@@ -1407,16 +1662,23 @@ export default function PhonePanel({
                   <h3 className="phone-section__title">Lights</h3>
 
                   <div className="light-list">
-                    {[
-                      ["Master Bedroom", upstairsBedroomOn, setUpstairsBedroomOn],
-                      ["Bedroom", bedroomOn, setBedroomOn],
-                      ["Living Room", livingRoomOn, setLivingRoomOn],
-                      ["Dining Room", diningRoomOn, setDiningRoomOn],
-                      ["Garage Lights", garageLightsOn, setGarageLightsOn],
-                      ["Floodlight", floodlightOn, setFloodlightOn],
-                      ["Side Light", exteriorSideLightOn, setExteriorSideLightOn],
-                      ["Porch Light", porchLightOn, setPorchLightOn],
-                    ].map(([label, isOn, setter]) => (
+                    {(demoExperience === "business"
+                      ? [
+                          ["Storefront Lights", storefrontLightsOn, setStorefrontLightsOn],
+                          ["Cafe Lights", cafeLightsOn, setCafeLightsOn],
+                          ["Shop Lights", shopLightsOn, setShopLightsOn],
+                          ["Entrance Lights", entranceLightsOn, setEntranceLightsOn],
+                        ]
+                      : [
+                          ["Master Bedroom", upstairsBedroomOn, setUpstairsBedroomOn],
+                          ["Bedroom", bedroomOn, setBedroomOn],
+                          ["Living Room", livingRoomOn, setLivingRoomOn],
+                          ["Dining Room", diningRoomOn, setDiningRoomOn],
+                          ["Garage Lights", garageLightsOn, setGarageLightsOn],
+                          ["Floodlight", floodlightOn, setFloodlightOn],
+                          ["Side Light", exteriorSideLightOn, setExteriorSideLightOn],
+                          ["Porch Light", porchLightOn, setPorchLightOn],
+                        ]).map(([label, isOn, setter]) => (
                       <button
                         key={label}
                         type="button"
@@ -1491,9 +1753,10 @@ export default function PhonePanel({
               >
                 {activeFeed.videoSrc ? (
                   <video
-                    key={`${activeFeed.id}-${nightMode ? "night" : "day"}`}
+                    key={`${demoExperience}-${activeFeed.id}-${nightMode ? "night" : "day"}`}
                     className="doorbell-view__image"
                     src={activeFeed.videoSrc}
+                    poster={activeFeed.fullscreenPosterSrc ?? activeFeed.posterSrc}
                     autoPlay
                     muted
                     playsInline
@@ -1533,7 +1796,7 @@ export default function PhonePanel({
         </div>
       </div>
 
-      {scenarioMenuOpen && (
+      {demoExperience !== "business" && scenarioMenuOpen && (
         <div className="scenario-menu" id="scenario-menu" role="menu" aria-label="Scenario menu">
           <div className="scenario-menu__header">
             <span>Scenarios</span>
@@ -1569,29 +1832,46 @@ export default function PhonePanel({
 
       <button
         type="button"
-        className={`scenario-toggle ${scenarioMenuOpen ? "is-open" : ""}`}
-        onClick={() => setScenarioMenuOpen((isOpen) => !isOpen)}
-        aria-label="Open scenario menu"
-        aria-controls="scenario-menu"
-        aria-expanded={scenarioMenuOpen}
+        className={`experience-toggle experience-toggle--${demoExperience}`}
+        onClick={onDemoExperienceToggle}
+        aria-label={`Switch to ${demoExperience === "home" ? "business" : "residential"} demo`}
+        aria-pressed={demoExperience === "business"}
       >
-        <span className="scenario-toggle__icon" aria-hidden="true">
-          <svg viewBox="0 0 42 42" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect x="10" y="10" width="8" height="8" rx="2" fill="currentColor" />
-            <rect x="24" y="10" width="8" height="8" rx="2" fill="currentColor" opacity="0.7" />
-            <rect x="10" y="24" width="8" height="8" rx="2" fill="currentColor" opacity="0.7" />
-            <rect x="24" y="24" width="8" height="8" rx="2" fill="currentColor" />
-            <path
-              d="M18 14H24M14 18V24M28 18V24M18 28H24"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              opacity="0.55"
-            />
-          </svg>
+        <span className="experience-toggle__icon" aria-hidden="true">
+          {demoExperience === "home" ? <HomeExperienceIcon /> : <BusinessExperienceIcon />}
         </span>
-        <span className="scenario-toggle__label">Scenarios</span>
+        <span className="experience-toggle__label">
+          {demoExperience === "home" ? "Residential" : "Business"}
+        </span>
       </button>
+
+      {demoExperience !== "business" && (
+        <button
+          type="button"
+          className={`scenario-toggle ${scenarioMenuOpen ? "is-open" : ""}`}
+          onClick={() => setScenarioMenuOpen((isOpen) => !isOpen)}
+          aria-label="Open scenario menu"
+          aria-controls="scenario-menu"
+          aria-expanded={scenarioMenuOpen}
+        >
+          <span className="scenario-toggle__icon" aria-hidden="true">
+            <svg viewBox="0 0 42 42" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="10" y="10" width="8" height="8" rx="2" fill="currentColor" />
+              <rect x="24" y="10" width="8" height="8" rx="2" fill="currentColor" opacity="0.7" />
+              <rect x="10" y="24" width="8" height="8" rx="2" fill="currentColor" opacity="0.7" />
+              <rect x="24" y="24" width="8" height="8" rx="2" fill="currentColor" />
+              <path
+                d="M18 14H24M14 18V24M28 18V24M18 28H24"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                opacity="0.55"
+              />
+            </svg>
+          </span>
+          <span className="scenario-toggle__label">Scenarios</span>
+        </button>
+      )}
 
       <button
         type="button"
@@ -1646,7 +1926,7 @@ export default function PhonePanel({
             )}
           </svg>
         </span>
-        <span className="feed-toggle__label">Action Feed</span>
+        <span className="feed-toggle__label">{feedEnabled ? "Feed On" : "Feed Off"}</span>
       </button>
 
       <button
