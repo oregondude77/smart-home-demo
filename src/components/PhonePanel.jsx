@@ -623,6 +623,7 @@ export default function PhonePanel({
           title: "Open scene",
           actions: [
             "Disarming security system",
+            "Unlocking doors",
             "Setting thermostat to 68°",
             "Turning off storefront lights",
             "Turning on cafe lights",
@@ -635,6 +636,7 @@ export default function PhonePanel({
           title: "Close scene",
           actions: [
             "Arming security system",
+            "Locking doors",
             "Setting thermostat to 72°",
             "Turning off cafe lights",
             "Turning off shop lights",
@@ -647,6 +649,7 @@ export default function PhonePanel({
       home: isBusinessHomeScene
         ? [
             { label: "Disarming security system", run: () => setArmed(false) },
+            { label: "Unlocking doors", run: () => setSceneDoorState("both", true) },
             { label: "Setting thermostat to 68°", run: () => setThermostatTemp(68) },
             { label: "Turning off storefront lights", run: () => setStorefrontLightsOn(false) },
             { label: "Turning on cafe lights", run: () => setCafeLightsOn(true) },
@@ -663,6 +666,7 @@ export default function PhonePanel({
       away: isBusinessAwayScene
         ? [
             { label: "Arming security system", run: () => setArmed(true) },
+            { label: "Locking doors", run: () => setSceneDoorState("both", false) },
             { label: "Setting thermostat to 72°", run: () => setThermostatTemp(72) },
             { label: "Turning off cafe lights", run: () => setCafeLightsOn(false) },
             { label: "Turning off shop lights", run: () => setShopLightsOn(false) },
@@ -1412,7 +1416,7 @@ export default function PhonePanel({
                   >
                     <DoorLockCard
                       label={demoExperience === "business" ? "Front Entrance" : "Front Door"}
-                      unlocked={demoExperience === "business" ? !armed : frontDoorUnlocked}
+                      unlocked={frontDoorUnlocked}
                       icon={demoExperience === "business" ? "door" : "lock"}
                       title={demoExperience === "business" ? "DOORS" : "LOCKS"}
                       ariaLabel={
@@ -1440,7 +1444,7 @@ export default function PhonePanel({
 
                     <DoorLockCard
                       label={demoExperience === "business" ? "Side Entrance" : "Side Door"}
-                      unlocked={demoExperience === "business" ? !armed : sideDoorUnlocked}
+                      unlocked={sideDoorUnlocked}
                       icon={demoExperience === "business" ? "door" : "lock"}
                       title={demoExperience === "business" ? "DOORS" : "LOCKS"}
                       ariaLabel={

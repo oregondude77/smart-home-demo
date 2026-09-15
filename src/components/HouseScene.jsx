@@ -21,10 +21,12 @@ const SCENE_STATUS_TYPE_MIN_MS = 18;
 const SCENE_STATUS_TYPE_MAX_MS = 34;
 const CAFE_LIGHTS_DIM_MS = 1500;
 const ACCESS_CONTROL_READERS = ["main", "side"];
-const INITIAL_ACCESS_CONTROL_SCENE_STATES = {
-  main: "red",
-  side: "red",
-};
+function accessControlStatesFromDoors(frontDoorUnlocked, sideDoorUnlocked) {
+  return {
+    main: frontDoorUnlocked ? "green" : "red",
+    side: sideDoorUnlocked ? "green" : "red",
+  };
+}
 
 function LockIcon() {
   return (
@@ -290,8 +292,11 @@ export default function HouseScene({
     reader: "main",
     readerState: "red",
   });
-  const [accessControlSceneStates, setAccessControlSceneStates] = useState(
-    INITIAL_ACCESS_CONTROL_SCENE_STATES
+  const [accessControlSceneStates, setAccessControlSceneStates] = useState(() =>
+    accessControlStatesFromDoors(frontDoorUnlocked, sideDoorUnlocked)
+  );
+  const accessControlBaseStatesRef = useRef(
+    accessControlStatesFromDoors(frontDoorUnlocked, sideDoorUnlocked)
   );
   const [systemMessage, setSystemMessage] = useState("");
   const [systemMessageKey, setSystemMessageKey] = useState(0);
@@ -410,13 +415,25 @@ export default function HouseScene({
       reader: "main",
       readerState: "red",
     });
-    setAccessControlSceneStates(INITIAL_ACCESS_CONTROL_SCENE_STATES);
+    setAccessControlSceneStates(
+      accessControlStatesFromDoors(frontDoorUnlocked, sideDoorUnlocked)
+    );
     setSystemMessage("");
     setSceneStatusVisible(false);
     setSceneStatusIndex(0);
     setSceneStatusTextLength(0);
     setGarageScenarioCar({ active: false, key: 0, frame: 1 });
   }, [quietResetKey, frontDoorUnlocked, sideDoorUnlocked]);
+
+  useEffect(() => {
+    const baseReaderStates = accessControlStatesFromDoors(
+      frontDoorUnlocked,
+      sideDoorUnlocked
+    );
+
+    accessControlBaseStatesRef.current = baseReaderStates;
+    setAccessControlSceneStates(baseReaderStates);
+  }, [frontDoorUnlocked, sideDoorUnlocked]);
 
   useEffect(() => {
     const images = [
@@ -732,7 +749,9 @@ export default function HouseScene({
           ? accessControlAction.reader
           : "main";
 
-        setAccessControlSceneStates(INITIAL_ACCESS_CONTROL_SCENE_STATES);
+        const baseReaderStates = accessControlBaseStatesRef.current;
+
+        setAccessControlSceneStates(baseReaderStates);
 
         setAccessControlCallout({
           active: true,
@@ -755,7 +774,7 @@ export default function HouseScene({
           }, ACCESS_CONTROL_GREEN_DELAY_MS);
 
           accessControlReaderResetTimeoutRef.current = setTimeout(() => {
-            setAccessControlSceneStates(INITIAL_ACCESS_CONTROL_SCENE_STATES);
+            setAccessControlSceneStates(accessControlBaseStatesRef.current);
             accessControlReaderResetTimeoutRef.current = null;
           }, ACCESS_CONTROL_GRANTED_MS);
         }
