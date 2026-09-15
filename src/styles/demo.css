@@ -590,6 +590,8 @@ body {
   max-height: none !important;
   overflow: hidden !important;
   box-sizing: border-box !important;
+  container-name: phone-screen;
+  container-type: inline-size;
   border-radius: clamp(28px, 2.4vw, 36px);
   background:
     radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.9), transparent 34%),
@@ -1959,6 +1961,118 @@ body {
     width: 216px;
     height: 60px;
     margin-top: 42px;
+  }
+}
+
+/* Scale against the rendered phone, not the browser viewport. */
+@container phone-screen (max-width: 270px) {
+  .phone-app {
+    padding: 44px 12px 20px;
+  }
+
+  .phone-app__top-svg {
+    width: calc(100% + 24px);
+    margin: -44px -12px 12px;
+  }
+
+  .phone-app__sections {
+    gap: 9px;
+  }
+
+  .phone-section {
+    padding: 10px;
+    border-radius: 18px;
+  }
+
+  .phone-section__title {
+    margin-bottom: 7px;
+    font-size: 9px;
+  }
+
+  .phone-section--weather-card {
+    min-height: 92px;
+    aspect-ratio: auto;
+    border-radius: 18px;
+  }
+
+  .weather-card__header {
+    height: 28px;
+    padding: 9px 12px 0;
+  }
+
+  .weather-card__header .phone-section__title {
+    font-size: 9px;
+    letter-spacing: 0.14em;
+  }
+
+  .weather-card__body {
+    height: calc(100% - 28px);
+    grid-template-columns: 42px minmax(0, 1fr);
+    gap: 8px;
+    padding: 0 10px 9px 12px;
+  }
+
+  .weather-card__date {
+    margin-bottom: 3px;
+    font-size: 9px;
+  }
+
+  .weather-card__temp {
+    gap: 3px;
+    margin-bottom: 4px;
+  }
+
+  .weather-card__temp span {
+    font-size: 20px;
+  }
+
+  .weather-card__temp small {
+    margin-top: 1px;
+    font-size: 8px;
+  }
+
+  .weather-card__summary {
+    font-size: 9px;
+  }
+
+  .ios-alert360-notification-stack {
+    width: calc(100% - 18px);
+    gap: 6px;
+  }
+
+  .ios-alert360-notification {
+    padding: 9px 10px 10px;
+    border-radius: 19px;
+  }
+
+  .ios-alert360-notification__header {
+    margin-bottom: 5px;
+  }
+
+  .ios-alert360-notification__brand {
+    gap: 5px;
+    font-size: 11px;
+  }
+
+  .ios-alert360-notification__logo {
+    width: 24px;
+    height: 24px;
+    padding: 3px;
+    border-radius: 7px;
+  }
+
+  .ios-alert360-notification__now {
+    font-size: 10px;
+  }
+
+  .ios-alert360-notification__message {
+    font-size: 14px;
+  }
+
+  .ios-alert360-notification__action {
+    min-height: 36px;
+    border-radius: 11px;
+    font-size: 12px;
   }
 }
 
