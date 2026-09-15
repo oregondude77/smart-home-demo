@@ -182,6 +182,30 @@ function BusinessExperienceIcon() {
   );
 }
 
+function BusinessDoorIcon({ color }) {
+  return (
+    <g transform="translate(82 44)">
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M56 64H8C3.58 64 0 60.42 0 56V8C0 3.58 3.58 0 8 0H56C60.42 0 64 3.58 64 8V56C64 60.42 60.42 64 56 64ZM56 4C58.21 4 60 5.79 60 8V56C60 58.21 58.21 60 56 60H8C5.79 60 4 58.21 4 56V8C4 5.79 5.79 4 8 4H56ZM20 60H44V4H20V60ZM16 32C16 33.66 14.66 35 13 35C11.34 35 10 33.66 10 32C10 30.34 11.34 29 13 29C14.66 29 16 30.34 16 32ZM54 32C54 33.66 52.66 35 51 35C49.34 35 48 33.66 48 32C48 30.34 49.34 29 51 29C52.66 29 54 30.34 54 32Z"
+        fill={color}
+      />
+      <path d="M20 60H44V4H20V60Z" fill="black" fillOpacity="0.13" />
+      <path
+        d="M16 32C16 33.66 14.66 35 13 35C11.34 35 10 33.66 10 32C10 30.34 11.34 29 13 29C14.66 29 16 30.34 16 32Z"
+        fill="black"
+        fillOpacity="0.13"
+      />
+      <path
+        d="M54 32C54 33.66 52.66 35 51 35C49.34 35 48 33.66 48 32C48 30.34 49.34 29 51 29C52.66 29 54 30.34 54 32Z"
+        fill="black"
+        fillOpacity="0.13"
+      />
+    </g>
+  );
+}
+
 export default function PhonePanel({
   garageOpen,
   setGarageOpen,
@@ -744,6 +768,7 @@ export default function PhonePanel({
     label,
     unlocked,
     onToggle,
+    icon = "lock",
     title = "LOCKS",
     status = unlocked ? "UNLOCKED" : "LOCKED",
     statusColor = unlocked ? "#23AB3F" : "#D92C29",
@@ -788,24 +813,27 @@ export default function PhonePanel({
           ›
         </text>
 
-        <g transform="translate(82 44)">
-          {unlocked ? (
+        {icon === "door" ? (
+          <BusinessDoorIcon color={statusColor} />
+        ) : (
+          <g transform="translate(82 44)">
+            {unlocked ? (
             <path
               fillRule="evenodd"
               clipRule="evenodd"
               d="M41 28V15C41 10.864 44.364 7.5 48.5 7.5C52.636 7.5 56 10.864 56 15V19H62V15C62 7.556 55.944 1.5 48.5 1.5C41.056 1.5 35 7.556 35 15V28H32C27.582 28 24 31.582 24 36V61C24 65.418 27.582 69 32 69H64C68.418 69 72 65.418 72 61V36C72 31.582 68.418 28 64 28H41Z"
               fill="#23AB3F"
             />
-          ) : (
-            <path
+            ) : (
+              <path
               fillRule="evenodd"
               clipRule="evenodd"
               d="M41 15C41 10.864 44.364 7.5 48.5 7.5C52.636 7.5 56 10.864 56 15V28H41V15ZM64 28H62V15C62 7.556 55.944 1.5 48.5 1.5C41.056 1.5 35 7.556 35 15V28H32C27.582 28 24 31.582 24 36V60C24 64.418 27.582 68 32 68H64C68.418 68 72 64.418 72 60V36C72 31.582 68.418 28 64 28Z"
               fill="#D92C29"
             />
-          )}
+            )}
 
-          <path
+            <path
             fillRule="evenodd"
             clipRule="evenodd"
             d="M64 66H32C27.582 66 24 61.918 24 57.5V60C24 64.418 27.582 68 32 68H64C68.418 68 72 64.418 72 60V57.5C72 61.918 68.418 66 64 66Z"
@@ -813,7 +841,7 @@ export default function PhonePanel({
             fillOpacity="0.13"
           />
 
-          <path
+            <path
             fillRule="evenodd"
             clipRule="evenodd"
             d="M48 37C43.589 37 40 40.589 40 45C40 47.883 41.56 50.511 44 51.922V59V61H46H50H52V59V51.922C54.44 50.511 56 47.883 56 45C56 40.589 52.411 37 48 37ZM54 45C54 41.686 51.314 39 48 39C44.686 39 42 41.686 42 45C42 47.611 43.671 49.827 46 50.651V59H50V50.651C52.329 49.827 54 47.611 54 45Z"
@@ -821,13 +849,14 @@ export default function PhonePanel({
             fillOpacity="0.13"
           />
 
-          <path
+            <path
             fillRule="evenodd"
             clipRule="evenodd"
             d="M54 45C54 41.686 51.314 39 48 39C44.686 39 42 41.686 42 45C42 47.611 43.671 49.827 46 50.651V59H50V50.651C52.329 49.827 54 47.611 54 45Z"
             fill="white"
           />
-        </g>
+          </g>
+        )}
 
         <text
           x="187"
@@ -1382,11 +1411,10 @@ export default function PhonePanel({
                     }}
                   >
                     <DoorLockCard
-                      label={demoExperience === "business" ? "Main Entrance" : "Front Door"}
-                      unlocked={demoExperience === "business" ? true : frontDoorUnlocked}
-                      title={demoExperience === "business" ? "ACCESS CONTROL" : "LOCKS"}
-                      status={demoExperience === "business" ? "ONLINE" : undefined}
-                      statusColor={demoExperience === "business" ? "#23AB3F" : undefined}
+                      label={demoExperience === "business" ? "Front Entrance" : "Front Door"}
+                      unlocked={demoExperience === "business" ? !armed : frontDoorUnlocked}
+                      icon={demoExperience === "business" ? "door" : "lock"}
+                      title={demoExperience === "business" ? "DOORS" : "LOCKS"}
                       ariaLabel={
                         demoExperience === "business"
                           ? "Grant access at Main Entrance"
@@ -1412,10 +1440,9 @@ export default function PhonePanel({
 
                     <DoorLockCard
                       label={demoExperience === "business" ? "Side Entrance" : "Side Door"}
-                      unlocked={demoExperience === "business" ? true : sideDoorUnlocked}
-                      title={demoExperience === "business" ? "ACCESS CONTROL" : "LOCKS"}
-                      status={demoExperience === "business" ? "ONLINE" : undefined}
-                      statusColor={demoExperience === "business" ? "#23AB3F" : undefined}
+                      unlocked={demoExperience === "business" ? !armed : sideDoorUnlocked}
+                      icon={demoExperience === "business" ? "door" : "lock"}
+                      title={demoExperience === "business" ? "DOORS" : "LOCKS"}
                       ariaLabel={
                         demoExperience === "business"
                           ? "Grant access at Side Entrance"
