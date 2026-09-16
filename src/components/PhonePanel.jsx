@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 
 const OUTDOOR_NIGHT_VIDEO_SRC = "/outdoor-camera-night.mp4";
 const RESIDENTIAL_CAMERA_FEED_IDS = ["doorbell", "outdoor", "floodlight"];
-const BUSINESS_CAMERA_FEED_IDS = ["outdoor", "floodlight"];
+const BUSINESS_CAMERA_FEED_IDS = ["outdoor", "floodlight", "loading-dock"];
 const THERMOSTAT_MIN_TEMP = 60;
 const THERMOSTAT_MAX_TEMP = 82;
 const SCENE_ACTION_STEP_MS = 1550;
@@ -209,21 +209,22 @@ function BusinessDoorIcon({ color }) {
 function BusinessVideoFeed({ feed, nightMode }) {
   const videoRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const hasVideo = Boolean(feed.videoSrc);
 
   useEffect(() => {
     const video = videoRef.current;
 
-    if (!video) return;
+    if (!video || !hasVideo) return;
 
     video.pause();
     video.currentTime = 0;
     setIsPlaying(false);
-  }, [feed.id, feed.videoSrc, nightMode]);
+  }, [feed.id, feed.videoSrc, hasVideo, nightMode]);
 
   const togglePlayback = async () => {
     const video = videoRef.current;
 
-    if (!video) return;
+    if (!video || !hasVideo) return;
 
     if (!video.paused) {
       video.pause();
@@ -242,25 +243,32 @@ function BusinessVideoFeed({ feed, nightMode }) {
       type="button"
       className={`business-video-screen__feed ${isPlaying ? "is-playing" : ""}`}
       onClick={togglePlayback}
-      aria-label={`${isPlaying ? "Pause" : "Play"} ${feed.label}`}
+      aria-label={hasVideo ? `${isPlaying ? "Pause" : "Play"} ${feed.label}` : feed.label}
+      disabled={!hasVideo}
     >
-      <video
-        ref={videoRef}
-        src={feed.videoSrc}
-        poster={feed.posterSrc}
-        muted
-        loop
-        playsInline
-        preload="metadata"
-        onPlay={() => setIsPlaying(true)}
-        onPause={() => setIsPlaying(false)}
-        aria-hidden="true"
-      />
-      <span className="business-video-screen__play" aria-hidden="true">
-        <svg viewBox="0 0 24 24">
-          <path d="M9 6.8v10.4L17 12 9 6.8Z" />
-        </svg>
-      </span>
+      {hasVideo ? (
+        <>
+          <video
+            ref={videoRef}
+            src={feed.videoSrc}
+            poster={feed.posterSrc}
+            muted
+            loop
+            playsInline
+            preload="metadata"
+            onPlay={() => setIsPlaying(true)}
+            onPause={() => setIsPlaying(false)}
+            aria-hidden="true"
+          />
+          <span className="business-video-screen__play" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path d="M9 6.8v10.4L17 12 9 6.8Z" />
+            </svg>
+          </span>
+        </>
+      ) : (
+        <img src={feed.src} alt="" aria-hidden="true" />
+      )}
     </button>
   );
 }
@@ -539,6 +547,22 @@ export default function PhonePanel({
       alt: demoExperience === "business"
         ? "Building entrance camera view"
         : "Floodlight camera view",
+    },
+    {
+      id: "loading-dock",
+      label: "Loading Dock",
+      liveLabel: "Loading Dock",
+      src: nightMode
+        ? "/smb-camera-loading-dock-night.png"
+        : "/smb-camera-loading-dock-day.png",
+      posterSrc: nightMode
+        ? "/smb-camera-loading-dock-night.png"
+        : "/smb-camera-loading-dock-day.png",
+      fullscreenPosterSrc: nightMode
+        ? "/smb-camera-loading-dock-night.png"
+        : "/smb-camera-loading-dock-day.png",
+      videoSrc: nightMode ? undefined : "/smb-camera-loading-dock-day.mp4",
+      alt: "Loading dock camera view",
     },
   ];
   const mainCameraFeedIds = demoExperience === "business"
