@@ -1184,7 +1184,8 @@ export default function PhonePanel({
             {scenarioPhoneMode ? (
               <IPhoneHomeScreen />
             ) : (
-              <div ref={phoneAppRef} className="phone-app">
+              <>
+                <div ref={phoneAppRef} className="phone-app">
                 <div className="phone-app__top-svg">
                 <svg
                   width="393"
@@ -1739,7 +1740,17 @@ export default function PhonePanel({
                   </div>
                 </section>
                 </div>
-              </div>
+                </div>
+
+                {demoExperience === "business" && (
+                  <img
+                    className="business-app-footer"
+                    src="/smb-app-footer.svg"
+                    alt=""
+                    aria-hidden="true"
+                  />
+                )}
+              </>
             )}
 
             {phoneNotification && (
