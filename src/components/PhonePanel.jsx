@@ -561,7 +561,9 @@ export default function PhonePanel({
       fullscreenPosterSrc: nightMode
         ? "/smb-camera-loading-dock-night.png"
         : "/smb-camera-loading-dock-day.png",
-      videoSrc: nightMode ? undefined : "/smb-camera-loading-dock-day.mp4",
+      videoSrc: nightMode
+        ? "/smb-camera-loading-dock-night.mp4"
+        : "/smb-camera-loading-dock-day.mp4",
       alt: "Loading dock camera view",
     },
   ];
