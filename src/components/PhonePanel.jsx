@@ -206,7 +206,66 @@ function BusinessDoorIcon({ color }) {
   );
 }
 
-function BusinessVideoScreen({ feeds, nightMode, onOpen }) {
+function BusinessVideoFeed({ feed, nightMode }) {
+  const videoRef = useRef(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+
+  useEffect(() => {
+    const video = videoRef.current;
+
+    if (!video) return;
+
+    video.pause();
+    video.currentTime = 0;
+    setIsPlaying(false);
+  }, [feed.id, feed.videoSrc, nightMode]);
+
+  const togglePlayback = async () => {
+    const video = videoRef.current;
+
+    if (!video) return;
+
+    if (!video.paused) {
+      video.pause();
+      return;
+    }
+
+    try {
+      await video.play();
+    } catch {
+      setIsPlaying(false);
+    }
+  };
+
+  return (
+    <button
+      type="button"
+      className={`business-video-screen__feed ${isPlaying ? "is-playing" : ""}`}
+      onClick={togglePlayback}
+      aria-label={`${isPlaying ? "Pause" : "Play"} ${feed.label}`}
+    >
+      <video
+        ref={videoRef}
+        src={feed.videoSrc}
+        poster={feed.posterSrc}
+        muted
+        loop
+        playsInline
+        preload="metadata"
+        onPlay={() => setIsPlaying(true)}
+        onPause={() => setIsPlaying(false)}
+        aria-hidden="true"
+      />
+      <span className="business-video-screen__play" aria-hidden="true">
+        <svg viewBox="0 0 24 24">
+          <path d="M9 6.8v10.4L17 12 9 6.8Z" />
+        </svg>
+      </span>
+    </button>
+  );
+}
+
+function BusinessVideoScreen({ feeds, nightMode }) {
   return (
     <div className="business-video-screen">
       <header className="business-video-screen__header">
@@ -243,25 +302,11 @@ function BusinessVideoScreen({ feeds, nightMode, onOpen }) {
 
       <div className="business-video-screen__feeds">
         {feeds.map((feed) => (
-          <button
+          <BusinessVideoFeed
             key={feed.id}
-            type="button"
-            className="business-video-screen__feed"
-            onClick={() => onOpen(feed.id)}
-            aria-label={`Open live ${feed.label}`}
-          >
-            <video
-              key={`${feed.id}-${nightMode ? "night" : "day"}`}
-              src={feed.videoSrc}
-              poster={feed.posterSrc}
-              muted
-              autoPlay
-              loop
-              playsInline
-              preload="metadata"
-              aria-hidden="true"
-            />
-          </button>
+            feed={feed}
+            nightMode={nightMode}
+          />
         ))}
       </div>
     </div>
@@ -1267,7 +1312,6 @@ export default function PhonePanel({
                   <BusinessVideoScreen
                     feeds={mainCameraFeeds}
                     nightMode={nightMode}
-                    onOpen={handleExpandCamera}
                   />
                 ) : (
                   <>
