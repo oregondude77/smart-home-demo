@@ -427,9 +427,15 @@ export default function PhonePanel({
       id: "doorbell",
       label: "Video Doorbell",
       liveLabel: "Live Doorbell",
-      src: "/doorbell-camera-scene.svg",
-      thumbnailSrc: "/doorbell-camera-scene.svg",
-      posterSrc: "/doorbell-camera-scene.svg",
+      src: nightMode
+        ? "/home-camera-doorbell-night-thumb.jpg"
+        : "/home-camera-doorbell-day-thumb.jpg",
+      thumbnailSrc: nightMode
+        ? "/home-camera-doorbell-night-thumb.jpg"
+        : "/home-camera-doorbell-day-thumb.jpg",
+      posterSrc: nightMode
+        ? "/home-camera-doorbell-night-thumb.jpg"
+        : "/home-camera-doorbell-day-thumb.jpg",
       videoSrc: nightMode
         ? "/video-doorbell-night.mp4"
         : "/video-doorbell-delivery2.mp4",
@@ -439,8 +445,8 @@ export default function PhonePanel({
       id: "doorbell-kids-arrival",
       label: "Doorbell Camera",
       liveLabel: "Doorbell Camera",
-      src: "/doorbell-camera-scene.svg",
-      posterSrc: "/doorbell-camera-scene.svg",
+      src: "/home-camera-doorbell-day-thumb.jpg",
+      posterSrc: "/home-camera-doorbell-day-thumb.jpg",
       videoSrc: "/kids-home.mp4",
       alt: "Kids arriving through doorbell camera view",
     },
@@ -448,8 +454,8 @@ export default function PhonePanel({
       id: "doorbell-package-delivery",
       label: "Doorbell Camera",
       liveLabel: "Doorbell Camera",
-      src: "/doorbell-camera-scene.svg",
-      posterSrc: "/doorbell-camera-scene.svg",
+      src: "/home-camera-doorbell-day-thumb.jpg",
+      posterSrc: "/home-camera-doorbell-day-thumb.jpg",
       videoSrc: "/video-doorbell-delivery.mp4",
       alt: "Package delivery through doorbell camera view",
     },
@@ -461,22 +467,30 @@ export default function PhonePanel({
         ? nightMode
           ? "/smb-camera-side-night-thumb.jpg"
           : "/smb-camera-side-day-thumb.jpg"
-        : "/outdoor-camera-scene.svg",
+        : nightMode
+          ? "/home-camera-outdoor-night-thumb.jpg"
+          : "/home-camera-outdoor-day-thumb.jpg",
       thumbnailSrc: demoExperience === "business"
         ? nightMode
           ? "/smb-camera-side-night-thumb.jpg"
           : "/smb-camera-side-day-thumb.jpg"
-        : "/outdoor-camera-scene.svg",
+        : nightMode
+          ? "/home-camera-outdoor-night-thumb.jpg"
+          : "/home-camera-outdoor-day-thumb.jpg",
       posterSrc: demoExperience === "business"
         ? nightMode
           ? "/smb-camera-side-night-thumb.jpg"
           : "/smb-camera-side-day-thumb.jpg"
-        : "/outdoor-camera-scene.svg",
+        : nightMode
+          ? "/home-camera-outdoor-night-thumb.jpg"
+          : "/home-camera-outdoor-day-thumb.jpg",
       fullscreenPosterSrc: demoExperience === "business"
         ? nightMode
           ? "/building-side-camera-night-poster.jpg"
           : "/building-side-camera-day-poster.jpg"
-        : undefined,
+        : nightMode
+          ? "/home-camera-outdoor-night-thumb.jpg"
+          : "/home-camera-outdoor-day-thumb.jpg",
       videoSrc: demoExperience === "business"
         ? nightMode
           ? "/smb-camera-side-night.mp4"
@@ -496,22 +510,30 @@ export default function PhonePanel({
         ? nightMode
           ? "/smb-camera-entrance-night-thumb.jpg"
           : "/smb-camera-entrance-day-thumb.jpg"
-        : "/floodlight-camera-scene.svg",
+        : nightMode
+          ? "/home-camera-floodlight-night-thumb.jpg"
+          : "/home-camera-floodlight-day-thumb.jpg",
       thumbnailSrc: demoExperience === "business"
         ? nightMode
           ? "/smb-camera-entrance-night-thumb.jpg"
           : "/smb-camera-entrance-day-thumb.jpg"
-        : "/floodlight-camera-scene.svg",
+        : nightMode
+          ? "/home-camera-floodlight-night-thumb.jpg"
+          : "/home-camera-floodlight-day-thumb.jpg",
       posterSrc: demoExperience === "business"
         ? nightMode
           ? "/smb-camera-entrance-night-thumb.jpg"
           : "/smb-camera-entrance-day-thumb.jpg"
-        : "/floodlight-camera-scene.svg",
+        : nightMode
+          ? "/home-camera-floodlight-night-thumb.jpg"
+          : "/home-camera-floodlight-day-thumb.jpg",
       fullscreenPosterSrc: demoExperience === "business"
         ? nightMode
           ? "/building-entrance-camera-night-poster.jpg"
           : "/building-entrance-camera-day-poster.jpg"
-        : undefined,
+        : nightMode
+          ? "/home-camera-floodlight-night-thumb.jpg"
+          : "/home-camera-floodlight-day-thumb.jpg",
       videoSrc: demoExperience === "business"
         ? nightMode
           ? "/smb-camera-entrance-night.mp4"
