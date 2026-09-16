@@ -1314,10 +1314,10 @@ body {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: clamp(22px, 7cqw, 28px);
+  width: clamp(42px, 13.5cqw, 54px);
   aspect-ratio: 1;
   color: rgba(255, 255, 255, 0.76);
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.28));
+  filter: drop-shadow(0 3px 7px rgba(0, 0, 0, 0.34));
   transform: translate(-50%, -50%);
   transition: opacity 160ms ease, transform 160ms ease;
   pointer-events: none;
