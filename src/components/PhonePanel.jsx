@@ -264,6 +264,7 @@ export default function PhonePanel({
 }) {
   const [activeDoorSlide, setActiveDoorSlide] = useState(0);
   const [activeVideoSlide, setActiveVideoSlide] = useState(0);
+  const [activeBusinessFooterTab, setActiveBusinessFooterTab] = useState("home");
   const [scenarioMenuOpen, setScenarioMenuOpen] = useState(false);
 
   const phoneAppRef = useRef(null);
@@ -487,6 +488,7 @@ export default function PhonePanel({
 
   useEffect(() => {
     setActiveVideoSlide(0);
+    setActiveBusinessFooterTab("home");
     setScenarioMenuOpen(false);
 
     const frameId = requestAnimationFrame(() => {
@@ -1743,12 +1745,32 @@ export default function PhonePanel({
                 </div>
 
                 {demoExperience === "business" && (
-                  <img
-                    className="business-app-footer"
-                    src="/smb-app-footer.svg"
-                    alt=""
-                    aria-hidden="true"
-                  />
+                  <div className="business-app-footer">
+                    <img
+                      className="business-app-footer__art"
+                      src={
+                        activeBusinessFooterTab === "video"
+                          ? "/smb-app-footer-video.svg"
+                          : "/smb-app-footer.svg"
+                      }
+                      alt=""
+                      aria-hidden="true"
+                    />
+                    <button
+                      type="button"
+                      className="business-app-footer__tab business-app-footer__tab--home"
+                      aria-label="Home"
+                      aria-pressed={activeBusinessFooterTab === "home"}
+                      onClick={() => setActiveBusinessFooterTab("home")}
+                    />
+                    <button
+                      type="button"
+                      className="business-app-footer__tab business-app-footer__tab--video"
+                      aria-label="Video"
+                      aria-pressed={activeBusinessFooterTab === "video"}
+                      onClick={() => setActiveBusinessFooterTab("video")}
+                    />
+                  </div>
                 )}
               </>
             )}
