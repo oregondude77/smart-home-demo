@@ -206,74 +206,31 @@ function BusinessDoorIcon({ color }) {
   );
 }
 
-function BusinessVideoFeed({ feed, nightMode }) {
-  const videoRef = useRef(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const hasVideo = Boolean(feed.videoSrc);
-
-  useEffect(() => {
-    const video = videoRef.current;
-
-    if (!video || !hasVideo) return;
-
-    video.pause();
-    video.currentTime = 0;
-    setIsPlaying(false);
-  }, [feed.id, feed.videoSrc, hasVideo, nightMode]);
-
-  const togglePlayback = async () => {
-    const video = videoRef.current;
-
-    if (!video || !hasVideo) return;
-
-    if (!video.paused) {
-      video.pause();
-      return;
-    }
-
-    try {
-      await video.play();
-    } catch {
-      setIsPlaying(false);
-    }
-  };
-
+function BusinessVideoFeed({ feed, onOpen }) {
   return (
     <button
       type="button"
-      className={`business-video-screen__feed ${isPlaying ? "is-playing" : ""}`}
-      onClick={togglePlayback}
-      aria-label={hasVideo ? `${isPlaying ? "Pause" : "Play"} ${feed.label}` : feed.label}
-      disabled={!hasVideo}
+      className={`business-video-screen__feed business-video-screen__feed--${feed.id}`}
+      onClick={() => onOpen(feed.id)}
+      aria-label={`Play ${feed.label} full screen`}
     >
-      {hasVideo ? (
-        <>
-          <video
-            ref={videoRef}
-            src={feed.videoSrc}
-            poster={feed.posterSrc}
-            muted
-            loop
-            playsInline
-            preload="metadata"
-            onPlay={() => setIsPlaying(true)}
-            onPause={() => setIsPlaying(false)}
-            aria-hidden="true"
-          />
-          <span className="business-video-screen__play" aria-hidden="true">
-            <svg viewBox="0 0 24 24">
-              <path d="M9 6.8v10.4L17 12 9 6.8Z" />
-            </svg>
-          </span>
-        </>
-      ) : (
-        <img src={feed.src} alt="" aria-hidden="true" />
-      )}
+      <img
+        src={feed.thumbnailSrc ?? feed.posterSrc ?? feed.src}
+        alt=""
+        loading="lazy"
+        decoding="async"
+        aria-hidden="true"
+      />
+      <span className="business-video-screen__play" aria-hidden="true">
+        <svg viewBox="0 0 24 24">
+          <path d="M9 6.8v10.4L17 12 9 6.8Z" />
+        </svg>
+      </span>
     </button>
   );
 }
 
-function BusinessVideoScreen({ feeds, nightMode }) {
+function BusinessVideoScreen({ feeds, onOpen }) {
   return (
     <div className="business-video-screen">
       <header className="business-video-screen__header">
@@ -313,7 +270,7 @@ function BusinessVideoScreen({ feeds, nightMode }) {
           <BusinessVideoFeed
             key={feed.id}
             feed={feed}
-            nightMode={nightMode}
+            onOpen={onOpen}
           />
         ))}
       </div>
@@ -471,6 +428,8 @@ export default function PhonePanel({
       label: "Video Doorbell",
       liveLabel: "Live Doorbell",
       src: "/doorbell-camera-scene.svg",
+      thumbnailSrc: "/doorbell-camera-scene.svg",
+      posterSrc: "/doorbell-camera-scene.svg",
       videoSrc: nightMode
         ? "/video-doorbell-night.mp4"
         : "/video-doorbell-delivery2.mp4",
@@ -481,6 +440,7 @@ export default function PhonePanel({
       label: "Doorbell Camera",
       liveLabel: "Doorbell Camera",
       src: "/doorbell-camera-scene.svg",
+      posterSrc: "/doorbell-camera-scene.svg",
       videoSrc: "/kids-home.mp4",
       alt: "Kids arriving through doorbell camera view",
     },
@@ -489,6 +449,7 @@ export default function PhonePanel({
       label: "Doorbell Camera",
       liveLabel: "Doorbell Camera",
       src: "/doorbell-camera-scene.svg",
+      posterSrc: "/doorbell-camera-scene.svg",
       videoSrc: "/video-doorbell-delivery.mp4",
       alt: "Package delivery through doorbell camera view",
     },
@@ -497,17 +458,24 @@ export default function PhonePanel({
       label: demoExperience === "business" ? "Building Side" : "Outdoor Camera",
       liveLabel: demoExperience === "business" ? "Building Side" : "Outdoor Camera",
       src: demoExperience === "business"
-        ? "/smb-camera-side-day-thumbnail.png"
+        ? nightMode
+          ? "/smb-camera-side-night-thumb.jpg"
+          : "/smb-camera-side-day-thumb.jpg"
+        : "/outdoor-camera-scene.svg",
+      thumbnailSrc: demoExperience === "business"
+        ? nightMode
+          ? "/smb-camera-side-night-thumb.jpg"
+          : "/smb-camera-side-day-thumb.jpg"
         : "/outdoor-camera-scene.svg",
       posterSrc: demoExperience === "business"
         ? nightMode
-          ? "/smb-camera-side-night-thumbnail.png"
-          : "/smb-camera-side-day-thumbnail.png"
-        : undefined,
+          ? "/smb-camera-side-night-thumb.jpg"
+          : "/smb-camera-side-day-thumb.jpg"
+        : "/outdoor-camera-scene.svg",
       fullscreenPosterSrc: demoExperience === "business"
         ? nightMode
-          ? "/building-side-camera-night.png"
-          : "/building-side-camera-day.png"
+          ? "/building-side-camera-night-poster.jpg"
+          : "/building-side-camera-day-poster.jpg"
         : undefined,
       videoSrc: demoExperience === "business"
         ? nightMode
@@ -525,17 +493,24 @@ export default function PhonePanel({
       label: demoExperience === "business" ? "Building Entrance" : "Floodlight Camera",
       liveLabel: demoExperience === "business" ? "Building Entrance" : "Floodlight Camera",
       src: demoExperience === "business"
-        ? "/smb-camera-entrance-day-thumbnail.png"
+        ? nightMode
+          ? "/smb-camera-entrance-night-thumb.jpg"
+          : "/smb-camera-entrance-day-thumb.jpg"
+        : "/floodlight-camera-scene.svg",
+      thumbnailSrc: demoExperience === "business"
+        ? nightMode
+          ? "/smb-camera-entrance-night-thumb.jpg"
+          : "/smb-camera-entrance-day-thumb.jpg"
         : "/floodlight-camera-scene.svg",
       posterSrc: demoExperience === "business"
         ? nightMode
-          ? "/smb-camera-entrance-night-thumbnail.png"
-          : "/smb-camera-entrance-day-thumbnail.png"
-        : undefined,
+          ? "/smb-camera-entrance-night-thumb.jpg"
+          : "/smb-camera-entrance-day-thumb.jpg"
+        : "/floodlight-camera-scene.svg",
       fullscreenPosterSrc: demoExperience === "business"
         ? nightMode
-          ? "/building-entrance-camera-night.png"
-          : "/building-entrance-camera-day.png"
+          ? "/building-entrance-camera-night-poster.jpg"
+          : "/building-entrance-camera-day-poster.jpg"
         : undefined,
       videoSrc: demoExperience === "business"
         ? nightMode
@@ -553,14 +528,17 @@ export default function PhonePanel({
       label: "Loading Dock",
       liveLabel: "Loading Dock",
       src: nightMode
-        ? "/smb-camera-loading-dock-night.png"
-        : "/smb-camera-loading-dock-day.png",
+        ? "/smb-camera-loading-dock-night-thumb.jpg"
+        : "/smb-camera-loading-dock-day-thumb.jpg",
+      thumbnailSrc: nightMode
+        ? "/smb-camera-loading-dock-night-thumb.jpg"
+        : "/smb-camera-loading-dock-day-thumb.jpg",
       posterSrc: nightMode
-        ? "/smb-camera-loading-dock-night.png"
-        : "/smb-camera-loading-dock-day.png",
+        ? "/smb-camera-loading-dock-night-thumb.jpg"
+        : "/smb-camera-loading-dock-day-thumb.jpg",
       fullscreenPosterSrc: nightMode
-        ? "/smb-camera-loading-dock-night.png"
-        : "/smb-camera-loading-dock-day.png",
+        ? "/smb-camera-loading-dock-night-poster.jpg"
+        : "/smb-camera-loading-dock-day-poster.jpg",
       videoSrc: nightMode
         ? "/smb-camera-loading-dock-night.mp4"
         : "/smb-camera-loading-dock-day.mp4",
@@ -1337,7 +1315,7 @@ export default function PhonePanel({
                 {demoExperience === "business" && activeBusinessFooterTab === "video" ? (
                   <BusinessVideoScreen
                     feeds={mainCameraFeeds}
-                    nightMode={nightMode}
+                    onOpen={handleExpandCamera}
                   />
                 ) : (
                   <>
@@ -1768,7 +1746,7 @@ export default function PhonePanel({
                       setActiveVideoSlide(slide);
                     }}
                   >
-                    {mainCameraFeeds.map((feed) => (
+                    {mainCameraFeeds.map((feed, feedIndex) => (
                       <div
                         key={feed.id}
                         className={`video-slide video-slide--${feed.id}`}
@@ -1794,19 +1772,15 @@ export default function PhonePanel({
                           </div>
                         </div>
 
-                        {feed.videoSrc ? (
-                          <video
-                            key={`${demoExperience}-${feed.id}-${nightMode ? "night" : "day"}`}
-                            className="video-slide__thumbnail"
-                            src={feed.videoSrc}
-                            poster={feed.posterSrc}
-                            muted
-                            playsInline
-                            preload="metadata"
-                          />
-                        ) : (
-                          <img src={feed.src} alt={feed.alt} />
-                        )}
+                        <img
+                          key={`${demoExperience}-${feed.id}-${nightMode ? "night" : "day"}`}
+                          className="video-slide__thumbnail"
+                          src={feed.thumbnailSrc ?? feed.posterSrc ?? feed.src}
+                          alt={feed.alt}
+                          loading={feedIndex === activeVideoSlide ? "eager" : "lazy"}
+                          decoding="async"
+                          fetchPriority={feedIndex === activeVideoSlide ? "high" : "low"}
+                        />
 
                         <button
                           type="button"

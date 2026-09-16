@@ -1298,7 +1298,6 @@ body {
   cursor: pointer;
 }
 
-.business-video-screen__feed video,
 .business-video-screen__feed > img {
   display: block;
   width: 100%;
@@ -1307,9 +1306,8 @@ body {
   pointer-events: none;
 }
 
-.business-video-screen__feed:disabled {
-  cursor: default;
-  opacity: 1;
+.business-video-screen__feed--loading-dock > img {
+  object-position: center 18%;
 }
 
 .business-video-screen__play {
@@ -1338,11 +1336,6 @@ body {
 
 .business-video-screen__feed:hover .business-video-screen__play {
   transform: translate(-50%, -50%) scale(1.04);
-}
-
-.business-video-screen__feed.is-playing .business-video-screen__play {
-  opacity: 0;
-  transform: translate(-50%, -50%) scale(0.88);
 }
 
 .phone-section {
@@ -2896,6 +2889,10 @@ body:has(.demo.is-night)::before {
   object-fit: cover;
   object-position: center;
   background: #000;
+}
+
+.video-slide--loading-dock .video-slide__thumbnail {
+  object-position: center 18%;
 }
 
 .video-slide--outdoor .video-slide__play,
