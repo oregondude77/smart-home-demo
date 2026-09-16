@@ -1077,11 +1077,11 @@ body {
   gap: 14px;
 }
 
-.phone-panel-wrap.is-business .phone-app {
+.phone-panel-wrap .phone-app {
   padding-bottom: calc(clamp(82px, 29cqw, 114px) + 16px);
 }
 
-.business-app-footer {
+.phone-app-footer {
   position: absolute;
   right: 0;
   bottom: -6px;
@@ -1099,13 +1099,13 @@ body {
   );
 }
 
-.business-app-footer__art {
+.phone-app-footer__art {
   display: block;
   width: 100%;
   height: 100%;
 }
 
-.business-app-footer__tab {
+.phone-app-footer__tab {
   position: absolute;
   top: 24%;
   bottom: 0;
@@ -1119,15 +1119,15 @@ body {
   touch-action: manipulation;
 }
 
-.business-app-footer__tab--home {
+.phone-app-footer__tab--home {
   left: 0;
 }
 
-.business-app-footer__tab--video {
+.phone-app-footer__tab--video {
   left: 25%;
 }
 
-.phone-app--business-video {
+.phone-app--camera-grid {
   --business-video-app-top: 56px;
   --business-video-app-gutter: 12px;
   padding-right: var(--business-video-app-gutter);
@@ -2231,11 +2231,11 @@ body {
     padding: 44px 12px 20px;
   }
 
-  .phone-app--business-video {
+  .phone-app--camera-grid {
     --business-video-app-top: 44px;
   }
 
-  .phone-panel-wrap.is-business .phone-app {
+  .phone-panel-wrap .phone-app {
     padding-bottom: calc(29cqw + 14px);
   }
 

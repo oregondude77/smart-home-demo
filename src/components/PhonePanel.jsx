@@ -230,7 +230,7 @@ function BusinessVideoFeed({ feed, onOpen }) {
   );
 }
 
-function BusinessVideoScreen({ feeds, onOpen }) {
+function CameraGridScreen({ feeds, onOpen }) {
   return (
     <div className="business-video-screen">
       <header className="business-video-screen__header">
@@ -336,7 +336,7 @@ export default function PhonePanel({
 }) {
   const [activeDoorSlide, setActiveDoorSlide] = useState(0);
   const [activeVideoSlide, setActiveVideoSlide] = useState(0);
-  const [activeBusinessFooterTab, setActiveBusinessFooterTab] = useState("home");
+  const [activeFooterTab, setActiveFooterTab] = useState("home");
   const [scenarioMenuOpen, setScenarioMenuOpen] = useState(false);
 
   const phoneAppRef = useRef(null);
@@ -599,7 +599,7 @@ export default function PhonePanel({
 
   useEffect(() => {
     setActiveVideoSlide(0);
-    setActiveBusinessFooterTab("home");
+    setActiveFooterTab("home");
     setScenarioMenuOpen(false);
 
     const frameId = requestAnimationFrame(() => {
@@ -618,7 +618,7 @@ export default function PhonePanel({
     if (!phoneAppRef.current) return;
 
     phoneAppRef.current.scrollTo({ top: 0, behavior: "auto" });
-  }, [activeBusinessFooterTab]);
+  }, [activeFooterTab]);
 
   const handleExpandCamera = (cameraId) => {
     const feed = cameraFeeds.find((cameraFeed) => cameraFeed.id === cameraId);
@@ -1307,13 +1307,13 @@ export default function PhonePanel({
                 <div
                   ref={phoneAppRef}
                   className={`phone-app ${
-                    demoExperience === "business" && activeBusinessFooterTab === "video"
-                      ? "phone-app--business-video"
+                    activeFooterTab === "video"
+                      ? "phone-app--camera-grid"
                       : ""
                   }`}
                 >
-                {demoExperience === "business" && activeBusinessFooterTab === "video" ? (
-                  <BusinessVideoScreen
+                {activeFooterTab === "video" ? (
+                  <CameraGridScreen
                     feeds={mainCameraFeeds}
                     onOpen={handleExpandCamera}
                   />
@@ -1873,34 +1873,36 @@ export default function PhonePanel({
                 )}
                 </div>
 
-                {demoExperience === "business" && (
-                  <div className="business-app-footer">
+                <div className="phone-app-footer">
                     <img
-                      className="business-app-footer__art"
+                      className="phone-app-footer__art"
                       src={
-                        activeBusinessFooterTab === "video"
-                          ? "/smb-app-footer-video.svg"
-                          : "/smb-app-footer.svg"
+                        activeFooterTab === "video"
+                          ? demoExperience === "business"
+                            ? "/smb-app-footer-video.svg"
+                            : "/home-app-footer-video.svg"
+                          : demoExperience === "business"
+                            ? "/smb-app-footer.svg"
+                            : "/home-app-footer.svg"
                       }
                       alt=""
                       aria-hidden="true"
                     />
                     <button
                       type="button"
-                      className="business-app-footer__tab business-app-footer__tab--home"
+                      className="phone-app-footer__tab phone-app-footer__tab--home"
                       aria-label="Home"
-                      aria-pressed={activeBusinessFooterTab === "home"}
-                      onClick={() => setActiveBusinessFooterTab("home")}
+                      aria-pressed={activeFooterTab === "home"}
+                      onClick={() => setActiveFooterTab("home")}
                     />
                     <button
                       type="button"
-                      className="business-app-footer__tab business-app-footer__tab--video"
+                      className="phone-app-footer__tab phone-app-footer__tab--video"
                       aria-label="Video"
-                      aria-pressed={activeBusinessFooterTab === "video"}
-                      onClick={() => setActiveBusinessFooterTab("video")}
+                      aria-pressed={activeFooterTab === "video"}
+                      onClick={() => setActiveFooterTab("video")}
                     />
                   </div>
-                )}
               </>
             )}
 
