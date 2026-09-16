@@ -1127,6 +1127,185 @@ body {
   left: 25%;
 }
 
+.phone-app--business-video {
+  --business-video-app-top: 56px;
+  --business-video-app-gutter: 12px;
+  padding-right: var(--business-video-app-gutter);
+  padding-left: var(--business-video-app-gutter);
+  background: #f5f6f5;
+}
+
+.business-video-screen__header {
+  position: relative;
+  width: calc(100% + (var(--business-video-app-gutter) * 2));
+  aspect-ratio: 393 / 112;
+  margin:
+    calc(var(--business-video-app-top) * -1)
+    calc(var(--business-video-app-gutter) * -1)
+    10px;
+  color: #fff;
+  background: #00964b;
+}
+
+.business-video-screen__time {
+  position: absolute;
+  top: 20%;
+  left: 12.7%;
+  font-size: clamp(13px, 4.3cqw, 17px);
+  line-height: 1;
+  font-weight: 800;
+}
+
+.business-video-screen__island {
+  position: absolute;
+  top: 10.5%;
+  left: 50%;
+  width: 31.8%;
+  height: 33%;
+  border-radius: 999px;
+  background: #000;
+  transform: translateX(-50%);
+}
+
+.business-video-screen__status {
+  position: absolute;
+  top: 18.5%;
+  right: 8.3%;
+  display: flex;
+  align-items: center;
+  gap: clamp(5px, 1.7cqw, 7px);
+}
+
+.business-video-screen__status > svg {
+  width: clamp(16px, 5.6cqw, 22px);
+  height: auto;
+  overflow: visible;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+}
+
+.business-video-screen__signal {
+  display: flex;
+  align-items: end;
+  gap: 2px;
+  height: clamp(12px, 4.1cqw, 16px);
+}
+
+.business-video-screen__signal i {
+  width: clamp(2px, 0.8cqw, 3px);
+  border-radius: 2px;
+  background: currentColor;
+}
+
+.business-video-screen__signal i:nth-child(1) { height: 32%; }
+.business-video-screen__signal i:nth-child(2) { height: 50%; }
+.business-video-screen__signal i:nth-child(3) { height: 75%; }
+.business-video-screen__signal i:nth-child(4) { height: 100%; }
+
+.business-video-screen__battery {
+  position: relative;
+  width: clamp(20px, 6.2cqw, 25px);
+  height: clamp(10px, 3.3cqw, 13px);
+  border: 1.5px solid currentColor;
+  border-radius: 3px;
+}
+
+.business-video-screen__battery::after {
+  content: "";
+  position: absolute;
+  top: 29%;
+  right: -3px;
+  width: 2px;
+  height: 42%;
+  border-radius: 0 2px 2px 0;
+  background: currentColor;
+}
+
+.business-video-screen__battery i {
+  position: absolute;
+  inset: 2px;
+  border-radius: 1px;
+  background: currentColor;
+}
+
+.business-video-screen__tabs {
+  position: absolute;
+  left: 28%;
+  bottom: 8%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  width: 54%;
+  height: 36%;
+  overflow: hidden;
+  padding: 2px;
+  border-radius: clamp(8px, 2.8cqw, 12px);
+  background: #006c3b;
+}
+
+.business-video-screen__tabs button {
+  border: 0;
+  border-radius: clamp(7px, 2.3cqw, 10px);
+  color: #fff;
+  font: inherit;
+  font-size: clamp(12px, 4.1cqw, 16px);
+  background: transparent;
+}
+
+.business-video-screen__tabs button[aria-selected="true"] {
+  color: #111;
+  background: #fff;
+}
+
+.business-video-screen__tabs button:disabled {
+  opacity: 1;
+}
+
+.business-video-screen__settings {
+  position: absolute;
+  right: 6.8%;
+  bottom: 14%;
+  width: 6%;
+  color: #fff;
+}
+
+.business-video-screen__settings svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  fill: currentColor;
+}
+
+.business-video-screen__settings circle {
+  fill: #00964b;
+}
+
+.business-video-screen__feeds {
+  display: grid;
+  gap: 8px;
+}
+
+.business-video-screen__feed {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  padding: 0;
+  border: 0;
+  border-radius: 5px;
+  background: #151a18;
+  cursor: pointer;
+}
+
+.business-video-screen__feed video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
+
 .phone-section {
   background: rgba(255, 255, 255, 0.72);
   border: 1px solid rgba(20, 30, 25, 0.06);
@@ -2018,6 +2197,10 @@ body {
 @container phone-screen (max-width: 270px) {
   .phone-app {
     padding: 44px 12px 20px;
+  }
+
+  .phone-app--business-video {
+    --business-video-app-top: 44px;
   }
 
   .phone-panel-wrap.is-business .phone-app {

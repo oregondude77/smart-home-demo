@@ -206,6 +206,68 @@ function BusinessDoorIcon({ color }) {
   );
 }
 
+function BusinessVideoScreen({ feeds, nightMode, onOpen }) {
+  return (
+    <div className="business-video-screen">
+      <header className="business-video-screen__header">
+        <span className="business-video-screen__time">6:26</span>
+        <span className="business-video-screen__island" aria-hidden="true" />
+
+        <span className="business-video-screen__status" aria-hidden="true">
+          <span className="business-video-screen__signal">
+            <i />
+            <i />
+            <i />
+            <i />
+          </span>
+          <svg viewBox="0 0 22 16" focusable="false">
+            <path d="M1 5.4C6.6.5 15.4.5 21 5.4" />
+            <path d="M4.8 9C8.3 6 13.7 6 17.2 9" />
+            <path d="M8.6 12.4C10 11.3 12 11.3 13.4 12.4" />
+          </svg>
+          <span className="business-video-screen__battery"><i /></span>
+        </span>
+
+        <div className="business-video-screen__tabs" role="tablist" aria-label="Video views">
+          <button type="button" role="tab" aria-selected="true">Live</button>
+          <button type="button" role="tab" aria-selected="false" disabled>Saved</button>
+        </div>
+
+        <span className="business-video-screen__settings" aria-label="Video settings">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M9.7 2.8h4.6l.7 2.5 2.3 1.3 2.5-.7 2.3 4-1.8 1.8v2.6l1.8 1.8-2.3 4-2.5-.7-2.3 1.3-.7 2.5H9.7L9 20.7l-2.3-1.3-2.5.7-2.3-4 1.8-1.8v-2.6L1.9 9.9l2.3-4 2.5.7L9 5.3l.7-2.5Z" />
+            <circle cx="12" cy="13" r="3.2" />
+          </svg>
+        </span>
+      </header>
+
+      <div className="business-video-screen__feeds">
+        {feeds.map((feed) => (
+          <button
+            key={feed.id}
+            type="button"
+            className="business-video-screen__feed"
+            onClick={() => onOpen(feed.id)}
+            aria-label={`Open live ${feed.label}`}
+          >
+            <video
+              key={`${feed.id}-${nightMode ? "night" : "day"}`}
+              src={feed.videoSrc}
+              poster={feed.posterSrc}
+              muted
+              autoPlay
+              loop
+              playsInline
+              preload="metadata"
+              aria-hidden="true"
+            />
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function PhonePanel({
   garageOpen,
   setGarageOpen,
@@ -502,6 +564,12 @@ export default function PhonePanel({
 
     return () => cancelAnimationFrame(frameId);
   }, [demoExperience]);
+
+  useEffect(() => {
+    if (!phoneAppRef.current) return;
+
+    phoneAppRef.current.scrollTo({ top: 0, behavior: "auto" });
+  }, [activeBusinessFooterTab]);
 
   const handleExpandCamera = (cameraId) => {
     const feed = cameraFeeds.find((cameraFeed) => cameraFeed.id === cameraId);
@@ -1187,7 +1255,22 @@ export default function PhonePanel({
               <IPhoneHomeScreen />
             ) : (
               <>
-                <div ref={phoneAppRef} className="phone-app">
+                <div
+                  ref={phoneAppRef}
+                  className={`phone-app ${
+                    demoExperience === "business" && activeBusinessFooterTab === "video"
+                      ? "phone-app--business-video"
+                      : ""
+                  }`}
+                >
+                {demoExperience === "business" && activeBusinessFooterTab === "video" ? (
+                  <BusinessVideoScreen
+                    feeds={mainCameraFeeds}
+                    nightMode={nightMode}
+                    onOpen={handleExpandCamera}
+                  />
+                ) : (
+                  <>
                 <div className="phone-app__top-svg">
                 <svg
                   width="393"
@@ -1742,6 +1825,8 @@ export default function PhonePanel({
                   </div>
                 </section>
                 </div>
+                  </>
+                )}
                 </div>
 
                 {demoExperience === "business" && (
