@@ -163,6 +163,24 @@ export default function SmartHomeDemo() {
     scenarioTimeoutsRef.current = [];
   };
 
+  const stopScenario = () => {
+    clearScenarioTimeouts();
+    setActiveScenario(null);
+    setScenarioAction(null);
+    setScenarioPhoneMode(false);
+    setPhoneNotification(null);
+  };
+
+  const stopA360Tour = () => {
+    if (!a360TourActive) return;
+
+    clearA360ActionTimeouts();
+    setA360TourActive(false);
+    setA360StepIndex(0);
+    setPhoneTourFocus(null);
+    setSceneStatus(null);
+  };
+
   const getNotificationTime = () =>
     new Intl.DateTimeFormat("en-US", {
       hour: "numeric",
@@ -234,11 +252,8 @@ export default function SmartHomeDemo() {
   };
 
   const runScenario = (scenarioId) => {
-    clearScenarioTimeouts();
-    setActiveScenario(null);
-    setScenarioAction(null);
-    setScenarioPhoneMode(false);
-    setPhoneNotification(null);
+    stopScenario();
+    stopA360Tour();
 
     if (scenarioId === "garage-left-open") {
       setActiveCamera(null);
@@ -516,7 +531,7 @@ export default function SmartHomeDemo() {
   };
 
   const handleGarageScenarioResolved = () => {
-    if (activeScenario !== "garage-left-open") return;
+    if (scenarioAction?.type !== "garage-left-open") return;
 
     clearScenarioTimeouts();
     setScenarioAction(null);
@@ -631,6 +646,7 @@ export default function SmartHomeDemo() {
   };
 
   const startA360Tour = () => {
+    stopScenario();
     setA360Open(true);
     setA360TourActive(true);
     runA360Step(0);
@@ -682,16 +698,12 @@ export default function SmartHomeDemo() {
   const handleDemoExperienceToggle = () => {
     const nextExperience = demoExperience === "home" ? "business" : "home";
 
-    if (nextExperience === "business") {
-      if (a360TourActive) {
-        clearA360ActionTimeouts();
-        setA360TourActive(false);
-        setA360StepIndex(0);
-        setPhoneTourFocus(null);
-        setActiveCamera(null);
-        setLiveCamera(null);
-      }
+    stopScenario();
+    stopA360Tour();
+    setActiveCamera(null);
+    setLiveCamera(null);
 
+    if (nextExperience === "business") {
       setStorefrontLightsOn(false);
       setCafeLightsOn(true);
       setShopLightsOn(true);

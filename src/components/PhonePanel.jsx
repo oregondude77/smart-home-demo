@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useEffectEvent, useRef, useState } from "react";
+import { useEffect, useEffectEvent, useRef, useState, useSyncExternalStore } from "react";
 
 const OUTDOOR_NIGHT_VIDEO_SRC = "/outdoor-camera-night.mp4";
 const RESIDENTIAL_CAMERA_FEED_IDS = ["doorbell", "outdoor", "floodlight"];
@@ -98,6 +98,16 @@ const MOCK_DOCK_APPS = [
   { label: "Messages", glyph: "●", color: "linear-gradient(180deg, #4be36d, #22b64d)" },
   { label: "Music", glyph: "♪", color: "linear-gradient(180deg, #ff2d55, #ff375f)" },
 ];
+
+const weatherDateFormat = new Intl.DateTimeFormat("en-US", {
+  weekday: "short",
+  month: "numeric",
+  day: "numeric",
+});
+const subscribeToNothing = () => () => {};
+const getWeatherDateLabel = () => weatherDateFormat.format(new Date()).replace(",", "");
+// The page is prerendered at build time, so the date is filled in on the client.
+const getServerWeatherDateLabel = () => "";
 
 const formatSceneStartLabel = (sceneTitle) => (
   `Starting ${sceneTitle
@@ -755,6 +765,15 @@ export default function PhonePanel({
     setScenarioMenuOpen(false);
   }
 
+  const [focusedTour, setFocusedTour] = useState(tourFocus);
+
+  if (focusedTour !== tourFocus) {
+    setFocusedTour(tourFocus);
+
+    // Focus targets (garage, thermostat, lights) only exist on the Home tab.
+    if (tourFocus?.section) setActiveFooterTab("home");
+  }
+
   const phoneAppRef = useRef(null);
   const thermostatCardRef = useRef(null);
   const lightsCardRef = useRef(null);
@@ -778,6 +797,12 @@ export default function PhonePanel({
       clearSceneActionTimeouts();
     }
   ), []);
+
+  useEffect(() => {
+    if (!phoneAppRef.current) return;
+
+    phoneAppRef.current.scrollTo({ top: 0, behavior: "auto" });
+  }, [activeFooterTab]);
 
   useEffect(() => {
     if (!tourFocus?.section || !phoneAppRef.current) return;
@@ -1028,6 +1053,22 @@ export default function PhonePanel({
     restoreDesiredDoorSlide();
   }, [frontDoorUnlocked, sideDoorUnlocked]);
 
+  const homeScreenVisible = !scenarioPhoneMode && activeFooterTab === "home";
+  const restoreVideoSlide = useEffectEvent(() => {
+    videoCarouselRef.current?.scrollTo({
+      left: videoCarouselRef.current.offsetWidth * activeVideoSlide,
+      behavior: "auto",
+    });
+  });
+
+  useEffect(() => {
+    // The carousels remount at slide 0 after the Video tab or a scenario lock screen.
+    if (!homeScreenVisible) return;
+
+    restoreDesiredDoorSlide();
+    restoreVideoSlide();
+  }, [homeScreenVisible]);
+
   const goToVideoSlide = (slideIndex) => {
     setActiveVideoSlide(slideIndex);
 
@@ -1052,12 +1093,6 @@ export default function PhonePanel({
     return () => cancelAnimationFrame(frameId);
   }, [demoExperience]);
 
-  useEffect(() => {
-    if (!phoneAppRef.current) return;
-
-    phoneAppRef.current.scrollTo({ top: 0, behavior: "auto" });
-  }, [activeFooterTab]);
-
   const handleExpandCamera = (cameraId) => {
     const feed = cameraFeeds.find((cameraFeed) => cameraFeed.id === cameraId);
     const feedName = feed?.label?.replace(/\s+Camera$/, "") ?? "camera";
@@ -1078,11 +1113,11 @@ export default function PhonePanel({
     }
   };
 
-  const weatherDateLabel = new Intl.DateTimeFormat("en-US", {
-    weekday: "short",
-    month: "numeric",
-    day: "numeric",
-  }).format(new Date()).replace(",", "");
+  const weatherDateLabel = useSyncExternalStore(
+    subscribeToNothing,
+    getWeatherDateLabel,
+    getServerWeatherDateLabel
+  );
 
   const adjustThermostat = (amount) => {
     const nextTemp = Math.min(

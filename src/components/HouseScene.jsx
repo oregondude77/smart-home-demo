@@ -360,6 +360,7 @@ export default function HouseScene({
   const previousSideDoorUnlockedRef = useRef(sideDoorUnlocked);
   const systemMounted = useRef(false);
   const suppressSystemFeedbackRef = useRef(false);
+  const handledQuietResetKeyRef = useRef(quietResetKey);
 
   const frontTimeoutRef = useRef(null);
   const sideTimeoutRef = useRef(null);
@@ -399,7 +400,7 @@ export default function HouseScene({
   ) {
     setResetInputs({ quietResetKey, frontDoorUnlocked, sideDoorUnlocked });
 
-    if (quietResetKey) {
+    if (resetInputs.quietResetKey !== quietResetKey) {
       setGarageFrame(0);
       setFrontPulse(false);
       setSidePulse(false);
@@ -434,6 +435,9 @@ export default function HouseScene({
         key: scenarioAction.key ?? garageScenarioCar.key + 1,
         frame: 1,
       });
+    } else if (garageScenarioCar.active) {
+      // The effect cleanup stops the car's frame timers, so hide it rather than leave it frozen.
+      setGarageScenarioCar({ ...garageScenarioCar, active: false });
     }
   }
 
@@ -489,7 +493,9 @@ export default function HouseScene({
   }
 
   useEffect(() => {
-    if (!quietResetKey) return;
+    if (handledQuietResetKeyRef.current === quietResetKey) return;
+
+    handledQuietResetKeyRef.current = quietResetKey;
 
     [
       frontTimeoutRef,
@@ -690,6 +696,11 @@ export default function HouseScene({
       setSystemMessage("");
     }, SYSTEM_MESSAGE_MS);
   }, [systemAction]);
+
+  useEffect(() => {
+    // The quiet reset only suppresses an armed change made in the same commit.
+    suppressSystemFeedbackRef.current = false;
+  }, [quietResetKey]);
 
   const triggerPulse = useCallback((setPulse, timeoutRef, raf1Ref, raf2Ref) => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
