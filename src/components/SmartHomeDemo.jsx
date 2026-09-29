@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useEffectEvent, useRef, useState } from "react";
 import HouseScene from "./HouseScene";
 import PhonePanel from "./PhonePanel";
 
@@ -43,6 +43,47 @@ const PACKAGE_SCENARIO_DROPOFF_ANIMATION_MS = 1450;
 const PACKAGE_SCENARIO_LEAVE_ANIMATION_MS = 3350;
 const PACKAGE_SCENARIO_POST_DROPOFF_BUFFER_MS = 120;
 const PACKAGE_SCENARIO_COMPLETE_BUFFER_MS = 260;
+
+const A360_TOUR_STEPS = [
+  {
+    message: "Your security status stays visible at a glance, so you always know whether the system is armed, disarmed, or ready for action.",
+    feed: [
+      "Checking security system status",
+      "System disarmed",
+    ],
+    feedStepMs: A360_SECURITY_SCAN_STEP_MS,
+  },
+  {
+    message: "Smart locks give you direct control of each entry point, with clear status for the exact door you are managing.",
+    feed: [
+      "Reviewing front door lock",
+      "Front door unlocked",
+    ],
+  },
+  {
+    message: "Live video brings your cameras into the same app, so you can see what is happening before deciding what to do next.",
+    feed: "Viewing doorbell camera feed",
+  },
+  {
+    message: "Home automation can coordinate lighting and climate together, so the environment adjusts to the moment without managing each device one at a time.",
+    feed: [
+      "Running home automation sequence",
+      "Setting thermostat to 68°",
+      "Turning on living room light",
+    ],
+    durationMs: A360_HOME_AUTOMATION_DURATION_MS,
+  },
+  {
+    message: "Now I’ll run Away Scene, a one-tap routine that prepares the home by coordinating security, locks, lights, and temperature.",
+    feed: A360_AWAY_FEED_ACTIONS,
+    feedStepMs: A360_AWAY_STEP_MS,
+    durationMs: A360_AWAY_DURATION_MS,
+  },
+  {
+    message: "Tour complete. You can keep exploring the smart home at your own pace.",
+    feed: "Guided tour complete",
+  },
+];
 
 const DEMO_EXPERIENCES = {
   home: {
@@ -516,114 +557,76 @@ export default function SmartHomeDemo() {
     resetDemoState({ quiet: true });
   };
 
-  const a360TourSteps = [
-    {
-      message: "Your security status stays visible at a glance, so you always know whether the system is armed, disarmed, or ready for action.",
-      feed: [
-        "Checking security system status",
-        "System disarmed",
-      ],
-      feedStepMs: A360_SECURITY_SCAN_STEP_MS,
-      run: () => {
-        setActiveCamera(null);
-        setLiveCamera(null);
-        a360ActionTimeoutsRef.current.push(
-          window.setTimeout(() => {
-            setArmed(false);
-            setSystemAction({
-              armed: false,
-              key: Date.now(),
-            });
-          }, A360_SECURITY_SCAN_STEP_MS)
-        );
-      },
+  const a360TourStepRuns = [
+    () => {
+      setActiveCamera(null);
+      setLiveCamera(null);
+      a360ActionTimeoutsRef.current.push(
+        window.setTimeout(() => {
+          setArmed(false);
+          setSystemAction({
+            armed: false,
+            key: Date.now(),
+          });
+        }, A360_SECURITY_SCAN_STEP_MS)
+      );
     },
-    {
-      message: "Smart locks give you direct control of each entry point, with clear status for the exact door you are managing.",
-      feed: [
-        "Reviewing front door lock",
-        "Front door unlocked",
-      ],
-      run: () => {
-        setFrontDoorUnlocked(true);
-        setDoorAction({
-          door: "front",
-          unlocked: true,
-          noAnimation: true,
-          suppressStateFeedback: true,
-          key: Date.now(),
-        });
-      },
+    () => {
+      setFrontDoorUnlocked(true);
+      setDoorAction({
+        door: "front",
+        unlocked: true,
+        noAnimation: true,
+        suppressStateFeedback: true,
+        key: Date.now(),
+      });
     },
-    {
-      message: "Live video brings your cameras into the same app, so you can see what is happening before deciding what to do next.",
-      feed: "Viewing doorbell camera feed",
-      run: () => {
-        setActiveCamera("doorbell");
-        setLiveCamera("doorbell");
-      },
+    () => {
+      setActiveCamera("doorbell");
+      setLiveCamera("doorbell");
     },
-    {
-      message: "Home automation can coordinate lighting and climate together, so the environment adjusts to the moment without managing each device one at a time.",
-      feed: [
-        "Running home automation sequence",
-        "Setting thermostat to 68°",
-        "Turning on living room light",
-      ],
-      durationMs: A360_HOME_AUTOMATION_DURATION_MS,
-      run: () => {
-        setActiveCamera(null);
-        setLiveCamera(null);
-        setPhoneTourFocus({ section: "automation", key: Date.now() });
-        a360ActionTimeoutsRef.current.push(
-          window.setTimeout(() => {
-            setThermostatTemp(68);
-          }, A360_FEED_STEP_MS),
-          window.setTimeout(() => {
-            setLivingRoomOn(true);
-          }, A360_FEED_STEP_MS * 2)
-        );
-      },
+    () => {
+      setActiveCamera(null);
+      setLiveCamera(null);
+      setPhoneTourFocus({ section: "automation", key: Date.now() });
+      a360ActionTimeoutsRef.current.push(
+        window.setTimeout(() => {
+          setThermostatTemp(68);
+        }, A360_FEED_STEP_MS),
+        window.setTimeout(() => {
+          setLivingRoomOn(true);
+        }, A360_FEED_STEP_MS * 2)
+      );
     },
-    {
-      message: "Now I’ll run Away Scene, a one-tap routine that prepares the home by coordinating security, locks, lights, and temperature.",
-      feed: A360_AWAY_FEED_ACTIONS,
-      feedStepMs: A360_AWAY_STEP_MS,
-      durationMs: A360_AWAY_DURATION_MS,
-      run: () => {
-        scheduleA360Actions([
-          { run: () => setArmed(true) },
-          { run: () => setTourDoorState("both", false) },
-          { run: () => setPorchLightOn(true) },
-          { run: () => setExteriorSideLightOn(true) },
-          { run: () => setGarageLightsOn(true) },
-          {
-            run: () => {
-              setUpstairsBedroomOn(false);
-              setBedroomOn(false);
-              setLivingRoomOn(false);
-              setDiningRoomOn(false);
-            },
+    () => {
+      scheduleA360Actions([
+        { run: () => setArmed(true) },
+        { run: () => setTourDoorState("both", false) },
+        { run: () => setPorchLightOn(true) },
+        { run: () => setExteriorSideLightOn(true) },
+        { run: () => setGarageLightsOn(true) },
+        {
+          run: () => {
+            setUpstairsBedroomOn(false);
+            setBedroomOn(false);
+            setLivingRoomOn(false);
+            setDiningRoomOn(false);
           },
-          { run: () => setThermostatTemp(72) },
-        ], A360_AWAY_STEP_MS, 1);
-      },
+        },
+        { run: () => setThermostatTemp(72) },
+      ], A360_AWAY_STEP_MS, 1);
     },
-    {
-      message: "Tour complete. You can keep exploring the smart home at your own pace.",
-      feed: "Guided tour complete",
-      run: () => {},
-    },
+    () => {},
   ];
 
   const runA360Step = (stepIndex) => {
-    const step = a360TourSteps[stepIndex];
+    const step = A360_TOUR_STEPS[stepIndex];
 
     if (!step) return;
 
     clearA360ActionTimeouts();
     setA360StepIndex(stepIndex);
-    step.run();
+    a360TourStepRuns[stepIndex]();
     pushA360Feed(step.feed, step.feedStepMs);
   };
 
@@ -640,7 +643,7 @@ export default function SmartHomeDemo() {
   const advanceA360Tour = () => {
     const nextStepIndex = a360StepIndex + 1;
 
-    if (nextStepIndex >= a360TourSteps.length) {
+    if (nextStepIndex >= A360_TOUR_STEPS.length) {
       finishA360Tour();
       return;
     }
@@ -652,32 +655,29 @@ export default function SmartHomeDemo() {
     closeAndResetA360Tour();
   };
 
+  const currentA360Step = A360_TOUR_STEPS[a360StepIndex];
+  const currentA360StepDuration =
+    (currentA360Step?.durationMs ?? A360_AUTO_STEP_MS) + A360_STEP_PAUSE_MS;
+  const autoAdvanceA360Tour = useEffectEvent(() => {
+    advanceA360Tour();
+  });
+
   useEffect(() => {
     if (!a360TourActive) return undefined;
-    if (a360StepIndex >= a360TourSteps.length - 1) return undefined;
+    if (a360StepIndex >= A360_TOUR_STEPS.length - 1) return undefined;
 
     const timeoutId = window.setTimeout(() => {
-      const nextStepIndex = a360StepIndex + 1;
-
-      if (nextStepIndex >= a360TourSteps.length) {
-        finishA360Tour();
-        return;
-      }
-
-      runA360Step(nextStepIndex);
-    }, (currentA360Step?.durationMs ?? A360_AUTO_STEP_MS) + A360_STEP_PAUSE_MS);
+      autoAdvanceA360Tour();
+    }, currentA360StepDuration);
 
     return () => window.clearTimeout(timeoutId);
-  }, [a360TourActive, a360StepIndex]);
+  }, [a360TourActive, a360StepIndex, currentA360StepDuration]);
 
   useEffect(() => () => {
     clearA360ActionTimeouts();
     clearScenarioTimeouts();
   }, []);
 
-  const currentA360Step = a360TourSteps[a360StepIndex];
-  const currentA360StepDuration =
-    (currentA360Step?.durationMs ?? A360_AUTO_STEP_MS) + A360_STEP_PAUSE_MS;
   const activeExperience = DEMO_EXPERIENCES[demoExperience];
   const handleDemoExperienceToggle = () => {
     const nextExperience = demoExperience === "home" ? "business" : "home";
@@ -844,7 +844,7 @@ export default function SmartHomeDemo() {
                     className="a360-guide__progress"
                     style={{ "--a360-step-duration": `${currentA360StepDuration}ms` }}
                   >
-                    {a360TourSteps.map((step, index) => (
+                    {A360_TOUR_STEPS.map((step, index) => (
                       <button
                         type="button"
                         key={step.message}
@@ -864,7 +864,7 @@ export default function SmartHomeDemo() {
                   {a360TourActive ? (
                     <>
                       <button type="button" className="a360-guide__button" onClick={advanceA360Tour}>
-                        {a360StepIndex >= a360TourSteps.length - 1 ? "Done" : "Next"}
+                        {a360StepIndex >= A360_TOUR_STEPS.length - 1 ? "Done" : "Next"}
                       </button>
                       <button type="button" className="a360-guide__button a360-guide__button--ghost" onClick={closeA360Guide}>
                         Hide

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useEffectEvent, useRef, useState } from "react";
 
 const OUTDOOR_NIGHT_VIDEO_SRC = "/outdoor-camera-night.mp4";
 const RESIDENTIAL_CAMERA_FEED_IDS = ["doorbell", "outdoor", "floodlight"];
@@ -278,6 +278,414 @@ function CameraGridScreen({ feeds, onOpen }) {
   );
 }
 
+const DoorLockCard = ({
+  label,
+  unlocked,
+  onToggle,
+  icon = "lock",
+  title = "LOCKS",
+  status = unlocked ? "UNLOCKED" : "LOCKED",
+  statusColor = unlocked ? "#23AB3F" : "#D92C29",
+  ariaLabel,
+}) => (
+  <button
+    type="button"
+    className="door-lock-card-button"
+    onClick={onToggle}
+    aria-label={ariaLabel ?? `${unlocked ? "Lock" : "Unlock"} ${label}`}
+  >
+    <svg
+      className="door-lock-card-svg"
+      width="381"
+      height="150"
+      viewBox="0 0 381 150"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <rect x="2" y="1" width="377" height="146" rx="4" fill="white" />
+
+      <text
+        x="19"
+        y="30"
+        fill="#767676"
+        fontSize="15"
+        fontWeight="800"
+        letterSpacing="0.08em"
+        fontFamily="-apple-system, BlinkMacSystemFont, 'SF Pro Text', Arial, sans-serif"
+      >
+        {title}
+      </text>
+
+      <text
+        x="352"
+        y="30"
+        fill="#767676"
+        fontSize="34"
+        fontWeight="400"
+        fontFamily="-apple-system, BlinkMacSystemFont, 'SF Pro Text', Arial, sans-serif"
+      >
+        ›
+      </text>
+
+      {icon === "door" ? (
+        <BusinessDoorIcon color={statusColor} />
+      ) : (
+        <g transform="translate(82 44)">
+          {unlocked ? (
+          <path
+            fillRule="evenodd"
+            clipRule="evenodd"
+            d="M41 28V15C41 10.864 44.364 7.5 48.5 7.5C52.636 7.5 56 10.864 56 15V19H62V15C62 7.556 55.944 1.5 48.5 1.5C41.056 1.5 35 7.556 35 15V28H32C27.582 28 24 31.582 24 36V61C24 65.418 27.582 69 32 69H64C68.418 69 72 65.418 72 61V36C72 31.582 68.418 28 64 28H41Z"
+            fill="#23AB3F"
+          />
+          ) : (
+            <path
+            fillRule="evenodd"
+            clipRule="evenodd"
+            d="M41 15C41 10.864 44.364 7.5 48.5 7.5C52.636 7.5 56 10.864 56 15V28H41V15ZM64 28H62V15C62 7.556 55.944 1.5 48.5 1.5C41.056 1.5 35 7.556 35 15V28H32C27.582 28 24 31.582 24 36V60C24 64.418 27.582 68 32 68H64C68.418 68 72 64.418 72 60V36C72 31.582 68.418 28 64 28Z"
+            fill="#D92C29"
+          />
+          )}
+
+          <path
+          fillRule="evenodd"
+          clipRule="evenodd"
+          d="M64 66H32C27.582 66 24 61.918 24 57.5V60C24 64.418 27.582 68 32 68H64C68.418 68 72 64.418 72 60V57.5C72 61.918 68.418 66 64 66Z"
+          fill="black"
+          fillOpacity="0.13"
+        />
+
+          <path
+          fillRule="evenodd"
+          clipRule="evenodd"
+          d="M48 37C43.589 37 40 40.589 40 45C40 47.883 41.56 50.511 44 51.922V59V61H46H50H52V59V51.922C54.44 50.511 56 47.883 56 45C56 40.589 52.411 37 48 37ZM54 45C54 41.686 51.314 39 48 39C44.686 39 42 41.686 42 45C42 47.611 43.671 49.827 46 50.651V59H50V50.651C52.329 49.827 54 47.611 54 45Z"
+          fill="black"
+          fillOpacity="0.13"
+        />
+
+          <path
+          fillRule="evenodd"
+          clipRule="evenodd"
+          d="M54 45C54 41.686 51.314 39 48 39C44.686 39 42 41.686 42 45C42 47.611 43.671 49.827 46 50.651V59H50V50.651C52.329 49.827 54 47.611 54 45Z"
+          fill="white"
+        />
+        </g>
+      )}
+
+      <text
+        x="187"
+        y="76"
+        fill="#333333"
+        fontSize="20"
+        fontWeight="500"
+        fontFamily="-apple-system, BlinkMacSystemFont, 'SF Pro Text', Arial, sans-serif"
+      >
+        {label}
+      </text>
+
+      <text
+        x="187"
+        y="101"
+        fill={statusColor}
+        fontSize="15"
+        fontWeight="900"
+        letterSpacing="0.04em"
+        fontFamily="-apple-system, BlinkMacSystemFont, 'SF Pro Text', Arial, sans-serif"
+      >
+        {status}
+      </text>
+    </svg>
+  </button>
+);
+
+const ScenesCard = ({ demoExperience, onScene }) => {
+  const sceneButtons = demoExperience === "business"
+    ? BUSINESS_SCENE_BUTTONS
+    : RESIDENTIAL_SCENE_BUTTONS;
+
+  return (
+    <section className="phone-section phone-section--scenes-card" aria-label="Scenes">
+      <div className="scenes-card-shell">
+        <svg
+          className="scenes-card-svg"
+          width="381"
+          height="164"
+          viewBox="0 0 381 164"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
+        >
+          <rect x="2" y="1" width="377" height="160" rx="4" fill="white" shapeRendering="crispEdges" />
+
+          <text
+            x="19"
+            y="26"
+            fill="#767676"
+            fontSize="15"
+            fontWeight="900"
+            letterSpacing="0.18em"
+            fontFamily="-apple-system, BlinkMacSystemFont, 'SF Pro Text', Arial, sans-serif"
+          >
+            SCENES
+          </text>
+
+          <path fillRule="evenodd" clipRule="evenodd" d="M354.414 29.9956L363.418 20.9916L354.423 11.9956L353.009 13.4096L360.59 20.9916L353 28.5816L354.414 29.9956Z" fill="#767676" />
+
+          <rect x="20.5" y="49.5" width="63" height="63" rx="3.5" stroke="black" strokeOpacity="0.1" />
+          <path fillRule="evenodd" clipRule="evenodd" d="M51.3223 70.6225L58.3423 63.6008L70.834 77.0108V95.9992H50.834V92.6658H59.1673V82.6658H64.1673V92.6658H67.5007V78.3225L58.2573 68.3992L53.679 72.9792L51.3223 70.6225ZM45.1507 76.69L47.5073 74.3333L55.834 82.66L47.4923 91L45.1357 88.6433L49.4457 84.3333H35.834V81H49.4607L45.1507 76.69Z" fill="#23AB3F" />
+          <text x="52" y="135" fill="#333333" fontSize="13" fontWeight="500" textAnchor="middle" fontFamily="-apple-system, BlinkMacSystemFont, 'SF Pro Text', Arial, sans-serif">Home</text>
+
+          <rect x="112.5" y="49.5" width="63" height="63" rx="3.5" stroke="black" strokeOpacity="0.1" />
+          <path fillRule="evenodd" clipRule="evenodd" d="M143.322 70.6221L150.342 63.6005L162.834 77.0105V96.0005H142.834V92.6671H151.167V82.6671H156.167V92.6671H159.501V78.3221L150.257 68.3988L145.679 72.9788L143.322 70.6221ZM146.167 81V84.3333H132.54L136.85 88.6433L134.493 91L126.167 82.6733L134.507 74.3333L136.863 76.69L132.555 81H146.167Z" fill="#D92C29" />
+          <text x="144" y="135" fill="#333333" fontSize="13" fontWeight="500" textAnchor="middle" fontFamily="-apple-system, BlinkMacSystemFont, 'SF Pro Text', Arial, sans-serif">Away</text>
+
+          <rect x="206.5" y="49.5" width="63" height="63" rx="3.5" stroke="black" strokeOpacity="0.1" />
+          <path fillRule="evenodd" clipRule="evenodd" d="M239.074 96.532C230.299 96.532 223.187 89.2403 223.187 80.2437C223.187 74.1887 226.414 68.9187 231.196 66.1137C231.874 65.717 232.637 66.4337 232.361 67.1687C231.677 68.982 231.301 70.952 231.301 73.0137C231.301 82.0087 238.414 89.302 247.187 89.302C248.419 89.302 249.614 89.152 250.764 88.877C251.522 88.6937 252.139 89.532 251.671 90.157C248.769 94.032 244.209 96.532 239.074 96.532Z" fill="#2071DD" />
+          <text x="238" y="135" fill="#333333" fontSize="13" fontWeight="500" textAnchor="middle" fontFamily="-apple-system, BlinkMacSystemFont, 'SF Pro Text', Arial, sans-serif">Sleep</text>
+
+          <rect x="298.5" y="49.5" width="63" height="63" rx="3.5" stroke="black" strokeOpacity="0.1" />
+          <path fillRule="evenodd" clipRule="evenodd" d="M317.655 66.9764L316.476 68.1547C315.175 69.4564 315.175 71.568 316.476 72.8697L322.368 66.9764C321.066 65.6747 318.956 65.6747 317.655 66.9764ZM320.5 81C320.5 86.5134 324.987 91 330.5 91C336.013 91 340.5 86.5134 340.5 81C340.5 75.4867 336.013 71 330.5 71C324.987 71 320.5 75.4867 320.5 81ZM317.167 81C317.167 73.6367 323.137 67.6667 330.5 67.6667C337.863 67.6667 343.833 73.6367 343.833 81C343.833 83.34 343.227 85.5384 342.167 87.45V94.3334H338.833V91.4C336.55 93.2317 333.655 94.3334 330.5 94.3334C327.345 94.3334 324.45 93.2317 322.167 91.4V94.3334H318.833V87.45C317.773 85.5384 317.167 83.34 317.167 81ZM325.5 82.6667H328.833V76H332.167V81V82.6667V86H325.5V82.6667ZM343.345 66.9765L344.524 68.1549C345.825 69.4565 345.825 71.5665 344.524 72.8682L338.63 66.9765C339.934 65.6749 342.044 65.6749 343.345 66.9765Z" fill="#FFCD00" />
+          <text x="330" y="135" fill="#333333" fontSize="13" fontWeight="500" textAnchor="middle" fontFamily="-apple-system, BlinkMacSystemFont, 'SF Pro Text', Arial, sans-serif">Wake Up</text>
+        </svg>
+
+        {demoExperience === "business" && (
+          <svg
+            className="scenes-card-svg scenes-card-svg--business"
+            viewBox="8 166 377 160"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
+          >
+            <image
+              href="/Security Dashboard Card.svg"
+              width="393"
+              height="852"
+            />
+          </svg>
+        )}
+
+        {sceneButtons.map((scene) => (
+          <button
+            key={scene.id}
+            type="button"
+            className={`scenes-card-hit scenes-card-hit--${scene.position ?? scene.id}`}
+            aria-label={`Run ${scene.label} scene`}
+            onClick={() => onScene(scene.id)}
+          />
+        ))}
+      </div>
+    </section>
+  );
+};
+
+const WeatherCard = ({ weatherDateLabel }) => (
+  <section className="phone-section phone-section--weather-card" aria-label="Weather">
+    <div className="weather-card__header">
+      <h3 className="phone-section__title">Weather</h3>
+    </div>
+
+    <div className="weather-card__body">
+      <svg
+        className="weather-card__icon"
+        viewBox="0 0 92 92"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        aria-hidden="true"
+      >
+        <path
+          fillRule="evenodd"
+          clipRule="evenodd"
+          d="M35.65 6.32498C35.65 5.37229 36.4223 4.59998 37.375 4.59998C38.3277 4.59998 39.1 5.37228 39.1 6.32497V16.675C39.1 17.6277 38.3277 18.4 37.375 18.4C36.4223 18.4 35.65 17.6277 35.65 16.675V6.32498ZM58.1109 14.1995C58.7846 13.5258 59.8768 13.5258 60.5504 14.1995C61.2241 14.8731 61.2241 15.9654 60.5504 16.639L55.6714 21.518C54.9977 22.1917 53.9055 22.1917 53.2319 21.518C52.5582 20.8444 52.5582 19.7522 53.2319 19.0785L58.1109 14.1995ZM52.9 37.375C52.9 45.9492 45.9492 52.9 37.375 52.9C28.8008 52.9 21.85 45.9492 21.85 37.375C21.85 28.8008 28.8008 21.85 37.375 21.85C45.9492 21.85 52.9 28.8008 52.9 37.375ZM60.5504 60.5503C61.2241 59.8766 61.2241 58.7844 60.5504 58.1108L55.6714 53.2317C54.9977 52.5581 53.9055 52.5581 53.2319 53.2317C52.5582 53.9054 52.5582 54.9976 53.2319 55.6713L58.1109 60.5503C58.7846 61.224 59.8768 61.224 60.5504 60.5503ZM16.6391 60.5503C15.9654 61.224 14.8732 61.224 14.1996 60.5503C13.5259 59.8767 13.5259 58.7845 14.1996 58.1108L19.0786 53.2318C19.7523 52.5581 20.8445 52.5581 21.5181 53.2318C22.1918 53.9054 22.1918 54.9976 21.5181 55.6713L16.6391 60.5503ZM14.1996 14.1995C13.5259 14.8732 13.5259 15.9654 14.1996 16.639L19.0786 21.5181C19.7523 22.1917 20.8445 22.1917 21.5181 21.5181C22.1918 20.8444 22.1918 19.7522 21.5181 19.0785L16.6391 14.1995C15.9655 13.5259 14.8732 13.5259 14.1996 14.1995ZM70.15 37.375C70.15 36.4223 69.3777 35.65 68.425 35.65H58.075C57.1223 35.65 56.35 36.4223 56.35 37.375C56.35 38.3277 57.1223 39.1 58.075 39.1H68.425C69.3777 39.1 70.15 38.3277 70.15 37.375ZM39.1 68.425C39.1 69.3777 38.3277 70.15 37.375 70.15C36.4223 70.15 35.65 69.3777 35.65 68.425V58.075C35.65 57.1223 36.4223 56.35 37.375 56.35C38.3277 56.35 39.1 57.1223 39.1 58.075V68.425ZM4.60001 37.375C4.60001 38.3277 5.37232 39.1 6.32501 39.1H16.675C17.6277 39.1 18.4 38.3277 18.4 37.375C18.4 36.4223 17.6277 35.65 16.675 35.65H6.325C5.37231 35.65 4.60001 36.4223 4.60001 37.375Z"
+          fill="#FFBB34"
+        />
+        <path
+          className="weather-card__cloud"
+          fillRule="evenodd"
+          clipRule="evenodd"
+          d="M15.1879 51.596C16.3304 45.7841 21.4532 41.4 27.6 41.4C29.3576 41.4 31.0314 41.7584 32.5524 42.4061C35.8538 33.7494 44.2338 27.6 54.05 27.6C66.7526 27.6 77.05 37.8974 77.05 50.6C77.05 50.9691 77.0413 51.3362 77.0241 51.7011C83.1784 54.8026 87.4 61.1809 87.4 68.5482C87.4 78.9597 78.9666 87.4 68.5596 87.4H23.4404C13.0351 87.4 4.60001 78.962 4.60001 68.5482C4.60001 61.098 8.91826 54.6572 15.1879 51.596Z"
+          fill="#E0E3E7"
+        />
+        <path
+          fillRule="evenodd"
+          clipRule="evenodd"
+          d="M4.63448 67.3983C5.22832 77.2763 13.421 85.1 23.4404 85.1H68.5596C78.5806 85.1 86.7718 77.2742 87.3655 67.3982C87.3884 67.7786 87.4 68.1621 87.4 68.5483C87.4 78.9598 78.9666 87.4 68.5596 87.4H23.4404C13.0351 87.4 4.60001 78.9621 4.60001 68.5483C4.60001 68.1621 4.61161 67.7787 4.63448 67.3983V67.3983Z"
+          fill="#C9CBCF"
+        />
+      </svg>
+
+      <div className="weather-card__content">
+        <div className="weather-card__date">{weatherDateLabel}</div>
+        <div className="weather-card__temp">
+          <span>85/64</span>
+          <small>
+            <span>°</span>
+            <span>F</span>
+          </small>
+        </div>
+        <div className="weather-card__summary">Mostly Sunny</div>
+      </div>
+    </div>
+  </section>
+);
+
+const ThermostatCard = ({
+  thermostatCardRef,
+  thermostatTemp,
+  thermostatMode,
+  thermostatAccent,
+  onAdjust,
+}) => (
+  <section ref={thermostatCardRef} className="phone-section phone-section--thermostat-card">
+    <div className="thermostat-card-shell">
+      <svg
+        className="thermostat-card-svg"
+        width="381"
+        height="242"
+        viewBox="0 0 381 242"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        aria-hidden="true"
+      >
+        <g filter="url(#thermostatCardShadow)">
+          <rect x="2" y="1" width="377" height="238" rx="4" fill="white" shapeRendering="crispEdges" />
+
+          <text
+            x="19"
+            y="26"
+            fill="#767676"
+            fontSize="15"
+            fontWeight="900"
+            letterSpacing="0.18em"
+            fontFamily="-apple-system, BlinkMacSystemFont, 'SF Pro Text', Arial, sans-serif"
+          >
+            THERMOSTATS
+          </text>
+
+          <path fillRule="evenodd" clipRule="evenodd" d="M354.414 29.9956L363.418 20.9916L354.423 11.9956L353.009 13.4096L360.59 20.9916L353 28.5816L354.414 29.9956Z" fill="#767676" />
+
+          <text
+            x="19"
+            y="77"
+            fill="#333333"
+            fontSize="17"
+            fontWeight="500"
+            fontFamily="-apple-system, BlinkMacSystemFont, 'SF Pro Text', Arial, sans-serif"
+          >
+            Thermostat
+          </text>
+
+          <text
+            x="110"
+            y="170"
+            fill={thermostatAccent}
+            fontSize="72"
+            fontWeight="300"
+            letterSpacing="0"
+            fontFamily="-apple-system, BlinkMacSystemFont, 'SF Pro Display', Arial, sans-serif"
+          >
+            {thermostatTemp}
+          </text>
+
+          <text
+            x="194"
+            y="140"
+            fill={thermostatAccent}
+            fontSize="34"
+            fontWeight="400"
+            fontFamily="-apple-system, BlinkMacSystemFont, 'SF Pro Display', Arial, sans-serif"
+          >
+            °
+          </text>
+
+          <path fillRule="evenodd" clipRule="evenodd" d="M250 128.326L237.995 116.321L226 128.314L227.885 130.199L237.995 120.091L248.115 130.211L250 128.326Z" fill="#333333" />
+          <path fillRule="evenodd" clipRule="evenodd" d="M225.994 160.314L237.999 172.32L249.994 160.326L248.109 158.441L237.999 168.549L227.879 158.429L225.994 160.314Z" fill="#333333" />
+
+          {thermostatMode === "heating" ? (
+            <path fillRule="evenodd" clipRule="evenodd" d="M292.95 75.707L291.536 74.293C292.8 73.028 292.8 70.972 291.536 69.707C289.493 67.663 289.493 64.337 291.536 62.293L292.95 63.707C291.686 64.972 291.686 67.028 292.95 68.293C294.994 70.337 294.994 73.663 292.95 75.707ZM306 78V74H308V80H288V74H290V78H306ZM297.021 74.293L298.435 75.707C300.479 73.663 300.479 70.337 298.435 68.293C297.171 67.028 297.171 64.972 298.435 63.707L297.021 62.293C294.978 64.337 294.978 67.663 297.021 69.707C298.285 70.972 298.285 73.028 297.021 74.293ZM303.95 75.707L302.536 74.293C303.8 73.028 303.8 70.972 302.536 69.707C300.493 67.663 300.493 64.337 302.536 62.293L303.95 63.707C302.686 64.972 302.686 67.028 303.95 68.293C305.994 70.337 305.994 73.663 303.95 75.707Z" fill={thermostatAccent} />
+          ) : (
+            <path fillRule="evenodd" clipRule="evenodd" d="M307.816 68.8882L307.201 66.9852L303.814 68.0792L305.121 65.5252L303.341 64.6142L301.122 68.9482L299 69.6342V67.4342L302.471 63.9632L301.057 62.5492L299 64.6062V61.0002H297V64.5592L294.971 62.5302L293.557 63.9452L297 67.3882V69.6052L294.925 68.9152L292.727 64.5262L290.938 65.4222L292.241 68.0232L288.819 66.8852L288.188 68.7832L291.566 69.9062L289.001 71.1912L289.896 72.9792L294.25 70.7982L296.366 71.5022L295.064 73.2752L290.212 74.0182L290.514 75.9952L293.39 75.5552L291.255 78.4612L292.867 79.6452L294.974 76.7762L295.408 79.6122L297.385 79.3102L296.648 74.4962L297.968 72.6992L299.255 74.4832L298.471 79.3292L300.445 79.6482L300.91 76.7772L303.019 79.7022L304.641 78.5312L302.559 75.6452L305.392 76.1032L305.711 74.1292L300.904 73.3512L299.6 71.5422L301.693 70.8662L306.063 73.1022L306.974 71.3212L304.385 69.9962L307.816 68.8882Z" fill={thermostatAccent} />
+          )}
+          <path fillRule="evenodd" clipRule="evenodd" d="M328 63V61C333.514 61 338 65.486 338 71C338 76.514 333.514 81 328 81C322.486 81 318 76.514 318 71C318 68.816 318.709 66.728 320.004 65.004L318 63H323V68L321.438 66.438C320.509 67.77 320 69.35 320 71C320 75.411 323.589 79 328 79C332.411 79 336 75.411 336 71C336 66.589 332.411 63 328 63ZM329 71H328.995L325.278 74.717L323.864 73.302L327 70.167V64H329V70.988L329.003 70.992L329 70.995V71Z" fill="#767676" />
+
+          <path d="M2 208H379V209H2V208Z" fill="black" fillOpacity="0.1" />
+          <path fillRule="evenodd" clipRule="evenodd" d="M190.95 227.364L185.293 221.707L186.707 220.293L190.95 224.536L195.193 220.293L196.607 221.707L190.95 227.364Z" fill="#767676" />
+        </g>
+
+        <defs>
+          <filter id="thermostatCardShadow" x="0" y="0" width="381" height="242" filterUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
+            <feFlood floodOpacity="0" result="BackgroundImageFix" />
+            <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha" />
+            <feOffset dy="1" />
+            <feGaussianBlur stdDeviation="1" />
+            <feComposite in2="hardAlpha" operator="out" />
+            <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.2 0" />
+            <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow" />
+            <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow" result="shape" />
+          </filter>
+        </defs>
+      </svg>
+
+      <button
+        type="button"
+        className="thermostat-card-hit thermostat-card-hit--up"
+        onClick={() => onAdjust(1)}
+        aria-label="Increase thermostat temperature"
+      />
+
+      <button
+        type="button"
+        className="thermostat-card-hit thermostat-card-hit--down"
+        onClick={() => onAdjust(-1)}
+        aria-label="Decrease thermostat temperature"
+      />
+    </div>
+  </section>
+);
+
+const IPhoneHomeScreen = () => (
+  <div className="iphone-home-screen" aria-hidden="true">
+    <div className="iphone-home-screen__wallpaper" />
+    <div className="iphone-home-screen__status">
+      <span>9:41</span>
+      <span className="iphone-home-screen__status-icons">
+        <span />
+        <span />
+        <span />
+      </span>
+    </div>
+    <div className="iphone-home-screen__widgets">
+      <div className="iphone-widget iphone-widget--weather">
+        <strong>San Francisco</strong>
+        <span className="iphone-widget__temp">53°</span>
+        <small>🌤 Partly Cloudy</small>
+        <small>H:56° L:50°</small>
+      </div>
+      <div className="iphone-widget iphone-widget--map">
+        <span className="iphone-widget__avatar">👤</span>
+        <strong>Now</strong>
+        <span>Marina Green</span>
+        <small>San Francisco, CA</small>
+      </div>
+    </div>
+    <div className="iphone-home-screen__grid">
+      {MOCK_HOME_APPS.map((app) => (
+        <div className="iphone-home-app" key={app.label}>
+          <span className="iphone-home-app__icon" style={{ background: app.color }}>
+            {app.glyph}
+          </span>
+          <span className="iphone-home-app__label">{app.label}</span>
+        </div>
+      ))}
+    </div>
+    <div className="iphone-home-screen__dock">
+      {MOCK_DOCK_APPS.map((app) => (
+        <span className="iphone-home-app__icon" key={app.label} style={{ background: app.color }}>
+          {app.glyph}
+        </span>
+      ))}
+    </div>
+  </div>
+);
+
 export default function PhonePanel({
   garageOpen,
   setGarageOpen,
@@ -338,6 +746,14 @@ export default function PhonePanel({
   const [activeVideoSlide, setActiveVideoSlide] = useState(0);
   const [activeFooterTab, setActiveFooterTab] = useState("home");
   const [scenarioMenuOpen, setScenarioMenuOpen] = useState(false);
+  const [screenExperience, setScreenExperience] = useState(demoExperience);
+
+  if (screenExperience !== demoExperience) {
+    setScreenExperience(demoExperience);
+    setActiveVideoSlide(0);
+    setActiveFooterTab("home");
+    setScenarioMenuOpen(false);
+  }
 
   const phoneAppRef = useRef(null);
   const thermostatCardRef = useRef(null);
@@ -393,7 +809,7 @@ export default function PhonePanel({
 
   const getFeedKey = () => {
     feedKeyRef.current += 1;
-    return `${Date.now()}-${feedKeyRef.current}`;
+    return `phone-feed-${feedKeyRef.current}`;
   };
 
   const pushActionFeed = (title, action, stepMs = MANUAL_ACTION_STEP_MS) => {
@@ -604,8 +1020,12 @@ export default function PhonePanel({
     scrollDoorCarouselTo(slideIndex);
   };
 
-  useEffect(() => {
+  const restoreDesiredDoorSlide = useEffectEvent(() => {
     restoreDoorSlide(desiredDoorSlideRef.current);
+  });
+
+  useEffect(() => {
+    restoreDesiredDoorSlide();
   }, [frontDoorUnlocked, sideDoorUnlocked]);
 
   const goToVideoSlide = (slideIndex) => {
@@ -620,10 +1040,6 @@ export default function PhonePanel({
   };
 
   useEffect(() => {
-    setActiveVideoSlide(0);
-    setActiveFooterTab("home");
-    setScenarioMenuOpen(false);
-
     const frameId = requestAnimationFrame(() => {
       if (videoCarouselRef.current) {
         videoCarouselRef.current.scrollTo({
@@ -712,7 +1128,7 @@ export default function PhonePanel({
         door,
         unlocked,
         suppressStateFeedback: true,
-        key: `scene-door-${Date.now()}-${doorActionKeyRef.current}`,
+        key: `scene-door-${doorActionKeyRef.current}`,
       });
     }
   };
@@ -731,7 +1147,7 @@ export default function PhonePanel({
         door,
         unlocked,
         suppressStateFeedback: true,
-        key: `phone-door-${Date.now()}-${doorActionKeyRef.current}`,
+        key: `phone-door-${doorActionKeyRef.current}`,
       });
     }
   };
@@ -751,7 +1167,7 @@ export default function PhonePanel({
       setAccessControlAction({
         status,
         reader,
-        key: `access-control-${Date.now()}-${accessControlActionKeyRef.current}`,
+        key: `access-control-${accessControlActionKeyRef.current}`,
       });
     }
   };
@@ -909,408 +1325,6 @@ export default function PhonePanel({
     );
   };
 
-  const DoorLockCard = ({
-    label,
-    unlocked,
-    onToggle,
-    icon = "lock",
-    title = "LOCKS",
-    status = unlocked ? "UNLOCKED" : "LOCKED",
-    statusColor = unlocked ? "#23AB3F" : "#D92C29",
-    ariaLabel,
-  }) => (
-    <button
-      type="button"
-      className="door-lock-card-button"
-      onClick={onToggle}
-      aria-label={ariaLabel ?? `${unlocked ? "Lock" : "Unlock"} ${label}`}
-    >
-      <svg
-        className="door-lock-card-svg"
-        width="381"
-        height="150"
-        viewBox="0 0 381 150"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <rect x="2" y="1" width="377" height="146" rx="4" fill="white" />
-
-        <text
-          x="19"
-          y="30"
-          fill="#767676"
-          fontSize="15"
-          fontWeight="800"
-          letterSpacing="0.08em"
-          fontFamily="-apple-system, BlinkMacSystemFont, 'SF Pro Text', Arial, sans-serif"
-        >
-          {title}
-        </text>
-
-        <text
-          x="352"
-          y="30"
-          fill="#767676"
-          fontSize="34"
-          fontWeight="400"
-          fontFamily="-apple-system, BlinkMacSystemFont, 'SF Pro Text', Arial, sans-serif"
-        >
-          ›
-        </text>
-
-        {icon === "door" ? (
-          <BusinessDoorIcon color={statusColor} />
-        ) : (
-          <g transform="translate(82 44)">
-            {unlocked ? (
-            <path
-              fillRule="evenodd"
-              clipRule="evenodd"
-              d="M41 28V15C41 10.864 44.364 7.5 48.5 7.5C52.636 7.5 56 10.864 56 15V19H62V15C62 7.556 55.944 1.5 48.5 1.5C41.056 1.5 35 7.556 35 15V28H32C27.582 28 24 31.582 24 36V61C24 65.418 27.582 69 32 69H64C68.418 69 72 65.418 72 61V36C72 31.582 68.418 28 64 28H41Z"
-              fill="#23AB3F"
-            />
-            ) : (
-              <path
-              fillRule="evenodd"
-              clipRule="evenodd"
-              d="M41 15C41 10.864 44.364 7.5 48.5 7.5C52.636 7.5 56 10.864 56 15V28H41V15ZM64 28H62V15C62 7.556 55.944 1.5 48.5 1.5C41.056 1.5 35 7.556 35 15V28H32C27.582 28 24 31.582 24 36V60C24 64.418 27.582 68 32 68H64C68.418 68 72 64.418 72 60V36C72 31.582 68.418 28 64 28Z"
-              fill="#D92C29"
-            />
-            )}
-
-            <path
-            fillRule="evenodd"
-            clipRule="evenodd"
-            d="M64 66H32C27.582 66 24 61.918 24 57.5V60C24 64.418 27.582 68 32 68H64C68.418 68 72 64.418 72 60V57.5C72 61.918 68.418 66 64 66Z"
-            fill="black"
-            fillOpacity="0.13"
-          />
-
-            <path
-            fillRule="evenodd"
-            clipRule="evenodd"
-            d="M48 37C43.589 37 40 40.589 40 45C40 47.883 41.56 50.511 44 51.922V59V61H46H50H52V59V51.922C54.44 50.511 56 47.883 56 45C56 40.589 52.411 37 48 37ZM54 45C54 41.686 51.314 39 48 39C44.686 39 42 41.686 42 45C42 47.611 43.671 49.827 46 50.651V59H50V50.651C52.329 49.827 54 47.611 54 45Z"
-            fill="black"
-            fillOpacity="0.13"
-          />
-
-            <path
-            fillRule="evenodd"
-            clipRule="evenodd"
-            d="M54 45C54 41.686 51.314 39 48 39C44.686 39 42 41.686 42 45C42 47.611 43.671 49.827 46 50.651V59H50V50.651C52.329 49.827 54 47.611 54 45Z"
-            fill="white"
-          />
-          </g>
-        )}
-
-        <text
-          x="187"
-          y="76"
-          fill="#333333"
-          fontSize="20"
-          fontWeight="500"
-          fontFamily="-apple-system, BlinkMacSystemFont, 'SF Pro Text', Arial, sans-serif"
-        >
-          {label}
-        </text>
-
-        <text
-          x="187"
-          y="101"
-          fill={statusColor}
-          fontSize="15"
-          fontWeight="900"
-          letterSpacing="0.04em"
-          fontFamily="-apple-system, BlinkMacSystemFont, 'SF Pro Text', Arial, sans-serif"
-        >
-          {status}
-        </text>
-      </svg>
-    </button>
-  );
-
-  const ScenesCard = () => {
-    const sceneButtons = demoExperience === "business"
-      ? BUSINESS_SCENE_BUTTONS
-      : RESIDENTIAL_SCENE_BUTTONS;
-
-    return (
-      <section className="phone-section phone-section--scenes-card" aria-label="Scenes">
-        <div className="scenes-card-shell">
-          <svg
-            className="scenes-card-svg"
-            width="381"
-            height="164"
-            viewBox="0 0 381 164"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            aria-hidden="true"
-          >
-            <rect x="2" y="1" width="377" height="160" rx="4" fill="white" shapeRendering="crispEdges" />
-
-            <text
-              x="19"
-              y="26"
-              fill="#767676"
-              fontSize="15"
-              fontWeight="900"
-              letterSpacing="0.18em"
-              fontFamily="-apple-system, BlinkMacSystemFont, 'SF Pro Text', Arial, sans-serif"
-            >
-              SCENES
-            </text>
-
-            <path fillRule="evenodd" clipRule="evenodd" d="M354.414 29.9956L363.418 20.9916L354.423 11.9956L353.009 13.4096L360.59 20.9916L353 28.5816L354.414 29.9956Z" fill="#767676" />
-
-            <rect x="20.5" y="49.5" width="63" height="63" rx="3.5" stroke="black" strokeOpacity="0.1" />
-            <path fillRule="evenodd" clipRule="evenodd" d="M51.3223 70.6225L58.3423 63.6008L70.834 77.0108V95.9992H50.834V92.6658H59.1673V82.6658H64.1673V92.6658H67.5007V78.3225L58.2573 68.3992L53.679 72.9792L51.3223 70.6225ZM45.1507 76.69L47.5073 74.3333L55.834 82.66L47.4923 91L45.1357 88.6433L49.4457 84.3333H35.834V81H49.4607L45.1507 76.69Z" fill="#23AB3F" />
-            <text x="52" y="135" fill="#333333" fontSize="13" fontWeight="500" textAnchor="middle" fontFamily="-apple-system, BlinkMacSystemFont, 'SF Pro Text', Arial, sans-serif">Home</text>
-
-            <rect x="112.5" y="49.5" width="63" height="63" rx="3.5" stroke="black" strokeOpacity="0.1" />
-            <path fillRule="evenodd" clipRule="evenodd" d="M143.322 70.6221L150.342 63.6005L162.834 77.0105V96.0005H142.834V92.6671H151.167V82.6671H156.167V92.6671H159.501V78.3221L150.257 68.3988L145.679 72.9788L143.322 70.6221ZM146.167 81V84.3333H132.54L136.85 88.6433L134.493 91L126.167 82.6733L134.507 74.3333L136.863 76.69L132.555 81H146.167Z" fill="#D92C29" />
-            <text x="144" y="135" fill="#333333" fontSize="13" fontWeight="500" textAnchor="middle" fontFamily="-apple-system, BlinkMacSystemFont, 'SF Pro Text', Arial, sans-serif">Away</text>
-
-            <rect x="206.5" y="49.5" width="63" height="63" rx="3.5" stroke="black" strokeOpacity="0.1" />
-            <path fillRule="evenodd" clipRule="evenodd" d="M239.074 96.532C230.299 96.532 223.187 89.2403 223.187 80.2437C223.187 74.1887 226.414 68.9187 231.196 66.1137C231.874 65.717 232.637 66.4337 232.361 67.1687C231.677 68.982 231.301 70.952 231.301 73.0137C231.301 82.0087 238.414 89.302 247.187 89.302C248.419 89.302 249.614 89.152 250.764 88.877C251.522 88.6937 252.139 89.532 251.671 90.157C248.769 94.032 244.209 96.532 239.074 96.532Z" fill="#2071DD" />
-            <text x="238" y="135" fill="#333333" fontSize="13" fontWeight="500" textAnchor="middle" fontFamily="-apple-system, BlinkMacSystemFont, 'SF Pro Text', Arial, sans-serif">Sleep</text>
-
-            <rect x="298.5" y="49.5" width="63" height="63" rx="3.5" stroke="black" strokeOpacity="0.1" />
-            <path fillRule="evenodd" clipRule="evenodd" d="M317.655 66.9764L316.476 68.1547C315.175 69.4564 315.175 71.568 316.476 72.8697L322.368 66.9764C321.066 65.6747 318.956 65.6747 317.655 66.9764ZM320.5 81C320.5 86.5134 324.987 91 330.5 91C336.013 91 340.5 86.5134 340.5 81C340.5 75.4867 336.013 71 330.5 71C324.987 71 320.5 75.4867 320.5 81ZM317.167 81C317.167 73.6367 323.137 67.6667 330.5 67.6667C337.863 67.6667 343.833 73.6367 343.833 81C343.833 83.34 343.227 85.5384 342.167 87.45V94.3334H338.833V91.4C336.55 93.2317 333.655 94.3334 330.5 94.3334C327.345 94.3334 324.45 93.2317 322.167 91.4V94.3334H318.833V87.45C317.773 85.5384 317.167 83.34 317.167 81ZM325.5 82.6667H328.833V76H332.167V81V82.6667V86H325.5V82.6667ZM343.345 66.9765L344.524 68.1549C345.825 69.4565 345.825 71.5665 344.524 72.8682L338.63 66.9765C339.934 65.6749 342.044 65.6749 343.345 66.9765Z" fill="#FFCD00" />
-            <text x="330" y="135" fill="#333333" fontSize="13" fontWeight="500" textAnchor="middle" fontFamily="-apple-system, BlinkMacSystemFont, 'SF Pro Text', Arial, sans-serif">Wake Up</text>
-          </svg>
-
-          {demoExperience === "business" && (
-            <svg
-              className="scenes-card-svg scenes-card-svg--business"
-              viewBox="8 166 377 160"
-              xmlns="http://www.w3.org/2000/svg"
-              aria-hidden="true"
-            >
-              <image
-                href="/Security Dashboard Card.svg"
-                width="393"
-                height="852"
-              />
-            </svg>
-          )}
-
-          {sceneButtons.map((scene) => (
-            <button
-              key={scene.id}
-              type="button"
-              className={`scenes-card-hit scenes-card-hit--${scene.position ?? scene.id}`}
-              aria-label={`Run ${scene.label} scene`}
-              onClick={() => handleScene(scene.id)}
-            />
-          ))}
-        </div>
-      </section>
-    );
-  };
-
-  const WeatherCard = () => (
-    <section className="phone-section phone-section--weather-card" aria-label="Weather">
-      <div className="weather-card__header">
-        <h3 className="phone-section__title">Weather</h3>
-      </div>
-
-      <div className="weather-card__body">
-        <svg
-          className="weather-card__icon"
-          viewBox="0 0 92 92"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          aria-hidden="true"
-        >
-          <path
-            fillRule="evenodd"
-            clipRule="evenodd"
-            d="M35.65 6.32498C35.65 5.37229 36.4223 4.59998 37.375 4.59998C38.3277 4.59998 39.1 5.37228 39.1 6.32497V16.675C39.1 17.6277 38.3277 18.4 37.375 18.4C36.4223 18.4 35.65 17.6277 35.65 16.675V6.32498ZM58.1109 14.1995C58.7846 13.5258 59.8768 13.5258 60.5504 14.1995C61.2241 14.8731 61.2241 15.9654 60.5504 16.639L55.6714 21.518C54.9977 22.1917 53.9055 22.1917 53.2319 21.518C52.5582 20.8444 52.5582 19.7522 53.2319 19.0785L58.1109 14.1995ZM52.9 37.375C52.9 45.9492 45.9492 52.9 37.375 52.9C28.8008 52.9 21.85 45.9492 21.85 37.375C21.85 28.8008 28.8008 21.85 37.375 21.85C45.9492 21.85 52.9 28.8008 52.9 37.375ZM60.5504 60.5503C61.2241 59.8766 61.2241 58.7844 60.5504 58.1108L55.6714 53.2317C54.9977 52.5581 53.9055 52.5581 53.2319 53.2317C52.5582 53.9054 52.5582 54.9976 53.2319 55.6713L58.1109 60.5503C58.7846 61.224 59.8768 61.224 60.5504 60.5503ZM16.6391 60.5503C15.9654 61.224 14.8732 61.224 14.1996 60.5503C13.5259 59.8767 13.5259 58.7845 14.1996 58.1108L19.0786 53.2318C19.7523 52.5581 20.8445 52.5581 21.5181 53.2318C22.1918 53.9054 22.1918 54.9976 21.5181 55.6713L16.6391 60.5503ZM14.1996 14.1995C13.5259 14.8732 13.5259 15.9654 14.1996 16.639L19.0786 21.5181C19.7523 22.1917 20.8445 22.1917 21.5181 21.5181C22.1918 20.8444 22.1918 19.7522 21.5181 19.0785L16.6391 14.1995C15.9655 13.5259 14.8732 13.5259 14.1996 14.1995ZM70.15 37.375C70.15 36.4223 69.3777 35.65 68.425 35.65H58.075C57.1223 35.65 56.35 36.4223 56.35 37.375C56.35 38.3277 57.1223 39.1 58.075 39.1H68.425C69.3777 39.1 70.15 38.3277 70.15 37.375ZM39.1 68.425C39.1 69.3777 38.3277 70.15 37.375 70.15C36.4223 70.15 35.65 69.3777 35.65 68.425V58.075C35.65 57.1223 36.4223 56.35 37.375 56.35C38.3277 56.35 39.1 57.1223 39.1 58.075V68.425ZM4.60001 37.375C4.60001 38.3277 5.37232 39.1 6.32501 39.1H16.675C17.6277 39.1 18.4 38.3277 18.4 37.375C18.4 36.4223 17.6277 35.65 16.675 35.65H6.325C5.37231 35.65 4.60001 36.4223 4.60001 37.375Z"
-            fill="#FFBB34"
-          />
-          <path
-            className="weather-card__cloud"
-            fillRule="evenodd"
-            clipRule="evenodd"
-            d="M15.1879 51.596C16.3304 45.7841 21.4532 41.4 27.6 41.4C29.3576 41.4 31.0314 41.7584 32.5524 42.4061C35.8538 33.7494 44.2338 27.6 54.05 27.6C66.7526 27.6 77.05 37.8974 77.05 50.6C77.05 50.9691 77.0413 51.3362 77.0241 51.7011C83.1784 54.8026 87.4 61.1809 87.4 68.5482C87.4 78.9597 78.9666 87.4 68.5596 87.4H23.4404C13.0351 87.4 4.60001 78.962 4.60001 68.5482C4.60001 61.098 8.91826 54.6572 15.1879 51.596Z"
-            fill="#E0E3E7"
-          />
-          <path
-            fillRule="evenodd"
-            clipRule="evenodd"
-            d="M4.63448 67.3983C5.22832 77.2763 13.421 85.1 23.4404 85.1H68.5596C78.5806 85.1 86.7718 77.2742 87.3655 67.3982C87.3884 67.7786 87.4 68.1621 87.4 68.5483C87.4 78.9598 78.9666 87.4 68.5596 87.4H23.4404C13.0351 87.4 4.60001 78.9621 4.60001 68.5483C4.60001 68.1621 4.61161 67.7787 4.63448 67.3983V67.3983Z"
-            fill="#C9CBCF"
-          />
-        </svg>
-
-        <div className="weather-card__content">
-          <div className="weather-card__date">{weatherDateLabel}</div>
-          <div className="weather-card__temp">
-            <span>85/64</span>
-            <small>
-              <span>°</span>
-              <span>F</span>
-            </small>
-          </div>
-          <div className="weather-card__summary">Mostly Sunny</div>
-        </div>
-      </div>
-    </section>
-  );
-
-  const ThermostatCard = () => (
-    <section ref={thermostatCardRef} className="phone-section phone-section--thermostat-card">
-      <div className="thermostat-card-shell">
-        <svg
-          className="thermostat-card-svg"
-          width="381"
-          height="242"
-          viewBox="0 0 381 242"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          aria-hidden="true"
-        >
-          <g filter="url(#thermostatCardShadow)">
-            <rect x="2" y="1" width="377" height="238" rx="4" fill="white" shapeRendering="crispEdges" />
-
-            <text
-              x="19"
-              y="26"
-              fill="#767676"
-              fontSize="15"
-              fontWeight="900"
-              letterSpacing="0.18em"
-              fontFamily="-apple-system, BlinkMacSystemFont, 'SF Pro Text', Arial, sans-serif"
-            >
-              THERMOSTATS
-            </text>
-
-            <path fillRule="evenodd" clipRule="evenodd" d="M354.414 29.9956L363.418 20.9916L354.423 11.9956L353.009 13.4096L360.59 20.9916L353 28.5816L354.414 29.9956Z" fill="#767676" />
-
-            <text
-              x="19"
-              y="77"
-              fill="#333333"
-              fontSize="17"
-              fontWeight="500"
-              fontFamily="-apple-system, BlinkMacSystemFont, 'SF Pro Text', Arial, sans-serif"
-            >
-              Thermostat
-            </text>
-
-            <text
-              x="110"
-              y="170"
-              fill={thermostatAccent}
-              fontSize="72"
-              fontWeight="300"
-              letterSpacing="0"
-              fontFamily="-apple-system, BlinkMacSystemFont, 'SF Pro Display', Arial, sans-serif"
-            >
-              {thermostatTemp}
-            </text>
-
-            <text
-              x="194"
-              y="140"
-              fill={thermostatAccent}
-              fontSize="34"
-              fontWeight="400"
-              fontFamily="-apple-system, BlinkMacSystemFont, 'SF Pro Display', Arial, sans-serif"
-            >
-              °
-            </text>
-
-            <path fillRule="evenodd" clipRule="evenodd" d="M250 128.326L237.995 116.321L226 128.314L227.885 130.199L237.995 120.091L248.115 130.211L250 128.326Z" fill="#333333" />
-            <path fillRule="evenodd" clipRule="evenodd" d="M225.994 160.314L237.999 172.32L249.994 160.326L248.109 158.441L237.999 168.549L227.879 158.429L225.994 160.314Z" fill="#333333" />
-
-            {thermostatMode === "heating" ? (
-              <path fillRule="evenodd" clipRule="evenodd" d="M292.95 75.707L291.536 74.293C292.8 73.028 292.8 70.972 291.536 69.707C289.493 67.663 289.493 64.337 291.536 62.293L292.95 63.707C291.686 64.972 291.686 67.028 292.95 68.293C294.994 70.337 294.994 73.663 292.95 75.707ZM306 78V74H308V80H288V74H290V78H306ZM297.021 74.293L298.435 75.707C300.479 73.663 300.479 70.337 298.435 68.293C297.171 67.028 297.171 64.972 298.435 63.707L297.021 62.293C294.978 64.337 294.978 67.663 297.021 69.707C298.285 70.972 298.285 73.028 297.021 74.293ZM303.95 75.707L302.536 74.293C303.8 73.028 303.8 70.972 302.536 69.707C300.493 67.663 300.493 64.337 302.536 62.293L303.95 63.707C302.686 64.972 302.686 67.028 303.95 68.293C305.994 70.337 305.994 73.663 303.95 75.707Z" fill={thermostatAccent} />
-            ) : (
-              <path fillRule="evenodd" clipRule="evenodd" d="M307.816 68.8882L307.201 66.9852L303.814 68.0792L305.121 65.5252L303.341 64.6142L301.122 68.9482L299 69.6342V67.4342L302.471 63.9632L301.057 62.5492L299 64.6062V61.0002H297V64.5592L294.971 62.5302L293.557 63.9452L297 67.3882V69.6052L294.925 68.9152L292.727 64.5262L290.938 65.4222L292.241 68.0232L288.819 66.8852L288.188 68.7832L291.566 69.9062L289.001 71.1912L289.896 72.9792L294.25 70.7982L296.366 71.5022L295.064 73.2752L290.212 74.0182L290.514 75.9952L293.39 75.5552L291.255 78.4612L292.867 79.6452L294.974 76.7762L295.408 79.6122L297.385 79.3102L296.648 74.4962L297.968 72.6992L299.255 74.4832L298.471 79.3292L300.445 79.6482L300.91 76.7772L303.019 79.7022L304.641 78.5312L302.559 75.6452L305.392 76.1032L305.711 74.1292L300.904 73.3512L299.6 71.5422L301.693 70.8662L306.063 73.1022L306.974 71.3212L304.385 69.9962L307.816 68.8882Z" fill={thermostatAccent} />
-            )}
-            <path fillRule="evenodd" clipRule="evenodd" d="M328 63V61C333.514 61 338 65.486 338 71C338 76.514 333.514 81 328 81C322.486 81 318 76.514 318 71C318 68.816 318.709 66.728 320.004 65.004L318 63H323V68L321.438 66.438C320.509 67.77 320 69.35 320 71C320 75.411 323.589 79 328 79C332.411 79 336 75.411 336 71C336 66.589 332.411 63 328 63ZM329 71H328.995L325.278 74.717L323.864 73.302L327 70.167V64H329V70.988L329.003 70.992L329 70.995V71Z" fill="#767676" />
-
-            <path d="M2 208H379V209H2V208Z" fill="black" fillOpacity="0.1" />
-            <path fillRule="evenodd" clipRule="evenodd" d="M190.95 227.364L185.293 221.707L186.707 220.293L190.95 224.536L195.193 220.293L196.607 221.707L190.95 227.364Z" fill="#767676" />
-          </g>
-
-          <defs>
-            <filter id="thermostatCardShadow" x="0" y="0" width="381" height="242" filterUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
-              <feFlood floodOpacity="0" result="BackgroundImageFix" />
-              <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha" />
-              <feOffset dy="1" />
-              <feGaussianBlur stdDeviation="1" />
-              <feComposite in2="hardAlpha" operator="out" />
-              <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.2 0" />
-              <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow" />
-              <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow" result="shape" />
-            </filter>
-          </defs>
-        </svg>
-
-        <button
-          type="button"
-          className="thermostat-card-hit thermostat-card-hit--up"
-          onClick={() => adjustThermostat(1)}
-          aria-label="Increase thermostat temperature"
-        />
-
-        <button
-          type="button"
-          className="thermostat-card-hit thermostat-card-hit--down"
-          onClick={() => adjustThermostat(-1)}
-          aria-label="Decrease thermostat temperature"
-        />
-      </div>
-    </section>
-  );
-
-  const IPhoneHomeScreen = () => (
-    <div className="iphone-home-screen" aria-hidden="true">
-      <div className="iphone-home-screen__wallpaper" />
-      <div className="iphone-home-screen__status">
-        <span>9:41</span>
-        <span className="iphone-home-screen__status-icons">
-          <span />
-          <span />
-          <span />
-        </span>
-      </div>
-      <div className="iphone-home-screen__widgets">
-        <div className="iphone-widget iphone-widget--weather">
-          <strong>San Francisco</strong>
-          <span className="iphone-widget__temp">53°</span>
-          <small>🌤 Partly Cloudy</small>
-          <small>H:56° L:50°</small>
-        </div>
-        <div className="iphone-widget iphone-widget--map">
-          <span className="iphone-widget__avatar">👤</span>
-          <strong>Now</strong>
-          <span>Marina Green</span>
-          <small>San Francisco, CA</small>
-        </div>
-      </div>
-      <div className="iphone-home-screen__grid">
-        {MOCK_HOME_APPS.map((app) => (
-          <div className="iphone-home-app" key={app.label}>
-            <span className="iphone-home-app__icon" style={{ background: app.color }}>
-              {app.glyph}
-            </span>
-            <span className="iphone-home-app__label">{app.label}</span>
-          </div>
-        ))}
-      </div>
-      <div className="iphone-home-screen__dock">
-        {MOCK_DOCK_APPS.map((app) => (
-          <span className="iphone-home-app__icon" key={app.label} style={{ background: app.color }}>
-            {app.glyph}
-          </span>
-        ))}
-      </div>
-    </div>
-  );
-
   return (
     <div
       className={`phone-panel-wrap ${nightMode ? "is-night" : ""} ${demoExperience === "business" ? "is-business" : ""}`}
@@ -1414,7 +1428,7 @@ export default function PhonePanel({
                 </div>
 
                 <div className="phone-app__sections">
-                <ScenesCard />
+                <ScenesCard demoExperience={demoExperience} onScene={handleScene} />
 
                 {/* SECURITY SYSTEM */}
                 <section className="phone-section phone-section--security-system-card">
@@ -1836,9 +1850,15 @@ export default function PhonePanel({
                   </div>
                 </section>
 
-                <ThermostatCard />
+                <ThermostatCard
+                  thermostatCardRef={thermostatCardRef}
+                  thermostatTemp={thermostatTemp}
+                  thermostatMode={thermostatMode}
+                  thermostatAccent={thermostatAccent}
+                  onAdjust={adjustThermostat}
+                />
 
-                <WeatherCard />
+                <WeatherCard weatherDateLabel={weatherDateLabel} />
 
                 {/* LIGHTS */}
                 <section ref={lightsCardRef} className="phone-section phone-section--lights">

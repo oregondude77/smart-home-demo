@@ -21,6 +21,35 @@ const SCENE_STATUS_TYPE_MIN_MS = 18;
 const SCENE_STATUS_TYPE_MAX_MS = 34;
 const CAFE_LIGHTS_DIM_MS = 1500;
 const ACCESS_CONTROL_READERS = ["main", "side"];
+
+function useDimmingLight(lightOn, enabled) {
+  const [visible, setVisible] = useState(lightOn);
+  const [dimming, setDimming] = useState(false);
+
+  if (!enabled) {
+    if (visible) setVisible(false);
+    if (dimming) setDimming(false);
+  } else if (lightOn) {
+    if (!visible) setVisible(true);
+    if (dimming) setDimming(false);
+  } else if (visible && !dimming) {
+    setDimming(true);
+  }
+
+  useEffect(() => {
+    if (!enabled || lightOn || !visible) return undefined;
+
+    const timer = window.setTimeout(() => {
+      setVisible(false);
+      setDimming(false);
+    }, CAFE_LIGHTS_DIM_MS);
+
+    return () => window.clearTimeout(timer);
+  }, [enabled, lightOn, visible]);
+
+  return [visible, dimming];
+}
+
 function accessControlStatesFromDoors(frontDoorUnlocked, sideDoorUnlocked) {
   return {
     main: frontDoorUnlocked ? "green" : "red",
@@ -90,17 +119,33 @@ function DoorLockSource({ door, unlocked, active }) {
 function SmartLockCallout({ door, unlocked, active, actionKey, noAnimation = false, unlockedOverride = null }) {
   const calloutUnlocked = unlockedOverride ?? unlocked;
   const [boltFrame, setBoltFrame] = useState(calloutUnlocked ? 0 : DEADBOLT_MAX_FRAME);
+  const [boltAnimation, setBoltAnimation] = useState({
+    active: false,
+    actionKey,
+    calloutUnlocked,
+    noAnimation,
+  });
   const renderedBoltFrame = DEADBOLT_MAX_FRAME - boltFrame;
 
-  useEffect(() => {
-    if (!active) return;
+  if (
+    boltAnimation.active !== active
+    || boltAnimation.actionKey !== actionKey
+    || boltAnimation.calloutUnlocked !== calloutUnlocked
+    || boltAnimation.noAnimation !== noAnimation
+  ) {
+    setBoltAnimation({ active, actionKey, calloutUnlocked, noAnimation });
 
-    if (noAnimation) {
-      setBoltFrame(calloutUnlocked ? 0 : DEADBOLT_MAX_FRAME);
-      return;
+    if (active) {
+      if (noAnimation) {
+        setBoltFrame(calloutUnlocked ? 0 : DEADBOLT_MAX_FRAME);
+      } else {
+        setBoltFrame(calloutUnlocked ? DEADBOLT_MAX_FRAME : 0);
+      }
     }
+  }
 
-    setBoltFrame(calloutUnlocked ? DEADBOLT_MAX_FRAME : 0);
+  useEffect(() => {
+    if (!active || noAnimation) return;
 
     const timer = setInterval(() => {
       setBoltFrame((prev) => {
@@ -303,12 +348,6 @@ export default function HouseScene({
   const [sceneStatusIndex, setSceneStatusIndex] = useState(0);
   const [sceneStatusTextLength, setSceneStatusTextLength] = useState(0);
   const [sceneStatusVisible, setSceneStatusVisible] = useState(false);
-  const [cafeLightsVisible, setCafeLightsVisible] = useState(cafeLightsOn);
-  const [cafeLightsDimming, setCafeLightsDimming] = useState(false);
-  const [shopLightsVisible, setShopLightsVisible] = useState(shopLightsOn);
-  const [shopLightsDimming, setShopLightsDimming] = useState(false);
-  const [entranceLightsVisible, setEntranceLightsVisible] = useState(entranceLightsOn);
-  const [entranceLightsDimming, setEntranceLightsDimming] = useState(false);
   const [garageScenarioCar, setGarageScenarioCar] = useState({
     active: false,
     key: 0,
@@ -346,6 +385,108 @@ export default function HouseScene({
   const frontRaf2Ref = useRef(null);
   const sideRaf1Ref = useRef(null);
   const sideRaf2Ref = useRef(null);
+
+  const [resetInputs, setResetInputs] = useState({
+    quietResetKey,
+    frontDoorUnlocked,
+    sideDoorUnlocked,
+  });
+
+  if (
+    resetInputs.quietResetKey !== quietResetKey
+    || resetInputs.frontDoorUnlocked !== frontDoorUnlocked
+    || resetInputs.sideDoorUnlocked !== sideDoorUnlocked
+  ) {
+    setResetInputs({ quietResetKey, frontDoorUnlocked, sideDoorUnlocked });
+
+    if (quietResetKey) {
+      setGarageFrame(0);
+      setFrontPulse(false);
+      setSidePulse(false);
+      setFrontCallout({ active: false, key: 0 });
+      setSideCallout({ active: false, key: 0 });
+      setAccessControlCallout({
+        active: false,
+        key: "access-control-initial",
+        reader: "main",
+        readerState: "red",
+      });
+      setSystemMessage("");
+      setSceneStatusVisible(false);
+      setSceneStatusIndex(0);
+      setSceneStatusTextLength(0);
+      setGarageScenarioCar({ active: false, key: 0, frame: 1 });
+    }
+
+    setAccessControlSceneStates(
+      accessControlStatesFromDoors(frontDoorUnlocked, sideDoorUnlocked)
+    );
+  }
+
+  const [carScenarioAction, setCarScenarioAction] = useState(scenarioAction);
+
+  if (carScenarioAction !== scenarioAction) {
+    setCarScenarioAction(scenarioAction);
+
+    if (scenarioAction?.type === "garage-left-open") {
+      setGarageScenarioCar({
+        active: true,
+        key: scenarioAction.key ?? garageScenarioCar.key + 1,
+        frame: 1,
+      });
+    }
+  }
+
+  const [feedbackSystemAction, setFeedbackSystemAction] = useState(systemAction);
+
+  if (feedbackSystemAction !== systemAction) {
+    setFeedbackSystemAction(systemAction);
+
+    if (systemAction) {
+      setSystemMessageKey((k) => k + 1);
+      setSystemMessage(systemAction.armed ? "armed" : "disarmed");
+    }
+  }
+
+  const [calloutAccessControlAction, setCalloutAccessControlAction] = useState(accessControlAction);
+
+  if (calloutAccessControlAction !== accessControlAction) {
+    setCalloutAccessControlAction(accessControlAction);
+
+    if (accessControlAction) {
+      setAccessControlCallout((prev) => ({
+        ...prev,
+        active: false,
+        reader: accessControlAction.reader ?? "main",
+        readerState: "red",
+      }));
+    }
+  }
+
+  const [startedSceneStatus, setStartedSceneStatus] = useState(sceneStatus);
+
+  if (startedSceneStatus !== sceneStatus) {
+    setStartedSceneStatus(sceneStatus);
+
+    if (sceneStatus?.actions?.length) {
+      setSceneStatusIndex(0);
+      setSceneStatusTextLength(0);
+      setSceneStatusVisible(true);
+    }
+  }
+
+  const [typedSceneStatusStep, setTypedSceneStatusStep] = useState({
+    sceneStatus,
+    index: sceneStatusIndex,
+  });
+
+  if (
+    typedSceneStatusStep.sceneStatus !== sceneStatus
+    || typedSceneStatusStep.index !== sceneStatusIndex
+  ) {
+    setTypedSceneStatusStep({ sceneStatus, index: sceneStatusIndex });
+    setSceneStatusTextLength(0);
+  }
 
   useEffect(() => {
     if (!quietResetKey) return;
@@ -404,35 +545,13 @@ export default function HouseScene({
     previousFrontDoorUnlockedRef.current = frontDoorUnlocked;
     previousSideDoorUnlockedRef.current = sideDoorUnlocked;
     suppressSystemFeedbackRef.current = true;
-    setGarageFrame(0);
-    setFrontPulse(false);
-    setSidePulse(false);
-    setFrontCallout({ active: false, key: 0 });
-    setSideCallout({ active: false, key: 0 });
-    setAccessControlCallout({
-      active: false,
-      key: "access-control-initial",
-      reader: "main",
-      readerState: "red",
-    });
-    setAccessControlSceneStates(
-      accessControlStatesFromDoors(frontDoorUnlocked, sideDoorUnlocked)
-    );
-    setSystemMessage("");
-    setSceneStatusVisible(false);
-    setSceneStatusIndex(0);
-    setSceneStatusTextLength(0);
-    setGarageScenarioCar({ active: false, key: 0, frame: 1 });
   }, [quietResetKey, frontDoorUnlocked, sideDoorUnlocked]);
 
   useEffect(() => {
-    const baseReaderStates = accessControlStatesFromDoors(
+    accessControlBaseStatesRef.current = accessControlStatesFromDoors(
       frontDoorUnlocked,
       sideDoorUnlocked
     );
-
-    accessControlBaseStatesRef.current = baseReaderStates;
-    setAccessControlSceneStates(baseReaderStates);
   }, [frontDoorUnlocked, sideDoorUnlocked]);
 
   useEffect(() => {
@@ -487,12 +606,6 @@ export default function HouseScene({
     if (garageScenarioCarFrameIntervalRef.current) {
       clearInterval(garageScenarioCarFrameIntervalRef.current);
     }
-
-    setGarageScenarioCar({
-      active: true,
-      key: scenarioAction.key ?? Date.now(),
-      frame: 1,
-    });
 
     garageScenarioCarFrameIntervalRef.current = setInterval(() => {
       setGarageScenarioCar((current) => {
@@ -571,8 +684,12 @@ export default function HouseScene({
   useEffect(() => {
     if (!systemAction) return;
 
-    showSystemFeedback(systemAction.armed);
-  }, [systemAction, showSystemFeedback]);
+    if (systemTimeoutRef.current) clearTimeout(systemTimeoutRef.current);
+
+    systemTimeoutRef.current = setTimeout(() => {
+      setSystemMessage("");
+    }, SYSTEM_MESSAGE_MS);
+  }, [systemAction]);
 
   const triggerPulse = useCallback((setPulse, timeoutRef, raf1Ref, raf2Ref) => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
@@ -624,13 +741,7 @@ export default function HouseScene({
   }, []);
 
   const triggerDoorFeedback = useCallback((door, options = {}) => {
-    if (door === "both") {
-      triggerDoorFeedback("front", options);
-      triggerDoorFeedback("side", options);
-      return;
-    }
-
-    if (door === "front") {
+    if (door === "front" || door === "both") {
       triggerPulse(setFrontPulse, frontTimeoutRef, frontRaf1Ref, frontRaf2Ref);
       triggerCallout(
         setFrontCallout,
@@ -639,10 +750,9 @@ export default function HouseScene({
         frontCalloutRaf2Ref,
         options
       );
-      return;
     }
 
-    if (door === "side") {
+    if (door === "side" || door === "both") {
       triggerPulse(setSidePulse, sideTimeoutRef, sideRaf1Ref, sideRaf2Ref);
       triggerCallout(
         setSideCallout,
@@ -735,13 +845,6 @@ export default function HouseScene({
       accessControlCalloutRaf2Ref.current = null;
     }
 
-    setAccessControlCallout((prev) => ({
-      ...prev,
-      active: false,
-      reader: accessControlAction.reader ?? "main",
-      readerState: "red",
-    }));
-
     accessControlCalloutRaf1Ref.current = requestAnimationFrame(() => {
       accessControlCalloutRaf2Ref.current = requestAnimationFrame(() => {
         const isEntry = accessControlAction.status === "entry";
@@ -811,10 +914,6 @@ export default function HouseScene({
     let step = 0;
     const stepMs = sceneStatus.stepMs ?? SCENE_STATUS_STEP_MS;
 
-    setSceneStatusIndex(0);
-    setSceneStatusTextLength(0);
-    setSceneStatusVisible(true);
-
     sceneStatusIntervalRef.current = setInterval(() => {
       step += 1;
 
@@ -854,10 +953,7 @@ export default function HouseScene({
       sceneStatusTypingIntervalRef.current = null;
     }
 
-    if (!action) {
-      setSceneStatusTextLength(0);
-      return undefined;
-    }
+    if (!action) return undefined;
 
     const stepMs = sceneStatus.stepMs ?? SCENE_STATUS_STEP_MS;
     const typeMs = Math.min(
@@ -869,7 +965,6 @@ export default function HouseScene({
     );
 
     let characterCount = 0;
-    setSceneStatusTextLength(0);
 
     sceneStatusTypingIntervalRef.current = setInterval(() => {
       characterCount += 1;
@@ -934,83 +1029,12 @@ export default function HouseScene({
     activeScenario === "package-delivered" ? scenarioAction?.phase ?? "approach" : null;
   const isBusinessDemo = demoExperience === "business";
 
-  useEffect(() => {
-    if (!isBusinessDemo) {
-      setCafeLightsVisible(false);
-      setCafeLightsDimming(false);
-      return undefined;
-    }
-
-    if (cafeLightsOn) {
-      setCafeLightsVisible(true);
-      setCafeLightsDimming(false);
-      return undefined;
-    }
-
-    if (!cafeLightsVisible) {
-      return undefined;
-    }
-
-    setCafeLightsDimming(true);
-    const timer = window.setTimeout(() => {
-      setCafeLightsVisible(false);
-      setCafeLightsDimming(false);
-    }, CAFE_LIGHTS_DIM_MS);
-
-    return () => window.clearTimeout(timer);
-  }, [cafeLightsOn, cafeLightsVisible, isBusinessDemo]);
-
-  useEffect(() => {
-    if (!isBusinessDemo) {
-      setShopLightsVisible(false);
-      setShopLightsDimming(false);
-      return undefined;
-    }
-
-    if (shopLightsOn) {
-      setShopLightsVisible(true);
-      setShopLightsDimming(false);
-      return undefined;
-    }
-
-    if (!shopLightsVisible) {
-      return undefined;
-    }
-
-    setShopLightsDimming(true);
-    const timer = window.setTimeout(() => {
-      setShopLightsVisible(false);
-      setShopLightsDimming(false);
-    }, CAFE_LIGHTS_DIM_MS);
-
-    return () => window.clearTimeout(timer);
-  }, [isBusinessDemo, shopLightsOn, shopLightsVisible]);
-
-  useEffect(() => {
-    if (!isBusinessDemo) {
-      setEntranceLightsVisible(false);
-      setEntranceLightsDimming(false);
-      return undefined;
-    }
-
-    if (entranceLightsOn) {
-      setEntranceLightsVisible(true);
-      setEntranceLightsDimming(false);
-      return undefined;
-    }
-
-    if (!entranceLightsVisible) {
-      return undefined;
-    }
-
-    setEntranceLightsDimming(true);
-    const timer = window.setTimeout(() => {
-      setEntranceLightsVisible(false);
-      setEntranceLightsDimming(false);
-    }, CAFE_LIGHTS_DIM_MS);
-
-    return () => window.clearTimeout(timer);
-  }, [entranceLightsOn, entranceLightsVisible, isBusinessDemo]);
+  const [cafeLightsVisible, cafeLightsDimming] = useDimmingLight(cafeLightsOn, isBusinessDemo);
+  const [shopLightsVisible, shopLightsDimming] = useDimmingLight(shopLightsOn, isBusinessDemo);
+  const [entranceLightsVisible, entranceLightsDimming] = useDimmingLight(
+    entranceLightsOn,
+    isBusinessDemo
+  );
 
   const packageDeliveryRunnerSrc =
     packageDeliveryPhase === "dropoff"
