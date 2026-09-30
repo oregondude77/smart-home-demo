@@ -135,6 +135,7 @@ export default function SmartHomeDemo() {
   const [scenarioPhoneMode, setScenarioPhoneMode] = useState(false);
   const [phoneNotification, setPhoneNotification] = useState(null);
   const [feedEnabled, setFeedEnabled] = useState(true);
+  const feedEnabledRef = useRef(feedEnabled);
   const [a360Open, setA360Open] = useState(true);
   const [a360TourActive, setA360TourActive] = useState(false);
   const [a360StepIndex, setA360StepIndex] = useState(0);
@@ -196,7 +197,8 @@ export default function SmartHomeDemo() {
   ) => {
     const feedActions = Array.isArray(actions) ? actions : [actions];
 
-    if (!feedEnabled || !feedActions.length || !feedActions[0]) return;
+    // Read the ref so scenario timeouts respect a feed toggle made after they were scheduled.
+    if (!feedEnabledRef.current || !feedActions.length || !feedActions[0]) return;
 
     a360FeedKeyRef.current += 1;
 
@@ -689,6 +691,10 @@ export default function SmartHomeDemo() {
     return () => window.clearTimeout(timeoutId);
   }, [a360TourActive, a360StepIndex, currentA360StepDuration]);
 
+  useEffect(() => {
+    feedEnabledRef.current = feedEnabled;
+  }, [feedEnabled]);
+
   useEffect(() => () => {
     clearA360ActionTimeouts();
     clearScenarioTimeouts();
@@ -860,7 +866,9 @@ export default function SmartHomeDemo() {
                       <button
                         type="button"
                         key={step.message}
-                        onClick={() => runA360Step(index)}
+                        onClick={() => {
+                          if (index !== a360StepIndex) runA360Step(index);
+                        }}
                         aria-label={`Go to tour step ${index + 1}`}
                         className={[
                           index < a360StepIndex && "is-active",

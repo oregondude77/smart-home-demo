@@ -1081,6 +1081,8 @@ export default function PhonePanel({
   };
 
   useEffect(() => {
+    clearSceneActionTimeouts();
+
     const frameId = requestAnimationFrame(() => {
       if (videoCarouselRef.current) {
         videoCarouselRef.current.scrollTo({
@@ -2025,7 +2027,7 @@ export default function PhonePanel({
               >
                 {activeFeed.videoSrc ? (
                   <video
-                    key={`${demoExperience}-${activeFeed.id}-${nightMode ? "night" : "day"}`}
+                    key={`${demoExperience}-${activeFeed.id}-${activeFeed.videoSrc}`}
                     className="doorbell-view__image"
                     src={activeFeed.videoSrc}
                     poster={activeFeed.fullscreenPosterSrc ?? activeFeed.posterSrc}
