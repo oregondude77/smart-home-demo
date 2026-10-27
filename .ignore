@@ -1,0 +1,6 @@
+# Read by ripgrep (Claude Code's Grep/Glob tools) on top of .gitignore.
+# public/ SVGs embed base64 images on 38-51k-character lines, so one search
+# hit there can flood the context. List assets with `ls public/` instead, and
+# use `rg --no-ignore` when you really need to search inside them.
+public/
+package-lock.json
