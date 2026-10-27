@@ -358,7 +358,7 @@ export default function HouseScene({
   const sideMounted = useRef(false);
   const previousFrontDoorUnlockedRef = useRef(frontDoorUnlocked);
   const previousSideDoorUnlockedRef = useRef(sideDoorUnlocked);
-  const systemMounted = useRef(false);
+  const previousArmedRef = useRef(armed);
   const suppressSystemFeedbackRef = useRef(false);
   const handledQuietResetKeyRef = useRef(quietResetKey);
 
@@ -671,10 +671,9 @@ export default function HouseScene({
   }, []);
 
   useEffect(() => {
-    if (!systemMounted.current) {
-      systemMounted.current = true;
-      return;
-    }
+    if (previousArmedRef.current === armed) return;
+
+    previousArmedRef.current = armed;
 
     if (suppressSystemFeedbackRef.current) {
       suppressSystemFeedbackRef.current = false;
