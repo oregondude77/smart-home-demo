@@ -1,0 +1,18 @@
+{
+  "name": "smart-home-demo-regression",
+  "private": true,
+  "type": "module",
+  "description": "Browser regression checks: baseline-vs-new animation compare, camera sweep, hydration check.",
+  "scripts": {
+    "up": "./servers.sh up",
+    "prod": "./servers.sh prod",
+    "down": "./servers.sh down",
+    "compare": "node compare.mjs",
+    "compare:all": "for f in residential business access garage kids package tour; do node compare.mjs $f || exit 1; echo; done",
+    "sweep": "node sweep.mjs",
+    "hydr": "node hydr.mjs"
+  },
+  "dependencies": {
+    "playwright-core": "^1.64.1"
+  }
+}

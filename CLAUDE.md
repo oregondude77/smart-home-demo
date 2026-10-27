@@ -32,4 +32,8 @@ Next.js 16.4 (Turbopack) + React 19, one static prerendered page. Commands: `npm
 - CTAs: residential https://www.alert360.com/home-security-package-specials, business https://alert360.com/business-security-pricing/
 
 ## Validating state or animation changes
-Run the previous commit as a baseline (`git worktree add /tmp/shd-baseline HEAD`, `cp -Rc node_modules` into it, `next dev -p 3001`; Turbopack rejects a symlinked node_modules). Drive :3000 and :3001 with playwright-core using headless Google Chrome, and diff class/src/aria transitions timed from the last click. Also run a camera and scenario sweep and a production hydration check in another time zone (`next start`). Remove the worktree and stop the servers afterward.
+Use scripts/regression (run `npm install` there once; it uses headless Google Chrome, which you can override with CHROME_PATH):
+- `npm run up [-- <ref>]` starts a baseline worktree of HEAD (or <ref>) on :3001 and the workspace on :3000. If the change is already committed, pass HEAD~1.
+- `npm run compare -- <flow>` (or `compare:all`) diffs class/src/aria transitions between the two. Expect `SAME SEQUENCE: true` with timing within about 65 ms. Flows: residential, business, access, garage, kids, package, tour.
+- `npm run prod`, then `npm run hydr` (hydration in 3 time zones) and `npm run sweep -- 3002` (all 12 cameras via carousel and grid, scenes, scenarios, tour). Expect 24/24 played, no errors. MP4 `ERR_ABORTED` is normal when a video closes.
+- `npm run down` stops the servers and removes the worktree. Logs go to /tmp/shd-logs. macOS has no `timeout` command.
